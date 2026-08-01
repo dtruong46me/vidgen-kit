@@ -4,6 +4,8 @@ from typing import List
 from src.models import TimedSegment
 from src.config import SUBTITLES_DIR
 
+from bs4 import BeautifulSoup
+
 class SubtitleGenerator:
     def __init__(self):
         SUBTITLES_DIR.mkdir(parents=True, exist_ok=True)

@@ -16,7 +16,7 @@ class AssetLoader:
             return
             
         with open(CLIPS_JSON_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+            data: dict = json.load(f)
             
         for clip_data in data.get('clips', []):
             # Resolve path relative to BASE_DIR if it's relative

@@ -41,7 +41,7 @@ class VideoComposer:
             video_clips.append(clip)
             
         # Concatenate
-        final_clip = concatenate_videoclips(video_clips, padding=-DEFAULT_TRANSITION_DURATION, method="compose")
+        final_clip = concatenate_videoclips(video_clips, padding=-DEFAULT_TRANSITION_DURATION, method="compose") # type: ignore
         
         # Add background music
         music_files = list(MUSIC_DIR.glob("*.mp3")) + list(MUSIC_DIR.glob("*.wav"))
