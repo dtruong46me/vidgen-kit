@@ -1,1 +1,2 @@
-# sns-video-generator
+# Video Generator Kit
+
