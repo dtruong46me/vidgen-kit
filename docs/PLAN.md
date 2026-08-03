@@ -209,12 +209,16 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.5 Automation (`automation/`)
 
-- [ ] `batch_producer.py` — `BatchProducer`
-  - [ ] Test: `spec_dir` with 2 valid sample specs → `run()` produces 2
+- [x] `batch_producer.py` — `BatchProducer` (`BatchResult` dataclass with
+      `succeeded`/`failed`; non-recursive `*.json`/`*.yaml`/`*.yml` glob of
+      `spec_dir`, processed in filename order; `render_strategy` defaults to
+      `MoviePyRenderStrategy()`)
+  - [x] Test: `spec_dir` with 2 valid sample specs → `run()` produces 2
         output files in `output_dir`
-  - [ ] Test: `spec_dir` with 1 valid + 1 intentionally broken spec →
+  - [x] Test: `spec_dir` with 1 valid + 1 intentionally broken spec →
         `run()` still produces the output for the valid spec, logs the
-        broken one's error, and does not raise
+        broken one's error via `logging.getLogger("vidgen.automation")`,
+        and does not raise
 
 ### 3.6 End-to-end
 
