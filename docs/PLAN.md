@@ -222,11 +222,13 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.6 End-to-end
 
-- [ ] Integration test: 1 real sample `Script` in `input/specs/` (clip +
-      text + audio + hybrid captions) → `BatchProducer.run()` → resulting
-      file in `output/` plays correctly and matches the spec's declared
-      duration/resolution
-- [ ] Integration test: 1 real `Template` applied with real assets from
+- [x] Integration test: 1 real sample `Script` (clip + text + audio +
+      hybrid captions) → `BatchProducer.run()` → resulting file plays
+      correctly and matches the spec's declared duration/resolution
+      (`tests/e2e/test_end_to_end.py`; marked `@pytest.mark.slow` and
+      skipped until a real sample clip exists under `assets/voice/`, same
+      opt-in convention as the §3.3 Whisper tests)
+- [x] Integration test: 1 real `Template` applied with real assets from
       `assets/` → `TimelineBuilder` → `MoviePyRenderStrategy` → renders
       successfully
 
