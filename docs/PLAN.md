@@ -190,18 +190,20 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.4 Design (`design/`)
 
-- [ ] `script.py` — `Script`
-  - [ ] Test: a sample spec file → drives `TimelineBuilder` → the
+- [x] `script.py` — `Script` (JSON/YAML, `pydantic`-validated; `extra="forbid"`
+      at every level so unknown fields are rejected, not ignored)
+  - [x] Test: a sample spec file → drives `TimelineBuilder` → the
         resulting `Timeline`'s tracks/items match a `Timeline` built by
-        calling the equivalent `TimelineBuilder` methods directly
-  - [ ] Test: an invalid spec (unknown field, missing required field) is
+        calling the equivalent `TimelineBuilder` methods directly (both a
+        JSON and a YAML variant of the same spec are covered)
+  - [x] Test: an invalid spec (unknown field, missing required field) is
         rejected with a clear validation error, not a silent partial
-        `Timeline`
-- [ ] `template.py` — `Template` ABC + one concrete example (e.g.
-      `FacelessQuoteTemplate`)
-  - [ ] Test: applying the example `Template` with sample params produces
+        `Timeline` (`ScriptValidationError` wrapping `pydantic.ValidationError`)
+- [x] `template.py` — `Template` ABC + one concrete example
+      (`FacelessQuoteTemplate`)
+  - [x] Test: applying the example `Template` with sample params produces
         a `Timeline` with the expected tracks/items
-  - [ ] Test: applying it twice with different params produces different
+  - [x] Test: applying it twice with different params produces different
         but structurally-equivalent timelines (same tracks, different
         content)
 
