@@ -90,42 +90,42 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
       `Position.custom()`
   - [x] Test: `preset()` stores the given `Alignment`; `custom()` stores
         `x`/`y`/`unit` correctly for both `unit="ratio"` and `unit="pixel"`
-- [ ] `style.py` — `TextStyle` dataclass
+- [x] `style.py` — `TextStyle` dataclass
   - [ ] Test: default values match [SPEC.md §5](SPEC.md#5-textstyle--fully-customizable-custom-fonts-layer-0);
         overriding individual fields leaves the rest at their defaults
-- [ ] `animation.py` — `Animation` ABC, `FadeAnimation`, `SlideAnimation`,
+- [x] `animation.py` — `Animation` ABC, `FadeAnimation`, `SlideAnimation`,
       `ZoomAnimation`
   - [ ] Test: `Animation` cannot be instantiated directly (abstract);
         each subclass stores `duration` + its own `direction`
-- [ ] `transition.py` — `Transition` ABC, `CutTransition`,
+- [x] `transition.py` — `Transition` ABC, `CutTransition`,
       `FadeTransition`, `DissolveTransition`
   - [ ] Test: same shape as the `animation.py` test above, applied to
         `Transition` and its subclasses
-- [ ] `asset.py` — `Asset` dataclass (`path`, `type`, `duration=None`,
+- [x] `asset.py` — `Asset` dataclass (`path`, `type`, `duration=None`,
       `resolution=None`, `fps=None`)
   - [ ] Test: constructing with only `path` leaves metadata fields `None`
         (no I/O performed)
-- [ ] `clip.py` — `Clip` ABC, `VideoClip`, `ImageClip`
+- [x] `clip.py` — `Clip` ABC, `VideoClip`, `ImageClip`
   - [ ] Test: `VideoClip`/`ImageClip` hold `asset`, `start`, `end`,
         `trim_in`/`trim_out`, `transition_in`; invalid `end < start` is
         rejected
-- [ ] `overlay.py` — `Overlay` ABC, `TextOverlay`, `ImageOverlay`
+- [x] `overlay.py` — `Overlay` ABC, `TextOverlay`, `ImageOverlay`
   - [ ] Test: `TextOverlay` requires `text`/`style`; `ImageOverlay`
         requires `position`; both accept an optional `animation`
-- [ ] `audio.py` — `AudioLayer`
+- [x] `audio.py` — `AudioLayer`
   - [ ] Test: `volume`/`fade_in`/`fade_out` defaults and overrides
-- [ ] `caption.py` — `Caption` dataclass
+- [x] `caption.py` — `Caption` dataclass
   - [ ] Test: holds `text` + start/end timestamps
-- [ ] `ports.py` — `SubtitleSource` ABC (abstract `generate(...)`)
+- [x] `ports.py` — `SubtitleSource` ABC (abstract `generate(...)`)
   - [ ] Test: cannot be instantiated directly; a minimal subclass
         implementing `generate()` can be
-- [ ] `track.py` — `Track` ABC, `VideoTrack`, `OverlayTrack`,
+- [x] `track.py` — `Track` ABC, `VideoTrack`, `OverlayTrack`,
       `AudioTrack`, `CaptionTrack`
   - [ ] Test: `add()` calls `_validate_item()` and rejects the wrong item
         type per subclass (e.g. `VideoTrack.add(TextOverlay(...))` raises);
         `add_many()` returns all added items in order; `items()` returns a
         read-only view
-- [ ] `timeline.py` — `Timeline` (resolution, fps, tracks)
+- [x] `timeline.py` — `Timeline` (resolution, fps, tracks)
   - [ ] Test: `get_track()` returns `None` for a missing name;
         `_validate()` catches overlapping items on the same track
 - [ ] **Layer test**: the whole `domain/` package imports and its full
