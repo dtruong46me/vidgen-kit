@@ -15,10 +15,13 @@ dependencies = []
 dev = ["pytest>=8"]
 render = ["moviepy", "pillow"]
 subtitle = ["faster-whisper", "srt"]
-design = ["pydantic"]
+design = ["pydantic", "pyyaml"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "slow: opt-in tests that download/run a real Whisper model (deselect with -m 'not slow')",
+]

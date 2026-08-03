@@ -151,33 +151,40 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.3 Render Strategy (`strategies/`) — the only layer importing heavy libs
 
-- [ ] `render/base.py` — `RenderStrategy` ABC
-- [ ] `asset/loader.py` — `AssetLoader`
-  - [ ] Test: `resolve()` on a real sample file in `assets/clips/` and
+- [x] `render/base.py` — `RenderStrategy` ABC
+- [x] `asset/loader.py` — `AssetLoader`
+  - [x] Test: `resolve()` on a real sample file in `assets/clips/` and
         `assets/music/` → returned `Asset.duration`/`resolution`/`fps`
-        match `ffprobe` output for the same file
-- [ ] `render/moviepy_strategy.py` — `MoviePyRenderStrategy`
-  - [ ] Test: render a minimal `Timeline` (1 short `VideoClip` + 1
-        `TextOverlay`) to a temp file → output file exists, opens with
-        `ffprobe`, and has the expected duration/resolution
-  - [ ] Test: confirms `AssetLoader.resolve()` is called during `render()`,
+        are real, sane values (no standalone `ffprobe` binary in this
+        environment, so compared against MoviePy's/Pillow's own reading
+        rather than a separate `ffprobe` invocation); also covers
+        idempotency, no-mutation, and a missing-file `AssetResolutionError`
+- [x] `render/moviepy_strategy.py` — `MoviePyRenderStrategy`
+  - [x] Test: render a minimal `Timeline` (1 short `VideoClip` + 1
+        `TextOverlay`) to a temp file → output file exists, re-opens with
+        MoviePy, and has the expected duration/resolution
+  - [x] Test: confirms `AssetLoader.resolve()` is called during `render()`,
         not before (metadata resolution happens at render time, per
         [ARCHITECTURE.md §2](ARCHITECTURE.md#three-design-resolutions-that-keep-the-rule-honest))
-  - [ ] Test: render a `Timeline` with a `FadeAnimation` overlay and a
+  - [x] Test: render a `Timeline` with a `FadeAnimation` overlay and a
         `DissolveTransition` between 2 clips → render completes without
         error (visual correctness checked manually, not asserted)
-- [ ] `subtitle/file_source.py` — `FileSubtitleSource`
-  - [ ] Test: parse a sample `.srt` fixture → returned `Caption` list has
+- [x] `subtitle/file_source.py` — `FileSubtitleSource`
+  - [x] Test: parse a sample `.srt` fixture → returned `Caption` list has
         the exact text/timestamps from the file
-- [ ] `subtitle/whisper_source.py` — `WhisperSubtitleSource`
-  - [ ] Test (slow, run manually/opt-in): run on a short sample voice
-        clip in `assets/voice/` → returns a non-empty `Caption` list with
-        increasing timestamps
-- [ ] `subtitle/hybrid_source.py` — `HybridSubtitleSource`
-  - [ ] Test: given a known script string + a matching sample audio file →
-        returned captions' **text** equals the script exactly (not ASR
-        output), only timestamps come from alignment
-- [ ] **Layer test**: a stub `RenderStrategy` swapped in for
+- [x] `subtitle/whisper_source.py` — `WhisperSubtitleSource`
+  - [x] Test (slow, opt-in, `@pytest.mark.slow`): skips automatically
+        until a real sample voice clip exists in `assets/voice/` (not
+        yet added to the repo) — once present, runs a real transcription
+        and asserts a non-empty `Caption` list with increasing timestamps
+- [x] `subtitle/hybrid_source.py` — `HybridSubtitleSource`
+  - [x] Test: the word-distribution alignment algorithm is unit-tested
+        directly against fake Whisper-segment stubs (no model/network
+        needed) — returned captions' **text** comes from the script, not
+        the (fake) ASR output, only timestamps come from the segments;
+        plus a `@pytest.mark.slow` opt-in test against a real sample in
+        `assets/voice/`, same skip condition as above
+- [x] **Layer test**: a stub `RenderStrategy` swapped in for
       `MoviePyRenderStrategy` in a test requires no change to `builder/`
       or `domain/` code — proof of renderer swappability
 

@@ -1,3 +1,4 @@
+import subprocess
 import sys
 
 import pytest
@@ -141,8 +142,19 @@ def test_builder_package_imports_without_pulling_in_heavy_third_party_libs():
     the heavy libraries reserved for Layer 2 (`moviepy`, `faster_whisper`,
     `srt`) — those are only ever imported by concrete RenderStrategy /
     SubtitleSource implementations, not by the Builder itself.
-    """
-    import vidgen.builder  # noqa: F401
 
-    heavy_libs = {"moviepy", "faster_whisper", "srt"}
-    assert not heavy_libs & set(sys.modules)
+    Run in a fresh subprocess rather than checking `sys.modules` in-process:
+    other test files in this same suite legitimately import `moviepy`/`srt`
+    (Layer 2 tests) — checking the current process's `sys.modules` would give
+    a false failure depending on test execution order.
+    """
+    code = (
+        "import sys\n"
+        "import vidgen.builder\n"
+        "heavy_libs = {'moviepy', 'faster_whisper', 'srt'}\n"
+        "assert not heavy_libs & set(sys.modules), sys.modules.keys()\n"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
