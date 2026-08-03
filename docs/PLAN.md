@@ -86,9 +86,9 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.1 Domain Model (`domain/`) — pure Python, zero third-party imports
 
-- [ ] `position.py` — `Alignment` enum, `Position.preset()` /
+- [x] `position.py` — `Alignment` enum, `Position.preset()` /
       `Position.custom()`
-  - [ ] Test: `preset()` stores the given `Alignment`; `custom()` stores
+  - [x] Test: `preset()` stores the given `Alignment`; `custom()` stores
         `x`/`y`/`unit` correctly for both `unit="ratio"` and `unit="pixel"`
 - [ ] `style.py` — `TextStyle` dataclass
   - [ ] Test: default values match [SPEC.md §5](SPEC.md#5-textstyle--fully-customizable-custom-fonts-layer-0);
