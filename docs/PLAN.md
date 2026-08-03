@@ -134,18 +134,18 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
 
 ### 3.2 Builder API (`builder/`)
 
-- [ ] `timeline_builder.py` — `TimelineBuilder`
-  - [ ] Test: `.track()`/`.clip()`/`.text()`/`.image()`/`.audio()` each
+- [x] `timeline_builder.py` — `TimelineBuilder`
+  - [x] Test: `.track()`/`.clip()`/`.text()`/`.image()`/`.audio()` each
         return the same `TimelineBuilder` instance (chaining)
-  - [ ] Test: `.clip(path, ...)` stores `Asset(path=path)` without
+  - [x] Test: `.clip(path, ...)` stores `Asset(path=path)` without
         touching the filesystem (no `ffprobe`/MoviePy call)
-  - [ ] Test: `.captions(source, ...)` calls the given `SubtitleSource`'s
+  - [x] Test: `.captions(source, ...)` calls the given `SubtitleSource`'s
         `generate()` and attaches the resulting `Caption`s to a
         `CaptionTrack`, using a fake in-test `SubtitleSource` subclass —
         no concrete subtitle library involved
-  - [ ] Test: `.build()` calls `Timeline._validate()` and returns a
+  - [x] Test: `.build()` calls `Timeline._validate()` and returns a
         `Timeline` matching everything chained before it
-- [ ] **Layer test**: the `builder/` package imports successfully with
+- [x] **Layer test**: the `builder/` package imports successfully with
       `moviepy`/`faster-whisper`/`srt` **not installed** — proof that
       Layer 1 only depends on Layer 0
 
