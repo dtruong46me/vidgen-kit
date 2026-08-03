@@ -7,28 +7,46 @@ doesn't do** — at the product level, not the technical level. See
 
 ## 1. Goals & non-goals
 
-**Goal**: a high-level, programmable (OOP) Python library for batch video
-production: cutting/joining clips, adding text/image overlays with basic
-animation, simple transitions between clips, mixing background music/audio,
-attaching captions, and rendering to a file. Architectural clarity (clear
-layers, clear abstract classes) is prioritized over feature richness.
+**Goal**: vidgen is a programmable, code-first **video editing engine** —
+the kind of model that could power a tool like CapCut/Premiere/Adobe, but
+consumed as a Python library/SDK rather than a GUI app. Every editing
+operation (cut/join clips, text/image overlays with animation, transitions,
+audio mixing, captions, rendering) is expressed through a fluent Builder API
+sitting on top of a pure domain model that has no idea *how* rendering
+actually happens (Dependency Inversion — see
+[ARCHITECTURE.md §1](ARCHITECTURE.md#1-most-important-design-principle-dependency-inversion)).
+Automated batch production is one thing you can build *on top* of this
+engine (its topmost layer) — it is not what the engine fundamentally is.
 
-**Non-goals**: not competing with CapCut/Premiere on complex keyframe/easing
-effects, color grading, freely nested multi-track editing, or large-scale
-render performance. Animation/transitions here are a **set of built-in
-presets** (fade, slide, zoom, dissolve...), not a general-purpose animation
-engine.
+**Non-goals (v1 scope, not architectural ceiling)**: v1 does not attempt
+full professional-editor feature *depth* — no color grading, no freely
+nested multi-track compositing, no arbitrary keyframe/easing animation.
+Animation/transitions are still a **fixed preset set** (fade, slide, zoom,
+dissolve...), not a general animation engine (see
+[SPEC.md §6](SPEC.md#6-animation--transition--basic-presets-layer-0)). This
+is a deliberate scope choice for v1, not a limit baked into the
+architecture: the layering (Builder API separated from Render Strategy
+separated from Domain Model, see ARCHITECTURE.md) exists specifically so
+richer animation, alternate render backends, or new automation modes (an AI
+Agent) can be added later without breaking existing code.
 
 ## 2. Audience & use case
 
-Developers who want to automate **batch video production** — e.g.
-"faceless" videos made from a script + existing images/clips + background
-music + voiceover + captions — instead of repeating manual work in
-CapCut/Premiere for every video. Used as a Python library embedded in a
-custom pipeline, or run as a batch job from a list of JSON/YAML configs.
+Developers building on top of a programmable video editing engine —
+whether that means scripted one-off edits, reusable **Templates** (a
+repeatable visual structure reapplied to new inputs, e.g. "quote video:
+background clip + centered text + music"), or fully automated batch
+pipelines (e.g. "faceless" videos from a script + assets + voiceover +
+captions, run over hundreds of inputs). vidgen is the engine; *how* you
+drive it — by hand in a script, via a declarative `Script` (JSON/YAML), via
+a `Template`, or eventually via an AI `Agent` — is a choice at the top of
+the layer stack, not something baked into the core.
 
 ## 3. Features (v1 scope)
 
+- **Fluent Builder API** (`TimelineBuilder`): chainable method calls to
+  assemble an edit in code — see
+  [SPEC.md §2](SPEC.md#2-timelinebuilder--fluent-construction-api-layer-1)
 - Cut/join clips on a timeline (trim, concat, basic transitions between
   clips: cut/fade/dissolve)
 - Text overlay: fully customizable font/size/color/outline, positioned via
@@ -37,74 +55,78 @@ custom pipeline, or run as a batch job from a list of JSON/YAML configs.
 - Basic entrance/exit animation for overlays: fade in/out, slide, zoom
 - Audio: mix background music + existing voiceover audio (volume, fade
   in/out)
-- Captions/subtitles, supporting 3 modes:
+- Captions/subtitles, supporting 3 interchangeable sources injected into the
+  builder:
   - **file**: load existing subtitles (.srt/.vtt)
   - **auto**: auto-generate via ASR (faster-whisper)
   - **hybrid**: use a script text already known to be correct + ASR only to
-    align timestamps to the audio — avoids Whisper's text-recognition errors
-- Render to a complete video file (via MoviePy, backend swappable later)
-- Batch pipeline: run in bulk from a list of configs (each item = 1 video)
+    align timestamps to the audio — avoids Whisper's text-recognition
+    errors
+- **Templates**: reusable, parametrized edit recipes — encapsulate a
+  repeatable visual structure once, reapply it to many different inputs
+  without rewriting the underlying `TimelineBuilder` calls
+- Render to a complete video file via a pluggable `RenderStrategy` (v1
+  ships `MoviePyRenderStrategy`; swappable later without touching the
+  domain model or builder)
+- Batch production: run in bulk from a directory of `Script` files (each
+  one = 1 video)
 
 ## 4. Out of scope for v1
 
 Possible later, the architecture leaves room for it (see
 [PLAN.md](PLAN.md) v2 section):
 
+- `Agent`: AI, natural-language-driven video generation (choosing/
+  parametrizing a `Template` or writing a `Script` from an intent string)
 - TTS voice generation
 - Automatic thumbnail generation
-- `FFmpegBackend` for performance at scale (replacing/alongside
-  `MoviePyBackend`)
+- An alternate `RenderStrategy` for performance at scale (e.g. an
+  `FFmpegRenderStrategy` using raw filter-graphs)
 - Exporting multiple aspect ratios at once (9:16/16:9)
-- More advanced animation/transitions (free keyframing) — only if truly
-  needed, without contradicting the "simpler than CapCut/Premiere" spirit
-  from section 1.
+- A general keyframe/property animation engine — only if truly needed,
+  once the fixed-preset system in v1 proves limiting
 
 ## 5. Example usage (illustrative, planned API — not yet implemented)
 
 ```python
-from vidgen import Timeline
-from vidgen.core import Alignment, Position, TextStyle, FadeAnimation, DissolveTransition
+from vidgen.builder import TimelineBuilder
+from vidgen.strategies.render import MoviePyRenderStrategy
+from vidgen.strategies.subtitle import HybridSubtitleSource
+from vidgen.domain import Alignment, Position, TextStyle, FadeAnimation, DissolveTransition
 
-timeline = Timeline(resolution=(1080, 1920), fps=30)
-
-timeline.add_clips([
-    {"path": "assets/clips/intro.mp4", "start": 0},
-    {"path": "assets/clips/main.mp4", "start": 5,
-     "transition_in": DissolveTransition(duration=0.5)},
-])
-
-timeline.add_text(
-    "Hello!", start=0, end=3,
-    position=Position.preset(Alignment.CENTER),
-    style=TextStyle(font="Roboto-Bold.ttf", font_size=64,
-                     color="white", outline_color="black", outline_width=2),
-    animation=FadeAnimation(direction="in", duration=0.4),
+timeline = (
+    TimelineBuilder(resolution=(1080, 1920), fps=30)
+    .clip("assets/clips/intro.mp4", start=0)
+    .clip("assets/clips/main.mp4", start=5,
+          transition_in=DissolveTransition(duration=0.5))
+    .text("Hello!", start=0, end=3,
+          position=Position.preset(Alignment.CENTER),
+          style=TextStyle(font="Roboto-Bold.ttf", font_size=64,
+                           color="white", outline_color="black", outline_width=2),
+          animation=FadeAnimation(direction="in", duration=0.4))
+    .audio("assets/music/bg.mp3", volume=0.3, fade_out=2)
+    .captions(HybridSubtitleSource(),
+              script_text=open("script.txt").read(),
+              voice_audio="assets/voice/segment_0.mp3")
+    .build()
 )
 
-timeline.add_audio("assets/music/bg.mp3", volume=0.3, fade_out=2)
-
-timeline.add_captions_from_script(
-    script_text=open("script.txt").read(),
-    voice_audio="assets/voice/segment_0.mp3",
-    mode="hybrid",
-)
-
-timeline.render("output/video_001.mp4")
+MoviePyRenderStrategy().render(timeline, "output/video_001.mp4")
 ```
 
-Batch multiple videos:
+Batch multiple videos (Layer 4, driven by `Script` files):
 
 ```python
-from vidgen.pipeline import BatchPipeline
+from vidgen.automation import BatchProducer
 
-pipeline = BatchPipeline(spec_dir="input/specs/")
-pipeline.run(output_dir="output/")
+producer = BatchProducer(spec_dir="input/specs/")
+producer.run(output_dir="output/")
 ```
 
-> The Python API (`Timeline.add_*`) is the official, complete interface.
-> JSON/YAML in `input/specs/` is just a declarative way to write batch
-> configs — see
-> [SPEC.md §8](SPEC.md#8-batchpipeline--config-json-as-a-thin-wrapper).
+> The fluent `TimelineBuilder` API is the official, complete interface.
+> JSON/YAML in `input/specs/` (parsed by `Script`) is just a declarative way
+> to write the same builder calls — see
+> [SPEC.md §10](SPEC.md#10-script--declarative-spec-layer-3).
 
 ## 6. Project status
 
@@ -112,4 +134,4 @@ Currently in the architecture design stage, no implementation code yet. See
 [PLAN.md](PLAN.md) for the roadmap and implementation checklist.
 
 ---
-See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SPEC.md](SPEC.md) · [PLAN.md](PLAN.md)
+See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [SPEC.md](SPEC.md) · [DESIGN.md](DESIGN.md) · [PLAN.md](PLAN.md)
