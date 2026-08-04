@@ -1,0 +1,20 @@
+# Runtime dependencies for the full vidgen stack: the engine (render +
+# subtitle backends) plus the HTTP API (see docs/API.md).
+#
+#   pip install -r requirements.txt && pip install -e .
+#   uv pip install -r requirements.txt && uv pip install -e .
+#
+# vidgen itself isn't listed here -- install it separately with
+# `pip install -e .` (editable) so `import vidgen` picks up src/vidgen.
+#
+# Only need part of the stack? See the narrower extras in pyproject.toml
+# ([render], [subtitle], [design], [automation], [api]) instead.
+
+pydantic==2.11.7
+pyyaml==6.0.2
+moviepy==2.2.1
+pillow==11.3.0
+faster-whisper==1.2.1
+srt==3.5.3
+fastapi==0.141.1
+uvicorn[standard]==0.35.0

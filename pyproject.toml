@@ -12,11 +12,17 @@ license = { file = "LICENSE" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "httpx"]
 render = ["moviepy", "pillow"]
 subtitle = ["faster-whisper", "srt"]
-design = ["pydantic", "pyyaml"]
-automation = ["pydantic", "pyyaml", "moviepy", "pillow"]
+# design/automation/api all import vidgen.design.script, which imports
+# vidgen.strategies.subtitle unconditionally (FileSubtitleSource needs
+# `srt`, Whisper/HybridSubtitleSource need `faster-whisper`) -- so all
+# three need the subtitle extra's packages too, even if captions aren't
+# actually used.
+design = ["pydantic", "pyyaml", "faster-whisper", "srt"]
+automation = ["pydantic", "pyyaml", "moviepy", "pillow", "faster-whisper", "srt"]
+api = ["pydantic", "pyyaml", "moviepy", "pillow", "faster-whisper", "srt", "fastapi", "uvicorn[standard]"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

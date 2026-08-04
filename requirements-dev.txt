@@ -1,0 +1,8 @@
+# Adds test tooling on top of requirements.txt.
+#
+#   pip install -r requirements-dev.txt && pip install -e .
+#   uv pip install -r requirements-dev.txt && uv pip install -e .
+
+-r requirements.txt
+pytest==9.0.3
+httpx==0.28.1

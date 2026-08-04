@@ -216,6 +216,63 @@ class ScriptModel(_StrictModel):
     captions: CaptionSpec | None = None
 
 
+def build_timeline_from_spec(spec: ScriptModel) -> TimelineBuilder:
+    """Map an already-validated ``ScriptModel`` onto a fresh ``TimelineBuilder``.
+
+    Split out from ``Script.parse()`` so callers that already have a
+    validated spec in memory (e.g. an HTTP API request body parsed
+    directly as a ``ScriptModel``) can reuse this mapping without going
+    through a file on disk.
+    """
+    builder = TimelineBuilder(resolution=spec.resolution, fps=spec.fps)
+
+    for clip in spec.clips:
+        builder.clip(
+            clip.path,
+            clip.start,
+            clip.end,
+            track=clip.track,
+            transition_in=clip.transition_in.to_domain() if clip.transition_in else None,
+        )
+    for text in spec.texts:
+        builder.text(
+            text.text,
+            text.start,
+            text.end,
+            position=text.position.to_domain() if text.position else Position.preset(Alignment.CENTER),
+            style=text.style.to_domain() if text.style else None,
+            animation=text.animation.to_domain() if text.animation else None,
+            track=text.track,
+        )
+    for image in spec.images:
+        builder.image(
+            image.path,
+            image.start,
+            image.end,
+            position=image.position.to_domain(),
+            animation=image.animation.to_domain() if image.animation else None,
+            track=image.track,
+        )
+    for audio in spec.audio:
+        builder.audio(
+            audio.path,
+            start=audio.start,
+            volume=audio.volume,
+            fade_in=audio.fade_in,
+            fade_out=audio.fade_out,
+            track=audio.track,
+        )
+    if spec.captions is not None:
+        builder.captions(
+            spec.captions.to_source(),
+            script_text=spec.captions.script_text,
+            voice_audio=spec.captions.voice_audio,
+            track=spec.captions.track,
+        )
+
+    return builder
+
+
 class Script:
     """Reads a JSON/YAML spec file and drives a ``TimelineBuilder`` from it.
 
@@ -242,53 +299,7 @@ class Script:
         except ValidationError as exc:
             raise ScriptValidationError(f"invalid script {self.path!r}: {exc}") from exc
 
-        builder = TimelineBuilder(resolution=spec.resolution, fps=spec.fps)
-
-        for clip in spec.clips:
-            builder.clip(
-                clip.path,
-                clip.start,
-                clip.end,
-                track=clip.track,
-                transition_in=clip.transition_in.to_domain() if clip.transition_in else None,
-            )
-        for text in spec.texts:
-            builder.text(
-                text.text,
-                text.start,
-                text.end,
-                position=text.position.to_domain() if text.position else Position.preset(Alignment.CENTER),
-                style=text.style.to_domain() if text.style else None,
-                animation=text.animation.to_domain() if text.animation else None,
-                track=text.track,
-            )
-        for image in spec.images:
-            builder.image(
-                image.path,
-                image.start,
-                image.end,
-                position=image.position.to_domain(),
-                animation=image.animation.to_domain() if image.animation else None,
-                track=image.track,
-            )
-        for audio in spec.audio:
-            builder.audio(
-                audio.path,
-                start=audio.start,
-                volume=audio.volume,
-                fade_in=audio.fade_in,
-                fade_out=audio.fade_out,
-                track=audio.track,
-            )
-        if spec.captions is not None:
-            builder.captions(
-                spec.captions.to_source(),
-                script_text=spec.captions.script_text,
-                voice_audio=spec.captions.voice_audio,
-                track=spec.captions.track,
-            )
-
-        return builder
+        return build_timeline_from_spec(spec)
 
     def _read_raw(self) -> dict:
         text = Path(self.path).read_text(encoding="utf-8")

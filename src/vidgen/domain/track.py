@@ -13,7 +13,7 @@ from typing import Generic, TypeVar
 from vidgen.domain.audio import AudioLayer
 from vidgen.domain.caption import Caption
 from vidgen.domain.clip import Clip
-from vidgen.domain.errors import ClipOverlapError, TimeRangeError, TrackItemTypeError
+from vidgen.domain.errors import ClipOverlapError, TrackItemTypeError
 from vidgen.domain.overlay import Overlay
 from vidgen.domain.style import TextStyle
 
@@ -69,13 +69,16 @@ class VideoTrack(Track[Clip]):
                 f"VideoTrack only accepts Clip items, got "
                 f"{type(item).__name__}"
             )
-        # Only the last clip on the track may be open-ended (end=None) —
-        # an open end in the middle of the track would make every clip
-        # after it unreachable/ambiguous.
-        if item.end is None and self._items:
-            raise TimeRangeError(
-                "only the last clip on a VideoTrack may have end=None"
-            )
+        # No explicit "only the last clip may have end=None" check here:
+        # an open-ended clip (end=None) is treated by `_overlaps` as
+        # extending to infinity, so adding *anything* else that would
+        # land at or after it — including a second open-ended clip —
+        # already fails the overlap check below, regardless of the order
+        # items were added in. That already is the "only the last clip
+        # may be open-ended" rule; a separate check here would be
+        # redundant, and (since it only looked at insertion order, not
+        # time order) would wrongly reject the common case of adding
+        # several closed clips and then one open-ended one last.
         for existing in self._items:
             if self._overlaps(existing, item):
                 raise ClipOverlapError(

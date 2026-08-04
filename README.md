@@ -6,7 +6,9 @@ as a library/SDK rather than a GUI app. Every editing operation (cutting/
 joining clips, text/image overlays with animation, transitions, audio
 mixing, captions, rendering) is expressed through a fluent Builder API.
 Automated batch production is one thing you can build *on top* of this
-engine — it isn't what the engine fundamentally is.
+engine — it isn't what the engine fundamentally is. An optional HTTP API
+(FastAPI) is also available for driving vidgen as a service — see
+[docs/API.md](docs/API.md).
 
 vidgen's architecture follows strict **Dependency Inversion**: a pure
 Domain Model (zero third-party imports) sits at the bottom; a fluent
@@ -122,6 +124,31 @@ producer.run(output_dir="output/")
 > declarative way to write the same builder calls — used when you want to
 > generate bulk configs without writing Python. See
 > [docs/SPEC.md §10](docs/SPEC.md#10-script--declarative-spec-layer-3).
+
+Or drive vidgen over HTTP instead of importing it as a library:
+
+```bash
+pip install -e ".[api]"
+uvicorn vidgen.api:create_app --factory --reload
+```
+
+```bash
+# Full Script-driven render:
+curl -X POST http://127.0.0.1:8000/renders -H "Content-Type: application/json" -d '{
+  "resolution": [1080, 1920], "fps": 30,
+  "clips": [{"path": "assets/clips/a.mp4", "start": 0}]
+}'
+# -> {"id": "...", "status": "pending", "download_url": "/jobs/.../file"}
+
+# Or a single-purpose operation, no Script needed:
+curl -X POST http://127.0.0.1:8000/edit/add-audio -H "Content-Type: application/json" -d '{
+  "video_path": "assets/clips/a.mp4", "audio_path": "assets/music/bg.mp3", "volume": 0.3
+}'
+```
+
+Full endpoint reference (including `/edit/concat`, `/edit/trim`,
+`/edit/overlay-text`, `/edit/overlay-image`, `/edit/captions`) and client
+examples: [docs/API.md](docs/API.md).
 
 ## Installation (planned)
 

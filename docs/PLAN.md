@@ -12,7 +12,10 @@ for the layered architecture, and [SPEC.md](SPEC.md) for the detailed API.
   subtitle strategies, `Script` + `Template`, `BatchProducer`. Feature
   depth: cut/join + basic transitions, text/image overlay + basic
   animation, custom fonts, alignment presets + free coordinates, audio
-  mixing, captions (file/auto/hybrid), reusable Templates.
+  mixing, captions (file/auto/hybrid), reusable Templates. Also includes an
+  optional HTTP API (`api/`, §3.7) — a FastAPI wrapper one layer above
+  Automation, for consumers that want vidgen as a service instead of a
+  library import.
 - **v2 (later)**: `Agent` (Layer 4 — natural-language intent →
   `Script`/`Template` selection and parametrization), an alternate
   `RenderStrategy` for performance at scale (e.g. `FFmpegRenderStrategy`),
@@ -232,5 +235,52 @@ it is done. Field/method details for every class are in [SPEC.md](SPEC.md).
       `assets/` → `TimelineBuilder` → `MoviePyRenderStrategy` → renders
       successfully
 
+### 3.7 HTTP API (`api/`) — thin FastAPI wrapper, sits above Automation
+
+Not part of the original 5-layer stack in [ARCHITECTURE.md](ARCHITECTURE.md)
+— an added consumer alongside `automation/`, for driving vidgen as an HTTP
+service instead of a library import. Rendering is slow, so every render is
+an async job: the endpoint returns a `job_id` immediately and the caller
+polls for completion rather than blocking the request. Full usage guide:
+[API.md](API.md).
+
+- [x] `jobs.py`: `JobStore`/`Job`/`JobStatus` — in-memory job bookkeeping,
+      each job's render running on a background thread pool
+      (`tests/api/test_api.py`)
+- [x] `templates_registry.py`: registry of `Template`s exposed over the
+      API, with `GET /templates` parameters derived by introspecting each
+      template's `apply()` signature rather than hand-maintained
+- [x] `POST /renders`: a `Script`-shaped JSON body → background render →
+      `job_id` (reuses `design.script.build_timeline_from_spec`, extracted
+      from `Script.parse()` so the API can validate/build a spec already in
+      memory without writing a temp file)
+- [x] `GET /templates`, `POST /templates/{name}/render`: list registered
+      `Template`s and their params; apply one with parameters → background
+      render → `job_id`
+- [x] `POST /edit/concat`, `/edit/trim`, `/edit/add-audio`,
+      `/edit/overlay-text`, `/edit/overlay-image`, `/edit/captions`:
+      single-purpose editing operations (join clips, extract a segment, mix
+      in background music, burn in text/image/captions) that don't require
+      assembling a `Script`/`Template` — each builds a small `Timeline`
+      directly (bypassing `TimelineBuilder` only for `concat`/`trim`, which
+      need per-clip `trim_in`/`trim_out` that `TimelineBuilder.clip()`
+      doesn't expose) and submits it through the same job queue
+      (`tests/api/test_edits.py`)
+- [x] `GET /jobs/{id}`, `GET /jobs/{id}/file`: poll job status; download the
+      finished file (404 unknown job, 409 if not yet finished)
+- [x] Integration test: full request/response cycle against a real
+      `TestClient` + stub `RenderStrategy` for every endpoint, including a
+      blocking-strategy test proving `GET /jobs/{id}/file` 409s while a job
+      is still running (`tests/api/test_api.py`, `tests/api/test_edits.py`)
+- [x] Bug fix found via `/edit/concat`: `VideoTrack._validate_item`
+      (`domain/track.py`) rejected any open-ended (`end=None`) clip added
+      after an earlier one, even in the ordinary case of several closed
+      clips followed by one open-ended clip added last — the dedicated
+      check was redundant with (and stricter than) the existing overlap
+      check, which already fully enforces "at most one open-ended clip,
+      and nothing else may overlap it" regardless of insertion order.
+      Removed the redundant check; regression tests in
+      `tests/domain/test_track.py`.
+
 ---
-See also: [PRD.md](PRD.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [SPEC.md](SPEC.md) · [DESIGN.md](DESIGN.md)
+See also: [PRD.md](PRD.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [SPEC.md](SPEC.md) · [DESIGN.md](DESIGN.md) · [API.md](API.md)
