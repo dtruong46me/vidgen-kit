@@ -1,0 +1,35 @@
+{
+  "id": "2026-08-21",
+  "title": "8月21日 - 雨の日",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.2,
+  "pauseAfter": 0.35,
+  "targetSeconds": [35, 45],
+  "lines": [
+    {
+      "ja": "今日は、雨が降っています。",
+      "romaji": "Kyō wa, ame ga futte imasu.",
+      "vi": "Hôm nay trời đang mưa.",
+      "clip": "video/scene-01.mp4"
+    },
+    {
+      "ja": "雨の音を聞きながら、お茶を一杯。",
+      "romaji": "Ame no oto o kikinagara, ocha o ippai.",
+      "vi": "Vừa nghe tiếng mưa, vừa uống một tách trà.",
+      "clip": "video/scene-02.mp4"
+    },
+    {
+      "ja": "急がなくても、大丈夫ですよ。",
+      "romaji": "Isoganakute mo, daijōbu desu yo.",
+      "vi": "Không cần vội đâu, không sao cả.",
+      "clip": "video/scene-03.mp4"
+    }
+  ]
+}

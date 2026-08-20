@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+.env
+
+# Ignore the output video from Git but not videos you import into src/.
+out
+
+# giọng đọc + manifest do scripts/build.py sinh ra (chạy lại là có)
+public/audio/20*/
+content/*.build.json
+content/.*.cache.json

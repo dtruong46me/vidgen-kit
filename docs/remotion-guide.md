@@ -4,6 +4,8 @@
 
 Toàn bộ các bước dưới đây đã được chạy thật để xác nhận hoạt động — project mẫu nằm sẵn tại `tmp/remotion_lab/flower-showcase/`.
 
+> Đọc xong tài liệu này, xem tiếp [tea-philosophy-video-guide.md](tea-philosophy-video-guide.md) — dựng một dây chuyền hoàn chỉnh làm video trà đạo / triết lý song ngữ Nhật–Việt (TTS từng câu, caption 3 tầng, chuyển cảnh theo câu) để sản xuất hàng loạt.
+
 ## 1. Yêu cầu hệ thống
 
 - Node.js ≥ 18 (máy hiện có Node `v24.14.0`, npm `11.9.0` — kiểm tra bằng `node -v`)
