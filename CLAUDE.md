@@ -49,6 +49,12 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 
 - **Ngôn ngữ:** tài liệu và bình luận viết tiếng Việt; tên biến, tên hàm, tên file
   viết tiếng Anh. Thuật ngữ kỹ thuật giữ nguyên tiếng Anh (frame, props, render).
+- **Cài thư viện Python bằng `make setup`, đừng bao giờ gõ `pip install` trần.**
+  Máy dựng có hơn một Python (conda base và python của codespace). `pip` trần trỏ
+  vào cái nào là tuỳ `PATH`, nên rất dễ cài xong một chỗ rồi `make` chạy ở chỗ kia
+  và báo thiếu thư viện. `make setup` dùng `python3 -m pip`, tức luôn đúng trình
+  thông dịch mà Makefile sẽ gọi. Vì lý do đó, mọi thông báo "thiếu thư viện"
+  trong `pipeline/` đều phải in kèm `sys.executable`.
 - **Mọi lệnh đi qua `Makefile`.** Đừng hướng dẫn người dùng gõ `npx remotion` trực
   tiếp — thêm target vào Makefile.
 - **Remotion phải chạy với cwd là `studio/`** (nơi có `package.json`). Đường dẫn
@@ -77,6 +83,13 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Nhạc nền và clip nền thì CÓ commit.** Chúng là tài sản thật, tải một lần dùng
   mãi, và thiếu chúng là video mất hình mất tiếng. Chỉ giọng đọc mới là đồ máy
   sinh, vì `make content` dựng lại được trong vài giây.
+- **Romaji do máy sinh, đừng gõ tay.** Kịch bản không có trường `romaji` nữa.
+  Máy đọc sai chữ nào thì thêm cách đọc vào `library/readings.json` — bảng đó áp
+  cho mọi ngày, sửa một lần là xong mãi. Đọc đối chiếu bằng `make reading`.
+- **Cutlet trần không đủ, đừng gỡ ba lớp vá trong `reading.py`.** Nó không có
+  macron (今日 ra `Kyou`, tức mở lại D-5), không đọc số (`8月20日` ra
+  `8 gatsu 20ka`), và đọc sai chữ nhiều nghĩa. Lớp macron bám vào `pron` và
+  `kana` của MeCab chứ không đoán theo mặt chữ — nhờ vậy `思う` không thành `omō`.
 - **Không để file mẫu, file test, file trung gian nằm lại trong repo.** Muốn thử
   gì thì thử trong thư mục scratch ngoài repo.
 
@@ -87,6 +100,7 @@ pipeline/     Lớp A + B (Python)
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
   script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
+  reading.py    sinh romaji + hiragana từ câu Nhật (cutlet, có đường lui)
   assets.py     xác minh clip nền và nhạc nền có thật, đo phần còn lại sau điểm cắt
   timeline.py   ★ nơi DUY NHẤT đổi giây ra frame (P-2)
   contract.py   ghi build.json — hình dạng hợp đồng khai báo ở đây (P-3)
@@ -96,9 +110,10 @@ studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
-content/      <ngày>.json  (người viết, commit)
+content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji)
               <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
-library/      shots.json — metadata và giấy phép mọi clip. Còn rỗng, xem BƯỚC 4
+library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
+              shots.json — metadata và giấy phép mọi clip. Còn rỗng, xem BƯỚC 4
 out/          MP4 và PNG (không commit)
 scripts/      check_assets.py  — soi nhạc nền và clip nền
 docs/         tài liệu
@@ -106,10 +121,16 @@ docs/         tài liệu
 
 ## Trạng thái
 
-**BƯỚC 0, 1 và 2 đã xong trọn vẹn.** `make content` gọi `python3 -m
-pipeline.run`; `scripts/legacy_build.py` đã bị xoá. Nghiệm thu BƯỚC 2 đạt:
-`2026-08-20` ra **đúng 1462 frame** (48,7 giây) và file `build.json` **giống hệt
-từng byte** bản do legacy sinh ra.
+**BƯỚC 0, 1, 2 và 3 đã xong trọn vẹn.** `make content` gọi `python3 -m
+pipeline.run`; `scripts/legacy_build.py` đã bị xoá.
+
+Nghiệm thu BƯỚC 2 đạt: `2026-08-20` ra **đúng 1462 frame** (48,7 giây) và file
+`build.json` **giống hệt từng byte** bản do legacy sinh ra.
+
+Nghiệm thu BƯỚC 3 đạt: bỏ hết trường `romaji` khỏi kịch bản, romaji máy sinh
+khác bản gõ tay **đúng 1 chỗ trên 9 câu** — `sukina` thành `suki na`, mà bản gõ
+tay vốn tự mâu thuẫn ở chỗ này (câu 9 viết `Suteki na` có dấu cách). Số frame
+không đổi, vì romaji không dính gì tới thời lượng.
 
 > Con số 1462 vẫn là mốc hồi quy cho mọi bước sau. Đổi bất cứ thứ gì trong
 > `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số đó. Nó đổi

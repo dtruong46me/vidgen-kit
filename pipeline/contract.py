@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 
 from .assets import SceneClip, Soundtrack
+from .reading import Reading
 from .script import Script
 from .timeline import Timeline
 from .tts import Voiceover
@@ -31,8 +32,9 @@ def compose(
     clips: list[SceneClip],
     bgm: Soundtrack,
     timeline: Timeline,
+    readings: list[Reading],
 ) -> dict:
-    """Ghép bốn nguồn lại thành đúng hình dạng Remotion đang chờ."""
+    """Ghép năm nguồn lại thành đúng hình dạng Remotion đang chờ."""
     return {
         "id": script.slug,
         "title": script.title,
@@ -45,7 +47,11 @@ def compose(
         "lines": [
             {
                 "ja": line.ja,
-                "romaji": line.romaji,
+                "romaji": reading.romaji,
+                # Trường mới ở BƯỚC 3. Remotion chưa dùng tới — theo P-3, thêm
+                # trường thì bản Remotion cũ vẫn render được build.json mới.
+                # BƯỚC 5 sẽ quyết có hiện dòng hiragana này hay không.
+                "hira": reading.hira,
                 "vi": line.vi,
                 "audio": voice.rel_path,
                 "audioDurationInFrames": scene.audio_duration_in_frames,
@@ -55,8 +61,8 @@ def compose(
                 "clipDurationInFrames": scene.clip_duration_in_frames,
                 "clipStartInSeconds": clip.start_seconds,
             }
-            for line, voice, clip, scene in zip(
-                script.lines, voices, clips, timeline.scenes
+            for line, voice, clip, scene, reading in zip(
+                script.lines, voices, clips, timeline.scenes, readings
             )
         ],
     }

@@ -1,0 +1,6 @@
+{
+  "_doc": "Chữ nào MeCab đọc sai thì ghi cách đọc đúng bằng hiragana vào đây. Bảng này áp cho MỌI ngày, nên sửa một lần là xong mãi. Chuỗi dài được thay trước chuỗi ngắn.",
+  "words": {
+    "一日": "いちにち"
+  }
+}

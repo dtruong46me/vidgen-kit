@@ -20,7 +20,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from . import assets, contract, render, script as script_mod, timeline as timeline_mod, tts
+from . import (
+    assets, contract, reading as reading_mod, render,
+    script as script_mod, timeline as timeline_mod, tts,
+)
 from .probe import ProbeError
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,6 +36,14 @@ def build_day(slug: str, log=print) -> Path:
     doc = script_mod.load(CONTENT_DIR, slug)
     log(f"{doc.title}  —  {len(doc.lines)} câu, {doc.fps}fps")
 
+    reader = reading_mod.make_provider(doc.reading)
+    readings = []
+    for i, line in enumerate(doc.lines, start=1):
+        readings.append(reader.read(line.ja))
+        if reader.unread:
+            log(f"  [!] câu {i}: chưa đọc được số {', '.join(reader.unread)} "
+                f"— romaji sẽ giữ nguyên chữ số")
+
     voices = tts.synthesize(
         doc, PUBLIC_DIR, CONTENT_DIR / f".{slug}.cache.json", log=log
     )
@@ -41,7 +52,7 @@ def build_day(slug: str, log=print) -> Path:
 
     timeline = timeline_mod.build(doc, voices, clips, bgm)
     dest = contract.write(
-        contract.compose(doc, voices, clips, bgm, timeline),
+        contract.compose(doc, voices, clips, bgm, timeline, readings),
         CONTENT_DIR / f"{slug}.build.json",
     )
 
@@ -113,7 +124,8 @@ def main(argv: list[str] | None = None) -> int:
             print()
             dest = render.video(slug)
             print(f"\nXong: {dest.relative_to(ROOT)}")
-    except (script_mod.ScriptError, tts.TTSError, ProbeError, render.RenderError) as exc:
+    except (script_mod.ScriptError, tts.TTSError, ProbeError,
+            reading_mod.ReadingError, render.RenderError) as exc:
         print(f"\n[lỗi] {exc}", file=sys.stderr)
         return 1
     return 0

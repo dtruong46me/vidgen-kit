@@ -14,63 +14,54 @@
   "lines": [
     {
       "ja": "今日も新しい一日が始まりました。",
-      "romaji": "Kyō mo atarashii ichinichi ga hajimarimashita.",
       "vi": "Hôm nay, một ngày mới lại bắt đầu.",
       "clip": "video/tea-room.mp4",
       "clipStartInSeconds": 0.0
     },
     {
       "ja": "おはようございます。",
-      "romaji": "Ohayō gozaimasu.",
       "vi": "Chào buổi sáng.",
       "clip": "video/tea-room.mp4",
       "clipStartInSeconds": 6.0
     },
     {
       "ja": "今日は、8月20日です。",
-      "romaji": "Kyō wa, hachigatsu hatsuka desu.",
       "vi": "Hôm nay là ngày 20 tháng 8.",
       "clip": "video/tea-tray.mp4",
       "clipStartInSeconds": 0.0
     },
     {
       "ja": "朝の空気は、少し涼しくて気持ちいいですね。",
-      "romaji": "Asa no kūki wa, sukoshi suzushikute kimochi ii desu ne.",
       "vi": "Không khí buổi sáng hơi mát, thật dễ chịu nhỉ.",
       "clip": "video/tea-room.mp4",
       "clipStartInSeconds": 10.0
     },
     {
       "ja": "毎日の生活は、同じことの繰り返しに見えるけれど、小さな変化が、きっとどこかにあります。",
-      "romaji": "Mainichi no seikatsu wa, onaji koto no kurikaeshi ni mieru keredo, chiisana henka ga, kitto dokoka ni arimasu.",
       "vi": "Cuộc sống mỗi ngày trông như chỉ là sự lặp lại của những điều giống nhau, nhưng chắc chắn ở đâu đó vẫn có những thay đổi nhỏ.",
       "clip": "video/matcha-whisk.mp4",
       "clipStartInSeconds": 0.0
     },
     {
       "ja": "美味しいご飯を食べたり、好きな音楽を聴いたり、誰かと笑ったり。",
-      "romaji": "Oishii gohan o tabetari, sukina ongaku o kiitari, dareka to warattari.",
       "vi": "Ăn một bữa cơm ngon, nghe bản nhạc mình thích, cười cùng một ai đó.",
       "clip": "video/tea-tray.mp4",
       "clipStartInSeconds": 5.5
     },
     {
       "ja": "そんな小さな幸せを、大切にしたいですね。",
-      "romaji": "Sonna chiisana shiawase o, taisetsu ni shitai desu ne.",
       "vi": "Những hạnh phúc nhỏ bé như thế, mình muốn trân trọng nhỉ.",
       "clip": "video/tea-room.mp4",
       "clipStartInSeconds": 16.5
     },
     {
       "ja": "今日も無理をせず、自分のペースで。",
-      "romaji": "Kyō mo muri o sezu, jibun no pēsu de.",
       "vi": "Hôm nay cũng đừng gắng sức quá, cứ theo nhịp độ của riêng mình.",
       "clip": "video/matcha-whisk.mp4",
       "clipStartInSeconds": 8.0
     },
     {
       "ja": "素敵な一日になりますように。",
-      "romaji": "Suteki na ichinichi ni narimasu yō ni.",
       "vi": "Chúc bạn có một ngày thật tuyệt vời.",
       "clip": "video/tea-tray.mp4",
       "clipStartInSeconds": 8.5

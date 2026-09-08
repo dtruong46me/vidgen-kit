@@ -1,5 +1,6 @@
 # vidgen-kit — mọi lệnh đi qua đây.
 #
+#   make setup                       cài phụ thuộc Python vào ĐÚNG python3 này
 #   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
@@ -19,6 +20,7 @@ STUDIO      := studio
 CONTENT     := content
 OUT         := out
 FRAME       ?= 300
+PROVIDER    ?=
 
 # Bắt lỗi thiếu DAY sớm, kèm gợi ý — thay vì để lệnh con báo lỗi khó hiểu.
 define need_day
@@ -33,20 +35,34 @@ define need_day
 	fi
 endef
 
-.PHONY: help studio content video still assets all clean check new
+.PHONY: help setup studio content video still reading assets all clean check new
 
 help:
 	@echo "vidgen-kit"
 	@echo ""
+	@echo "  make setup                        cài phụ thuộc Python"
 	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
+	@echo "  make reading DAY=2026-08-20       in romaji + hiragana máy sinh"
 	@echo "  make assets                       soi nhạc nền và clip nền"
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
 	@echo "  make clean                        xoá file máy sinh"
 	@echo ""
 	@echo "  make check / make new             chưa có — xem BƯỚC 6 trong kế hoạch"
+
+## Cài phụ thuộc Python vào ĐÚNG trình thông dịch mà Makefile sẽ gọi.
+##
+## Dùng `python3 -m pip` chứ không dùng `pip` trần, và đây không phải chuyện
+## câu nệ: máy này có hai Python (conda base và python của codespace). `pip`
+## trần trỏ vào cái nào là tuỳ PATH, nên rất dễ cài xong một chỗ rồi `make`
+## chạy ở chỗ kia và báo thiếu thư viện.
+setup:
+	@echo "Cài vào: $$(python3 -c 'import sys; print(sys.executable)')"
+	@python3 -m pip install -r requirements.txt
+	@echo ""
+	@echo "Xong. Kiểm nhanh: make reading DAY=2026-08-20"
 
 ## Mở Studio bằng dữ liệu THẬT của một ngày.
 ##   make studio                 -> nạp ngày mới nhất đã dựng
@@ -84,6 +100,11 @@ video:
 still:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --still $(FRAME)
+
+## In romaji và hiragana máy sinh, để đọc đối chiếu trước khi tin nó
+reading:
+	$(need_day)
+	@python3 -m pipeline.reading $(CONTENT)/$(DAY).json $(PROVIDER)
 
 ## Soi tài sản media — file nào thiếu, file nào còn là hàng mẫu
 assets:

@@ -4,6 +4,9 @@ Lớp A — đọc kịch bản người viết và kiểm tra nó trước khi 
 Bản cũ đọc thẳng dict rồi `line["ja"]` giữa vòng lặp: thiếu một trường là vỡ ở
 câu thứ bảy, sau khi đã sinh sáu file mp3. Ở đây mọi thứ được kiểm ngay lúc
 đọc, nên hỏng là hỏng trước khi chạm vào mạng.
+
+Từ BƯỚC 3, kịch bản KHÔNG còn trường `romaji` — `pipeline/reading.py` sinh ra
+nó. Trường `romaji` nếu còn sót lại trong file cũ thì bị bỏ qua, không phải lỗi.
 """
 
 from __future__ import annotations
@@ -22,7 +25,6 @@ class ScriptLine:
     """Một câu do người viết. Chưa có giọng đọc, chưa có frame."""
 
     ja: str
-    romaji: str
     vi: str
     clip: str | None
     clip_start_seconds: float
@@ -44,6 +46,8 @@ class Script:
     pause_after: float
     bgm: str | None
     bgm_volume: float
+    #: Tên provider sinh romaji. Đổi provider = sửa đúng dòng này trong kịch bản.
+    reading: str
     target_seconds: tuple[float, float] | None
     lines: list[ScriptLine]
 
@@ -96,7 +100,6 @@ def load(content_dir: Path, slug: str) -> Script:
             raise ScriptError(f"{where} có \"clipStartInSeconds\" âm hoặc không phải số.")
         lines.append(ScriptLine(
             ja=_text(_require(raw, "ja", where), "ja", where),
-            romaji=raw.get("romaji", ""),
             vi=raw.get("vi", ""),
             clip=clip or None,
             clip_start_seconds=float(start),
@@ -121,6 +124,7 @@ def load(content_dir: Path, slug: str) -> Script:
         pause_after=float(doc.get("pauseAfter", 0.7)),
         bgm=doc.get("bgm") or None,
         bgm_volume=float(doc.get("bgmVolume", 0.12)),
+        reading=doc.get("reading", "cutlet"),
         target_seconds=target,
         lines=lines,
     )
