@@ -1,6 +1,6 @@
 # vidgen-kit — mọi lệnh đi qua đây.
 #
-#   make studio                      mở Remotion Studio để xem trước
+#   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
@@ -44,7 +44,7 @@ endef
 help:
 	@echo "vidgen-kit"
 	@echo ""
-	@echo "  make studio                       mở Remotion Studio"
+	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
@@ -54,9 +54,25 @@ help:
 	@echo ""
 	@echo "  make check / make new             chưa có — xem BƯỚC 6 trong kế hoạch"
 
-## Mở Studio. Props mặc định viết thẳng trong Composition.tsx, không cần file nào.
+## Mở Studio bằng dữ liệu THẬT của một ngày.
+##   make studio                 -> nạp ngày mới nhất đã dựng
+##   make studio DAY=2026-08-20  -> nạp đúng ngày đó
+## Chưa dựng ngày nào thì Studio rơi về props mặc định trong Composition.tsx —
+## một câu, nền gradient, không tiếng. Đó là bản dự phòng, không phải video thật.
 studio:
-	cd $(STUDIO) && npx remotion studio
+	@day="$(DAY)"; \
+	if [ -z "$$day" ]; then \
+		newest=$$(ls -t $(CONTENT)/*.build.json 2>/dev/null | head -1); \
+		[ -n "$$newest" ] && day=$$(basename "$$newest" .build.json); \
+	fi; \
+	if [ -n "$$day" ] && [ -f "$(CONTENT)/$$day.build.json" ]; then \
+		echo "Studio nạp $(CONTENT)/$$day.build.json"; \
+		cd $(STUDIO) && npx remotion studio --props="../$(CONTENT)/$$day.build.json"; \
+	else \
+		echo "Chưa có content/*.build.json nào, Studio mở bằng props mặc định."; \
+		echo "Chạy 'make content DAY=2026-08-20' trước để xem video thật."; \
+		cd $(STUDIO) && npx remotion studio; \
+	fi
 
 ## Kịch bản -> giọng đọc -> content/<DAY>.build.json
 content:

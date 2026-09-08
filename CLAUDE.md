@@ -64,6 +64,12 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   sáng; phủ đều là chữ chìm. Xem `Background.tsx`.
 - **Hiệu ứng đi chậm.** Chữ hiện trong 26 frame, tắt trong 20, nền mờ chồng 24.
   Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả.
+- **`remotion.config.ts` ghì concurrency về 1 vì máy dựng thiếu RAM.** Không phải
+  giới hạn của code. Máy khoẻ hơn thì nâng lên; để nguyên trên máy 2 nhân / 3 GB
+  trống thì compositor bị giết bằng SIGTERM lúc mở clip thứ hai.
+- **Studio phải mở bằng dữ liệu thật.** `make studio` truyền `--props` trỏ vào
+  build.json của ngày mới nhất. Props mặc định trong `Composition.tsx` chỉ là
+  đường lui khi chưa dựng ngày nào.
 - **Không commit file máy sinh:** `out/`, `content/*.build.json`,
   `content/.*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
   Studio mở bằng props mặc định viết thẳng trong `Composition.tsx`, không đọc file.
