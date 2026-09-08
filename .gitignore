@@ -226,8 +226,8 @@ studio/public/audio/20*/
 content/*.build.json
 content/.*.cache.json
 
-# Ngoại lệ: bản mẫu cố định để Remotion Studio mở được trên clone mới.
-!content/_sample.build.json
+# Giọng đọc do edge-tts sinh. Nhạc nền và clip nền thì KHÔNG khớp mẫu này
+# nên vẫn được commit — chúng là tài sản thật, tải một lần dùng mãi.
 
 # Phụ thuộc Node của studio/
 studio/node_modules/

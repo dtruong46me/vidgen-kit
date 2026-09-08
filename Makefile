@@ -32,7 +32,7 @@ define need_day
 		echo "Thiếu DAY. Ví dụ: make $@ DAY=2026-08-20"; \
 		echo "Các kịch bản đang có:"; \
 		ls $(CONTENT)/*.json 2>/dev/null \
-			| grep -v '\.build\.json$$' | grep -v '_sample' \
+			| grep -v '\.build\.json$$' \
 			| xargs -n1 basename 2>/dev/null | sed 's/\.json$$/  /' | sed 's/^/  /' \
 			|| echo "  (chưa có kịch bản nào)"; \
 		exit 1; \
@@ -54,7 +54,7 @@ help:
 	@echo ""
 	@echo "  make check / make new             chưa có — xem BƯỚC 6 trong kế hoạch"
 
-## Mở Studio bằng bản mẫu content/_sample.build.json
+## Mở Studio. Props mặc định viết thẳng trong Composition.tsx, không cần file nào.
 studio:
 	cd $(STUDIO) && npx remotion studio
 
@@ -88,7 +88,7 @@ assets:
 ## Dựng mọi kịch bản chưa có MP4 tương ứng
 all:
 	@for f in $(CONTENT)/*.json; do \
-		case "$$f" in *.build.json|*_sample*) continue;; esac; \
+		case "$$f" in *.build.json) continue;; esac; \
 		day=$$(basename "$$f" .json); \
 		if [ -f "$(OUT)/$$day.mp4" ]; then \
 			echo "bỏ qua $$day (đã có MP4)"; \
@@ -103,9 +103,9 @@ clean:
 	rm -rf $(OUT)
 	rm -f $(CONTENT)/*.build.json $(CONTENT)/.*.cache.json
 	rm -rf $(STUDIO)/public/audio/20*/
-	@# Bản mẫu là file cố định, phải dựng lại nếu lỡ xoá
-	@git checkout -- $(CONTENT)/_sample.build.json 2>/dev/null || true
-	@echo "Đã xoá file máy sinh. Kịch bản trong $(CONTENT)/ còn nguyên."
+	@echo "Đã xoá file máy sinh."
+	@echo "Kịch bản, nhạc nền và clip nền còn nguyên — chỉ giọng đọc bị xoá,"
+	@echo "chạy lại 'make content' là edge-tts sinh lại."
 
 check new:
 	@echo "'make $@' chưa có. Nó thuộc BƯỚC 6 trong kế hoạch triển khai."

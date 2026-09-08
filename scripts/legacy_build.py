@@ -104,13 +104,24 @@ def main() -> None:
 
         # clip nền: chỉ dùng nếu file thật sự tồn tại trong public/, không thì để null
         clip = line.get("clip")
+        clip_start = line.get("clipStartInSeconds", 0)
         clip_frames = None
         if clip and not (PUBLIC_DIR / clip).exists():
             print(f"          (thiếu {clip} -> dùng nền gradient)")
             clip = None
+            clip_start = 0
         elif clip:
-            # đo độ dài clip để lát nữa loop nếu clip ngắn hơn cảnh
-            clip_frames = math.floor(ffprobe_duration(PUBLIC_DIR / clip) * fps)
+            clip_seconds = ffprobe_duration(PUBLIC_DIR / clip)
+            if clip_start >= clip_seconds:
+                print(
+                    f"          (clipStartInSeconds={clip_start} vượt quá độ dài "
+                    f"clip {clip_seconds:.1f}s -> cắt từ đầu)"
+                )
+                clip_start = 0
+            # Đo phần CÒN LẠI SAU ĐIỂM CẮT, không phải cả clip.
+            # Background.tsx cắt clip bằng trimBefore rồi loop theo đúng số này;
+            # nếu ghi cả độ dài clip thì vòng lặp sẽ chạy quá phần thật sự có hình.
+            clip_frames = math.floor((clip_seconds - clip_start) * fps)
 
         out_lines.append({
             "ja": line["ja"],
@@ -122,7 +133,7 @@ def main() -> None:
             "audioStartInFrames": round(lead_in * fps),
             "clip": clip,
             "clipDurationInFrames": clip_frames,
-            "clipStartInSeconds": line.get("clipStartInSeconds", 0),
+            "clipStartInSeconds": clip_start,
         })
 
     bgm = doc.get("bgm")

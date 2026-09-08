@@ -60,43 +60,66 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   phải ghép hai họ font, một cho dòng Nhật, một cho dòng Việt.
 - **Vùng an toàn:** TikTok/Reels che khoảng 350 px dưới cùng và dải bên phải.
   Caption đặt ở 2/3 dưới nhưng phải chừa đáy tối thiểu 380 px.
+- **Lớp phủ tối phải đậm nhất ở dải có caption**, không phủ đều. Clip thật rất
+  sáng; phủ đều là chữ chìm. Xem `Background.tsx`.
+- **Hiệu ứng đi chậm.** Chữ hiện trong 26 frame, tắt trong 20, nền mờ chồng 24.
+  Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả.
 - **Không commit file máy sinh:** `out/`, `content/*.build.json`,
-  `content/.*.cache.json`, `studio/public/audio/20*/`. Ngoại lệ duy nhất là
-  `content/_sample.build.json` và `studio/public/audio/_sample/` — bản mẫu cố định
-  để Studio mở được trên clone mới.
+  `content/.*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
+  Studio mở bằng props mặc định viết thẳng trong `Composition.tsx`, không đọc file.
+- **Nhạc nền và clip nền thì CÓ commit.** Chúng là tài sản thật, tải một lần dùng
+  mãi, và thiếu chúng là video mất hình mất tiếng. Chỉ giọng đọc mới là đồ máy
+  sinh, vì `make content` dựng lại được trong vài giây.
+- **Không để file mẫu, file test, file trung gian nằm lại trong repo.** Muốn thử
+  gì thì thử trong thư mục scratch ngoài repo.
 
 ## Cây thư mục
 
 ```
-pipeline/     Lớp A + B (Python)      — hiện đang dựng, xem BƯỚC 2
-studio/       Lớp C (Remotion)        — src/, public/, package.json
-content/      kịch bản + build.json
-library/      shots.json — metadata và giấy phép mọi clip
-out/          MP4 (không commit)
-scripts/      legacy_build.py — bản cũ, đường quay lui cho BƯỚC 2
+pipeline/     Lớp A + B (Python)      — còn rỗng, xem BƯỚC 2
+studio/       Lớp C (Remotion)
+  src/          Composition, DailyVideo, Background, Caption, fonts
+  public/       audio/bgm-*.mp3, video/*.mp4  (commit)
+                audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
+content/      <ngày>.json  (người viết, commit)
+              <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
+library/      shots.json — metadata và giấy phép mọi clip. Còn rỗng, xem BƯỚC 4
+out/          MP4 và PNG (không commit)
+scripts/      legacy_build.py  — bản cũ, đường quay lui cho BƯỚC 2
+              check_assets.py  — soi nhạc nền và clip nền
 docs/         tài liệu
 ```
 
 ## Trạng thái
 
-Đã xong **BƯỚC 0** (dọn nhà) và **BƯỚC 1** phần code. `pipeline/` còn rỗng;
-`make content` hiện vẫn gọi `scripts/legacy_build.py`. BƯỚC 2 sẽ thay nó bằng các
-module trong `pipeline/` — khi đó tiêu chí nghiệm thu là `2026-08-20` phải ra
-**đúng 1462 frame** (48,7 giây) như bản hiện tại.
+**BƯỚC 0 và BƯỚC 1 đã xong trọn vẹn.** `pipeline/` còn rỗng; `make content` vẫn
+gọi `scripts/legacy_build.py`. BƯỚC 2 sẽ thay nó bằng các module trong `pipeline/`
+— khi đó tiêu chí nghiệm thu là `2026-08-20` phải ra **đúng 1462 frame**
+(48,7 giây) như bản hiện tại.
 
 > Con số này từng là 1327. Nó đổi ở BƯỚC 1 vì `leadIn`/`pauseAfter` giãn ra
 > (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15 frame cho mỗi câu trong 9 câu.
 > Đo lại bằng `make content DAY=2026-08-20` nếu còn nghi ngờ.
 
-Năm khiếm khuyết đã đo được ở BƯỚC 1:
+Năm khiếm khuyết đo được ở BƯỚC 1 — đã đóng hết:
 
-| | Khiếm khuyết | Tình trạng |
+| | Khiếm khuyết | Đã sửa bằng |
 |---|---|---|
-| D-1 | Nhạc nền là file test tone (trùng md5 với `assets/audio/sample.mp3`) | **Còn** — cần người tải nhạc thật |
-| D-2 | Clip nền là video hoa mẫu 960×540 NẰM NGANG, chỉ có 2/9 cảnh | **Còn** — cần người tải clip dọc thật |
-| D-3 | Caption căn giữa màn hình thay vì 2/3 dưới | Đã sửa — neo đáy, chừa 400 px |
-| D-4 | Nghỉ giữa câu chỉ 0,55 s, quá gấp | Đã sửa — 1,05 s |
-| D-5 | Romaji hiện ra `Kyo¯mo` thay vì `Kyō mo` | Đã sửa — tách hai họ font |
+| D-1 | Nhạc nền là file test tone 19,2 s | `bgm-lonely-self.mp3`, 150 s, không phải lặp |
+| D-2 | Clip nền là video hoa mẫu 960×540 nằm ngang, chỉ có 2/9 cảnh | 3 clip trà đạo dọc 1080×1920, phủ đủ 9/9 cảnh |
+| D-3 | Caption căn giữa màn hình thay vì 2/3 dưới | Neo đáy, chừa 400 px |
+| D-4 | Nghỉ giữa câu chỉ 0,55 s, quá gấp | 1,05 s |
+| D-5 | Romaji hiện ra `Kyo¯mo` thay vì `Kyō mo` | Tách hai họ font |
 
-D-1 và D-2 là việc của người dùng, không phải việc của code: chọn nhạc và chọn
-cảnh là chuyện thẩm mỹ. Xem `docs/tai-san-can-tai.md`.
+Ba lỗi phát hiện thêm trong lúc làm BƯỚC 1, cũng đã sửa:
+
+- Câu 16 ký tự bị xuống dòng thành 15 + 1, bỏ trơ một chữ. Sửa bằng `text-wrap:
+  balance` và tính lại thang cỡ chữ theo bề ngang 860 px.
+- `clipDurationInFrames` ghi độ dài CẢ clip trong khi `Background.tsx` cắt clip
+  bằng `trimBefore`, nên vòng lặp chạy quá phần thật sự có hình. Giờ đo phần còn
+  lại sau điểm cắt.
+- Lớp phủ tối nhạt nhất ở giữa khung, đúng chỗ caption bắt đầu. Giờ dồn xuống dưới.
+
+Ba clip (12,8 + 12,9 + 22,9 giây) phải phủ chín cảnh dài tổng 48,6 giây, nên mỗi
+clip dùng lại 2–3 lần ở các điểm cắt khác nhau (`clipStartInSeconds`). Cách xếp
+hiện tại không cảnh nào phải loop — `make assets` kiểm tra lại được.

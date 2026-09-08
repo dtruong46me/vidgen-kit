@@ -3,8 +3,14 @@ import { Background } from "./Background";
 import { Caption } from "./Caption";
 import type { DailyVideoProps } from "./types";
 
-/** Độ dài đoạn mờ chồng giữa 2 cảnh (frame). */
-export const CROSSFADE = 15;
+/**
+ * Độ dài đoạn mờ chồng giữa 2 cảnh (frame).
+ *
+ * Đi cùng nhịp với hiệu ứng chữ trong Caption.tsx: chữ trôi vào trong 26 frame
+ * thì nền cũng phải đổi chậm tương đương, không thì nền cắt xoẹt trong khi chữ
+ * còn đang trôi — hai lớp lệch nhịp nhau, mất cảm giác thong thả.
+ */
+export const CROSSFADE = 24;
 
 /** Vị trí bắt đầu (frame) của từng câu, cộng dồn từ độ dài các câu trước. */
 export const getStarts = (lines: { durationInFrames: number }[]) => {
@@ -57,9 +63,12 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
           name={`Câu ${i + 1} — ${line.ja.slice(0, 12)}`}
         >
           <Caption line={line} />
-          <Sequence from={line.audioStartInFrames} name="Giọng đọc">
-            <Audio src={staticFile(line.audio)} />
-          </Sequence>
+          {/* Câu chưa có giọng đọc (props mặc định của Studio) thì bỏ qua lớp tiếng */}
+          {line.audio ? (
+            <Sequence from={line.audioStartInFrames} name="Giọng đọc">
+              <Audio src={staticFile(line.audio)} />
+            </Sequence>
+          ) : null}
         </Sequence>
       ))}
 

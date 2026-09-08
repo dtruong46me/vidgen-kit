@@ -1,15 +1,20 @@
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { minchoJA, sansLatin } from "./fonts";
 import type { Line } from "./types";
 
-const IN_FRAMES = 14;
-const OUT_FRAMES = 10;
+/**
+ * Nhịp hiện/tắt của chữ — chậm có chủ đích.
+ *
+ * Video này bán cảm giác thong thả, nên chữ phải trôi vào chứ không được bật ra.
+ * 26 frame vào (~0,87 s) và 20 frame ra (~0,67 s), gần gấp đôi bản đầu.
+ *
+ * Câu ngắn nhất chỉ dài khoảng 99 frame, nên nếu cứ dùng cứng hai số này thì
+ * gần nửa cảnh sẽ là animation. MAX_RATIO chặn chuyện đó: hiệu ứng không bao giờ
+ * chiếm quá 30% chiều dài cảnh, câu ngắn tự động fade nhanh hơn một chút.
+ */
+const IN_FRAMES = 26;
+const OUT_FRAMES = 20;
+const MAX_RATIO = 0.3;
 
 /**
  * Vùng an toàn — xem CLAUDE.md.
@@ -69,25 +74,34 @@ const SOFT_GLOW = [
 
 export const Caption: React.FC<{ line: Line }> = ({ line }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const d = line.durationInFrames;
 
-  // Hiện lên: mờ dần vào + trượt lên nhẹ (spring cho mượt, không bị "cứng")
-  const enter = spring({
-    frame,
-    fps,
-    config: { damping: 200 },
-    durationInFrames: IN_FRAMES,
-  });
+  const inF = Math.min(IN_FRAMES, Math.round(d * MAX_RATIO));
+  const outF = Math.min(OUT_FRAMES, Math.round(d * MAX_RATIO));
 
-  // Tắt đi ở cuối cảnh để chữ không đè lên câu tiếp theo lúc chuyển cảnh
-  const exit = interpolate(frame, [d - OUT_FRAMES, d], [1, 0], {
+  // Hiện lên: mờ dần vào + trôi lên nhẹ.
+  //
+  // Dùng inOut chứ không phải out. Easing.out dồn phần lớn độ mờ vào mấy frame
+  // đầu — kéo dài bao nhiêu thì mắt vẫn thấy chữ "bật" ra rồi mới đứng yên.
+  // inOut giữ chữ mờ lâu hơn ở đầu, nên cả quãng đọc ra là thong thả thật.
+  const enter = interpolate(frame, [0, inF], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+
+  // Tắt đi ở cuối cảnh để chữ không đè lên câu tiếp theo lúc chuyển cảnh.
+  // Easing.inOut cho chữ nhạt đi đều đặn thay vì tắt phụt ở khung cuối.
+  const exit = interpolate(frame, [d - outF, d], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.quad),
   });
 
   const opacity = enter * exit;
-  const translateY = interpolate(enter, [0, 1], [26, 0]);
+  // Trôi xa hơn bản cũ (26 -> 34 px) vì quãng đường dài trên nền thời gian dài
+  // đọc ra là thong thả; trôi ngắn mà chậm lại thành ra ì.
+  const translateY = interpolate(enter, [0, 1], [34, 0]);
 
   return (
     <AbsoluteFill

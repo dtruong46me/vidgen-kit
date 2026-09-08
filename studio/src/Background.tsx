@@ -65,13 +65,20 @@ export const Background: React.FC<{
 
       {/*
         Lớp phủ tối để caption luôn đọc được.
-        Clip quay thật thường sáng và nhiều chi tiết -> cần phủ đậm;
-        nền gradient vốn đã tối sẵn -> phủ nhẹ thôi kẻo thành đen kịt.
+
+        Caption neo ở 2/3 dưới (xem SAFE_BOTTOM trong Caption.tsx), nên lớp phủ
+        phải ĐẬM NHẤT Ở DƯỚI chứ không phải đậm đều. Bản đầu phủ nhạt nhất đúng
+        ở giữa khung, mà đó lại là chỗ chữ bắt đầu — chữ Việt nằm trên chiếu tre
+        sáng gần như chìm mất.
+
+        Nửa trên vẫn để nhẹ tay: đó là phần khán giả xem hình, phủ đậm là phí clip.
+
+        Nền gradient vốn đã tối sẵn -> phủ nhẹ thôi kẻo thành đen kịt.
       */}
       <AbsoluteFill
         style={{
           background: line.clip
-            ? "linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.8) 100%)"
+            ? "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.34) 28%, rgba(0,0,0,0.52) 50%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.88) 100%)"
             : "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.35) 100%)",
         }}
       />
