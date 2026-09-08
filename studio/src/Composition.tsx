@@ -16,7 +16,14 @@ import type { DailyVideoProps } from "./types";
 const calculateMetadata: CalculateMetadataFunction<DailyVideoProps> = ({
   props,
 }) => {
-  const total = props.lines.reduce((sum, l) => sum + l.durationInFrames, 0);
+  // Ba phần cộng lại, đúng thứ tự chúng xuất hiện. Con số này phải khớp từng
+  // frame với `Timeline.total_frames` bên pipeline/timeline.py — lệch nhau là
+  // video bị cắt cụt hoặc thừa một đoạn đen ở cuối.
+  const scenes = props.lines.reduce((sum, l) => sum + l.durationInFrames, 0);
+  const total =
+    (props.intro?.durationInFrames ?? 0) +
+    scenes +
+    (props.outro?.durationInFrames ?? 0);
 
   return {
     durationInFrames: total,
@@ -45,11 +52,17 @@ const PLACEHOLDER: DailyVideoProps = {
   bgm: null,
   bgmDurationInFrames: null,
   bgmVolume: 0.12,
+  intro: null,
+  outro: null,
+  transition: "crossfade",
+  transitionInFrames: 24,
+  showHira: false,
   lines: [
     {
       ja: "静かな朝。",
       romaji: "Shizuka na asa.",
       vi: "Một buổi sáng tĩnh lặng.",
+      hira: "しずかなあさ。",
       audio: "",
       audioDurationInFrames: 0,
       durationInFrames: 120,

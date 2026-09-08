@@ -18,6 +18,9 @@ Ba phép làm tròn, mỗi phép có lý do riêng:
   floor cho clip nền và nhạc nền — đây là số hình/tiếng CÓ THẬT; làm tròn lên
         là hứa nhiều hơn file có, và Remotion sẽ trả về frame đen.
   round cho điểm vào của giọng đọc — sai một frame ở đây tai không nghe ra.
+  round cho màn mở đầu, màn kết và độ dài chuyển cảnh — ba thứ này là con số
+        thẩm mỹ người viết chọn, không đo từ file nào, nên không có bên nào để
+        mà thà thừa hay thà thiếu.
 """
 
 from __future__ import annotations
@@ -45,10 +48,25 @@ class Timeline:
     fps: int
     scenes: list[Scene]
     bgm_duration_in_frames: int | None
+    #: None khi kịch bản không khai `intro`/`outro`. Đó là mặc định — nhờ vậy
+    #: kịch bản viết trước BƯỚC 5 ra đúng số frame cũ, không lệch một frame nào.
+    intro_duration_in_frames: int | None = None
+    outro_duration_in_frames: int | None = None
+    #: Độ dài đoạn mờ chồng giữa hai cảnh. KHÔNG cộng vào tổng: cảnh sau bắt đầu
+    #: sớm hơn và chồng lên cuối cảnh trước, chứ không kéo dài video ra.
+    transition_in_frames: int = 24
+
+    @property
+    def scenes_frames(self) -> int:
+        return sum(s.duration_in_frames for s in self.scenes)
 
     @property
     def total_frames(self) -> int:
-        return sum(s.duration_in_frames for s in self.scenes)
+        return (
+            (self.intro_duration_in_frames or 0)
+            + self.scenes_frames
+            + (self.outro_duration_in_frames or 0)
+        )
 
     @property
     def seconds(self) -> float:
@@ -89,6 +107,8 @@ def build(
     voices: list[Voiceover],
     clips: list[SceneClip],
     bgm: Soundtrack,
+    intro=None,
+    outro=None,
 ) -> Timeline:
     """Xếp toàn bộ video ra frame. Mọi đầu vào tính bằng giây, mọi đầu ra tính bằng frame."""
     if not (len(voices) == len(clips) == len(script.lines)):
@@ -108,4 +128,11 @@ def build(
         bgm_duration_in_frames=(
             math.floor(bgm.seconds * script.fps) if bgm.seconds is not None else None
         ),
+        intro_duration_in_frames=(
+            round(intro.seconds * script.fps) if intro is not None else None
+        ),
+        outro_duration_in_frames=(
+            round(outro.seconds * script.fps) if outro is not None else None
+        ),
+        transition_in_frames=round(script.transition_seconds * script.fps),
     )

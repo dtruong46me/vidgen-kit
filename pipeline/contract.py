@@ -33,8 +33,10 @@ def compose(
     bgm: Soundtrack,
     timeline: Timeline,
     readings: list[Reading],
+    intro=None,
+    outro=None,
 ) -> dict:
-    """Ghép năm nguồn lại thành đúng hình dạng Remotion đang chờ."""
+    """Ghép các nguồn lại thành đúng hình dạng Remotion đang chờ."""
     return {
         "id": script.slug,
         "title": script.title,
@@ -44,6 +46,30 @@ def compose(
         "bgm": bgm.path,
         "bgmDurationInFrames": timeline.bgm_duration_in_frames,
         "bgmVolume": script.bgm_volume,
+        # Bốn trường của BƯỚC 5. Cả bốn đều có mặc định "không đổi gì cả":
+        # intro/outro là null, transition là crossfade 24 frame — đúng bằng
+        # hằng số CROSSFADE mà DailyVideo.tsx vẫn dùng từ trước. Nhờ vậy bản
+        # Remotion CŨ đọc build.json MỚI vẫn ra y hệt video cũ (P-3).
+        "intro": (
+            {
+                "title": intro.title,
+                "dateText": intro.date_text,
+                "durationInFrames": timeline.intro_duration_in_frames,
+            }
+            if intro is not None else None
+        ),
+        "outro": (
+            {
+                "text": outro.text,
+                "durationInFrames": timeline.outro_duration_in_frames,
+            }
+            if outro is not None else None
+        ),
+        "transition": script.transition,
+        "transitionInFrames": timeline.transition_in_frames,
+        # Trường `hira` đã có từ BƯỚC 3 nhưng chưa ai hiện nó. Đây là công tắc.
+        # Mặc định tắt — xem lý do ở script.py.
+        "showHira": script.show_hira,
         "lines": [
             {
                 "ja": line.ja,

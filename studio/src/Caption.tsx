@@ -72,7 +72,10 @@ const SOFT_GLOW = [
   "0 6px 28px rgba(0,0,0,0.72)",
 ].join(", ");
 
-export const Caption: React.FC<{ line: Line }> = ({ line }) => {
+export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
+  line,
+  showHira = false,
+}) => {
   const frame = useCurrentFrame();
   const d = line.durationInFrames;
 
@@ -149,6 +152,34 @@ export const Caption: React.FC<{ line: Line }> = ({ line }) => {
             }}
           >
             {line.romaji}
+          </div>
+        ) : null}
+
+        {/*
+          Dòng hiragana — mặc định TẮT.
+
+          Nó hữu ích hơn romaji với người đang học thật sự, nhưng bật lên là
+          caption thành bốn dòng, và bốn dòng thì khối chữ cao thêm khoảng 60px,
+          lấn dần vào vùng an toàn 380px dưới đáy. Bật `showHira` trong kịch bản
+          để xem thử rồi tự quyết — đừng quyết bằng cách tưởng tượng.
+
+          Câu nào vốn đã toàn kana (vd. おはようございます。) thì `hira` giống hệt
+          `ja`, in ra là lặp nguyên một dòng. Bỏ qua đúng những câu đó: dòng
+          hiragana chỉ có nghĩa khi nó đọc hộ được chữ kanji.
+        */}
+        {showHira && line.hira && line.hira !== line.ja ? (
+          <div
+            style={{
+              fontFamily: minchoJA,
+              color: "rgba(255,255,255,0.5)",
+              fontSize: 26,
+              fontWeight: 600,
+              lineHeight: 1.5,
+              marginTop: 14,
+              letterSpacing: 1,
+            }}
+          >
+            {line.hira}
           </div>
         ) : null}
 

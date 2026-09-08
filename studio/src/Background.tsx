@@ -7,7 +7,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import type { Line } from "./types";
+import type { Line, Transition } from "./types";
 
 /** Bảng màu nền dùng khi 1 câu chưa có clip quay — tông trầm kiểu trà đạo. */
 const PALETTES = [
@@ -22,30 +22,73 @@ const PALETTES = [
   ["#191d1f", "#3d5157"], // sương sớm
 ];
 
+/**
+ * Ba kiểu chuyển cảnh, khác nhau ở CHỖ NÀO trong thời gian chứ không chỉ ở
+ * hiệu ứng — nên phải đọc cùng với DailyVideo.tsx, nơi quyết định mỗi cảnh bắt
+ * đầu ở frame nào:
+ *
+ *   crossfade    cảnh này bắt đầu SỚM hơn T frame và sáng dần lên, chồng lên
+ *                cuối cảnh trước. Không cảnh nào tối đi. Đây là kiểu êm nhất
+ *                và là mặc định.
+ *   dip_to_black cảnh nằm đúng ô của nó, sáng lên trong T/2 đầu và tối đi trong
+ *                T/2 cuối. Giữa hai cảnh có một khoảnh khắc đen thật sự.
+ *   cut          cắt thẳng, không frame nào dành cho hiệu ứng.
+ *
+ * Vì sao chia đôi T ở dip_to_black: hai nửa cộng lại đúng bằng T, nên đổi kiểu
+ * chuyển cảnh không làm đổi cảm giác về nhịp — chỉ đổi cách nối.
+ */
+const opacityFor = (
+  mode: Transition,
+  frame: number,
+  index: number,
+  fadeFrames: number,
+  windowFrames: number,
+) => {
+  if (mode === "cut") return 1;
+
+  if (mode === "dip_to_black") {
+    const half = Math.max(1, Math.round(fadeFrames / 2));
+    return (
+      interpolate(frame, [0, half], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }) *
+      interpolate(frame, [windowFrames - half, windowFrames], [1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      })
+    );
+  }
+
+  // crossfade — cảnh đầu tiên không fade từ màu đen ra vì nó đã có màn mở đầu
+  // hoặc chính là khung hình đầu video; các cảnh sau fade chồng lên cảnh trước.
+  if (index === 0) return 1;
+  return interpolate(frame, [0, fadeFrames], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+};
+
 export const Background: React.FC<{
   line: Line;
   index: number;
-  /** Số frame fade-in — chính là hiệu ứng chuyển cảnh mờ chồng */
+  /** Số frame dành cho hiệu ứng chuyển cảnh */
   fadeInFrames: number;
-}> = ({ line, index, fadeInFrames }) => {
+  /** Kiểu chuyển cảnh. Không truyền thì crossfade, đúng hành vi trước BƯỚC 5 */
+  mode?: Transition;
+  /** Độ dài THẬT của Sequence bọc ngoài — crossfade dài hơn cảnh đúng T frame */
+  windowFrames?: number;
+}> = ({ line, index, fadeInFrames, mode = "crossfade", windowFrames }) => {
   const frame = useCurrentFrame();
+  const window = windowFrames ?? line.durationInFrames;
 
-  // Cảnh đầu tiên không fade từ màu đen ra, các cảnh sau fade chồng lên cảnh trước
-  const opacity =
-    index === 0
-      ? 1
-      : interpolate(frame, [0, fadeInFrames], [0, 1], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        });
+  const opacity = opacityFor(mode, frame, index, fadeInFrames, window);
 
   // Ken Burns: phóng to rất chậm để khung hình không bị "chết"
-  const scale = interpolate(
-    frame,
-    [0, line.durationInFrames + fadeInFrames],
-    [1.06, 1.14],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+  const scale = interpolate(frame, [0, window], [1.06, 1.14], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   const [from, to] = PALETTES[index % PALETTES.length];
 

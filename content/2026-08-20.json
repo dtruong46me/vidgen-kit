@@ -11,6 +11,14 @@
   "height": 1920,
   "leadIn": 0.35,
   "pauseAfter": 0.7,
+  "intro": {
+    "title": "小さな幸せ",
+    "seconds": 4.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
   "lines": [
     {
       "ja": "今日も新しい一日が始まりました。",
@@ -70,5 +78,6 @@
   "targetSeconds": [
     45,
     60
-  ]
+  ],
+  "transition": "crossfade"
 }

@@ -70,7 +70,18 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Lớp phủ tối phải đậm nhất ở dải có caption**, không phủ đều. Clip thật rất
   sáng; phủ đều là chữ chìm. Xem `Background.tsx`.
 - **Hiệu ứng đi chậm.** Chữ hiện trong 26 frame, tắt trong 20, nền mờ chồng 24.
-  Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả.
+  Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả. Màn mở đầu
+  cố tình chậm hơn nữa (34 frame): nó không phải nhường chỗ cho câu nào.
+- **`calculateMetadata` và `timeline.py` phải ra CÙNG một con số.** Cả hai đều
+  cộng màn mở đầu + các cảnh + màn kết. Lệch nhau là video cụt đuôi hoặc thừa
+  một đoạn đen — mà không bên nào báo lỗi, phải xem mới biết.
+- **Ba kiểu chuyển cảnh khác nhau ở CHỖ ĐẶT cảnh, không chỉ ở hiệu ứng.**
+  `crossfade` cho cảnh bắt đầu sớm hơn T frame để chồng lên cảnh trước;
+  `dip_to_black` và `cut` để cảnh nằm đúng ô của nó. Vì vậy `DailyVideo.tsx`
+  (đặt cảnh) và `Background.tsx` (vẽ opacity) phải đọc cùng nhau.
+- **Dòng hiragana mặc định TẮT.** Caption đã có ba dòng; dòng thứ tư ép cỡ chữ
+  nhỏ lại và lấn vào vùng an toàn 380px. Bật bằng `"showHira": true` trong kịch
+  bản. Câu nào vốn toàn kana thì dòng đó tự ẩn — in ra là lặp y hệt dòng trên.
 - **`remotion.config.ts` ghì concurrency về 1 vì máy dựng thiếu RAM.** Không phải
   giới hạn của code. Máy khoẻ hơn thì nâng lên; để nguyên trên máy 2 nhân / 3 GB
   trống thì compositor bị giết bằng SIGTERM lúc mở clip thứ hai.
@@ -120,6 +131,7 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 ```
 pipeline/     Lớp A + B (Python)
   env.py        nạp .env — chỗ duy nhất đọc khoá API
+  intro.py      chữ cho màn mở đầu và màn kết; ngày kiểu Nhật suy từ tên kịch bản
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
   script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
@@ -133,7 +145,7 @@ pipeline/     Lớp A + B (Python)
   render.py     gọi Remotion — chỗ duy nhất biết quy ước cwd=studio/ và ../
   run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N]
 studio/       Lớp C (Remotion)
-  src/          Composition, DailyVideo, Background, Caption, fonts
+  src/          Composition, DailyVideo, Background, Caption, Intro, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
 content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji;
@@ -143,12 +155,26 @@ library/      readings.json — chữ máy đọc sai thì đè cách đọc ở
               shots.json — nguồn, tác giả, giấy phép và tag của mọi clip/nhạc
 out/          MP4 và PNG (không commit)
 .env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
-docs/         cai-dat.md, tai-san-can-tai.md
+docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md
 ```
+
+## Việc đang treo, chờ người làm
+
+Không cái nào chặn dây chuyền — `make video` chạy đủ mà không cần cái nào.
+
+| | Việc | Vì sao treo | Làm xong thì được gì |
+|---|---|---|---|
+| T-1 | Lấy `PEXELS_API_KEY` | Trang đăng nhập Pexels đang lỗi *"An unexpected error occurred"* — lỗi phía họ, không phải cấu hình. Cloudflare cũng chặn cả `curl` lẫn WebFetch từ máy này | Điền nốt tên tác giả ba clip trong `library/shots.json`, và `make shots-find SOURCE=pexels` chạy được |
+| T-2 | Lấy `PIXABAY_API_KEY` | Chưa làm. Dễ hơn Pexels nhiều: đăng nhập xong khoá hiện thẳng trên `pixabay.com/api/docs/` | `make shots-find SOURCE=pixabay` chạy được. Code đã đối chiếu với tài liệu API của họ, khớp |
+| T-3 | Tìm clip 30fps thay ba clip 25fps (D-8) | Cần người xem và chọn, máy không quyết hộ | Hết giật ở cảnh lia chậm |
+| T-4 | Gắn tag cho thư viện khi nó lớn lên (s4e) | Chỉ có 3 clip nên chưa cấp bách | Bộ chọn ghép cảnh đúng chủ đề hơn |
+
+Không có khoá nào thì đường `make shots-add` vẫn làm được mọi thứ đường API làm —
+xem `docs/cai-dat.md`. Khoá chỉ tiết kiệm công tìm clip.
 
 ## Trạng thái
 
-**BƯỚC 0, 1, 2, 3 và 4 đã xong trọn vẹn.** `make content` gọi `python3 -m
+**BƯỚC 0, 1, 2, 3, 4 và 5 đã xong trọn vẹn.** `make content` gọi `python3 -m
 pipeline.run`; `scripts/legacy_build.py` và `scripts/check_assets.py` đã bị xoá
 (thư mục `scripts/` không còn).
 
@@ -160,7 +186,10 @@ khác bản gõ tay **đúng 1 chỗ trên 9 câu** — `sukina` thành `suki na
 tay vốn tự mâu thuẫn ở chỗ này (câu 9 viết `Suteki na` có dấu cách). Số frame
 không đổi, vì romaji không dính gì tới thời lượng.
 
-> Con số 1462 vẫn là mốc hồi quy cho mọi bước sau. Đổi bất cứ thứ gì trong
+> **Mốc hồi quy giờ có hai con số.** `1462` là phần THOẠI — không đổi từ BƯỚC 1
+> và không được đổi. `1687` là tổng của `2026-08-20` sau khi bật màn mở đầu
+> (135) và màn kết (90). Kịch bản không khai `intro`/`outro` thì tổng vẫn đúng
+> 1462, nên mốc cũ còn nguyên giá trị. Đổi bất cứ thứ gì trong
 > `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số đó. Nó đổi
 > mà bạn không cố ý đổi nhịp đọc, tức là bạn vừa làm hỏng timeline.
 
@@ -189,6 +218,27 @@ Ba khiếm khuyết đo được ở BƯỚC 4 — hai đã đóng, một còn m
 | D-6 | Ba clip nền không có nguồn, không có giấy phép | Đóng — `library/shots.json` |
 | D-7 | `scripts/check_assets.py` gọi ffprobe riêng, trái quy ước "probe.py là chỗ duy nhất" | Đóng — gộp vào `pipeline/library.py`, `make assets` thành bí danh của `make shots` |
 | D-8 | Cả ba clip đều 25fps trong timeline 30fps — cảnh lia chậm hơi giật | **Còn mở.** `make shots` cảnh báo. Sửa bằng cách tìm clip 30fps, không sửa được bằng code |
+
+Nghiệm thu BƯỚC 5 đạt:
+
+1. **Hai lượt tách bạch, đúng P-3.** Lượt Python thêm năm trường vào hợp đồng
+   (`intro`, `outro`, `transition`, `transitionInFrames`, `showHira`), cả năm
+   mặc định "không đổi gì cả" — `transitionInFrames` mặc định 24, đúng bằng
+   hằng số `CROSSFADE` mà `DailyVideo.tsx` vẫn dùng. Bản Remotion CŨ đọc
+   build.json MỚI render ra đúng video cũ, đã kiểm bằng `make still`. Lượt React
+   làm sau, không đụng lại Python.
+2. **Số frame khớp hai bên.** `timeline.py` và `calculateMetadata` cùng ra
+   1687 = 135 + 1462 + 90. Bản render thật dài 56,3 giây, vẫn trong khoảng
+   `targetSeconds` 45–60.
+3. **Ba kiểu chuyển cảnh chạy được.** `crossfade` giữ nguyên hành vi cũ;
+   `dip_to_black` cho frame ranh giới đen hoàn toàn (kiểm ở frame 279);
+   `cut` không dành frame nào cho hiệu ứng.
+
+Quyết định của BƯỚC 5 về dòng hiragana (s5e): **để tắt.** Bật lên xem thử thì
+thấy hai vấn đề — caption thành bốn dòng lấn vào vùng an toàn, và câu nào vốn
+toàn kana thì dòng hiragana lặp y hệt dòng tiếng Nhật. Vấn đề thứ hai đã sửa
+(câu như vậy tự ẩn dòng đó), vấn đề thứ nhất thì không sửa được bằng code. Công
+tắc `showHira` vẫn còn để đổi ý mà không phải viết lại gì.
 
 Năm khiếm khuyết đo được ở BƯỚC 1 — đã đóng hết:
 

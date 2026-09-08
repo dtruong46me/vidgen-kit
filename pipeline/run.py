@@ -21,8 +21,9 @@ import sys
 from pathlib import Path
 
 from . import (
-    assets, contract, library as library_mod, reading as reading_mod, render,
-    script as script_mod, shots as shots_mod, timeline as timeline_mod, tts,
+    assets, contract, intro as intro_mod, library as library_mod,
+    reading as reading_mod, render, script as script_mod, shots as shots_mod,
+    timeline as timeline_mod, tts,
 )
 from .library import LibraryError
 from .probe import ProbeError, duration_seconds
@@ -57,13 +58,23 @@ def build_day(slug: str, log=print) -> Path:
     clips = [assets.resolve_clip(line, PUBLIC_DIR, log=log) for line in lines]
     bgm = assets.resolve_bgm(doc, PUBLIC_DIR, log=log)
 
-    timeline = timeline_mod.build(doc, voices, clips, bgm)
+    intro = intro_mod.build_intro(doc.intro, slug, doc.title)
+    outro = intro_mod.build_outro(doc.outro)
+
+    timeline = timeline_mod.build(doc, voices, clips, bgm, intro, outro)
     dest = contract.write(
-        contract.compose(doc, voices, clips, bgm, timeline, readings),
+        contract.compose(doc, voices, clips, bgm, timeline, readings, intro, outro),
         CONTENT_DIR / f"{slug}.build.json",
     )
 
     log(f"\nĐã ghi {dest.relative_to(ROOT)}")
+    if intro or outro:
+        parts = [f"{timeline.scenes_frames} frame thoại"]
+        if intro:
+            parts.insert(0, f"{timeline.intro_duration_in_frames} frame mở đầu")
+        if outro:
+            parts.append(f"{timeline.outro_duration_in_frames} frame kết")
+        log(f"  {' + '.join(parts)}")
     log(f"{len(timeline.scenes)} câu — tổng {timeline.total_frames} frame "
         f"= {timeline.seconds:.1f} giây")
 

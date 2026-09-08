@@ -5,8 +5,8 @@ Tải và đăng ký là MỘT việc, không phải hai. Tách ra thì sẽ có
 quên ghi sổ, và sáu tháng sau không ai biết clip đó ở đâu ra — đúng cái bẫy mà
 ba clip đầu tiên của dự án đã suýt rơi vào.
 
-    make shots-find PROVIDER=pexels Q="tea ceremony"
-    make shots-get  PROVIDER=pexels ID=8507912 NAME=matcha-whisk TAGS=tea,matcha
+    make shots-find SOURCE=pexels Q="tea ceremony"
+    make shots-get  SOURCE=pexels ID=8507912 NAME=matcha-whisk TAGS=tea,matcha
     make shots-add  FILE=~/quay/san-vuon.mp4 NAME=zen-garden \\
                     URL=... AUTHOR="..." LICENSE="CC0" TAGS=garden,calm
 
@@ -167,7 +167,9 @@ def _pexels(query: str | None, source_id: str | None, per_page: int) -> list[Can
 
 
 def _pixabay(query: str | None, source_id: str | None, per_page: int) -> list[Candidate]:
-    params = {"key": _key("pixabay"), "per_page": max(per_page, 3)}
+    # Pixabay KHÔNG có tham số lọc hướng — khác Pexels. Phải xin nhiều rồi tự
+    # lọc dọc phía mình, nếu không thì mười hai kết quả đầu toàn clip ngang.
+    params = {"key": _key("pixabay"), "per_page": min(max(per_page * 6, 3), 200)}
     if source_id:
         params["id"] = source_id
     else:
@@ -367,10 +369,18 @@ def main(argv: list[str] | None = None) -> int:
             if not found:
                 print("Không tìm thấy clip nào. Thử từ khoá khác.")
                 return 0
-            print(f"{len(found)} kết quả — dấu ! là không đạt chuẩn dọc ≥{MIN_WIDTH}px:\n")
-            for c in found:
+            # Clip dùng được lên trước, rộng nhất lên trên. Bắt người đọc tự
+            # dò trong danh sách lẫn lộn là cách chắc chắn để họ chọn nhầm.
+            found.sort(key=lambda c: (not (c.is_vertical and c.width >= MIN_WIDTH), -c.width))
+            good = sum(1 for c in found if c.is_vertical and c.width >= MIN_WIDTH)
+            print(f"{len(found)} kết quả, {good} đạt chuẩn dọc ≥{MIN_WIDTH}px "
+                  f"(dấu ! là không đạt):\n")
+            for c in found[:20]:
                 print(c.line())
-            print(f"\nTải một clip: make shots-get PROVIDER={rest[0]} "
+            if good == 0:
+                print("\nKhông clip nào dọc. Thử từ khoá khác, hoặc tải clip ngang "
+                      "rồi cắt về dọc — xem docs/tai-san-can-tai.md.")
+            print(f"\nTải một clip: make shots-get SOURCE={rest[0]} "
                   f"ID=<id> NAME=<tên> TAGS=tea,calm")
             return 0
 

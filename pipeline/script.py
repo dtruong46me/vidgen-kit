@@ -20,6 +20,32 @@ class ScriptError(ValueError):
     """Kịch bản sai hoặc thiếu trường. Thông báo viết cho người đọc, không phải traceback."""
 
 
+#: Ba kiểu chuyển cảnh. Mặc định là crossfade — đúng bằng hành vi đã có từ
+#: trước BƯỚC 5, nên kịch bản cũ không khai gì thì video không đổi một frame nào.
+TRANSITIONS = ("crossfade", "dip_to_black", "cut")
+
+#: Mặc định khi kịch bản khai `intro`/`outro` mà không nói dài bao nhiêu.
+DEFAULT_INTRO_SECONDS = 4.5
+DEFAULT_OUTRO_SECONDS = 3.0
+DEFAULT_OUTRO_TEXT = "またあした"
+DEFAULT_TRANSITION_SECONDS = 0.8
+
+
+@dataclass(frozen=True)
+class IntroSpec:
+    """Khai báo màn mở đầu trong kịch bản. Chữ ngày do máy suy ra (xem intro.py)."""
+
+    #: None thì lấy `title` của cả kịch bản.
+    title: str | None
+    seconds: float
+
+
+@dataclass(frozen=True)
+class OutroSpec:
+    text: str
+    seconds: float
+
+
 @dataclass(frozen=True)
 class ScriptLine:
     """Một câu do người viết. Chưa có giọng đọc, chưa có frame."""
@@ -54,6 +80,16 @@ class Script:
     reading: str
     #: Tag mặc định cho mọi câu chưa tự khai tag.
     tags: tuple[str, ...]
+    #: None = không có màn mở đầu / màn kết. Đó là mặc định, và nhờ vậy kịch bản
+    #: viết trước BƯỚC 5 vẫn ra đúng số frame cũ.
+    intro: IntroSpec | None
+    outro: OutroSpec | None
+    transition: str
+    transition_seconds: float
+    #: Hiện thêm dòng hiragana dưới romaji hay không. Mặc định TẮT: caption đã
+    #: có ba dòng (Nhật, romaji, Việt), dòng thứ tư ép cỡ chữ nhỏ lại và lấn
+    #: vào vùng an toàn 380px dưới đáy. Bật lên xem thử rồi tự quyết.
+    show_hira: bool
     target_seconds: tuple[float, float] | None
     lines: list[ScriptLine]
 
@@ -70,6 +106,57 @@ def _tags(raw: object, where: str) -> tuple[str, ...]:
     if not isinstance(raw, list) or any(not isinstance(t, str) for t in raw):
         raise ScriptError(f"{where} có \"tags\" phải là danh sách chuỗi.")
     return tuple(raw)
+
+
+def _seconds(raw: object, key: str, where: str, default: float) -> float:
+    if raw is None:
+        return default
+    if not isinstance(raw, (int, float)) or raw <= 0:
+        raise ScriptError(f"{where} có \"{key}\" phải là số giây dương.")
+    return float(raw)
+
+
+def _intro(raw: object, where: str) -> IntroSpec | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise ScriptError(f"{where} có \"intro\" phải là object, ví dụ "
+                          f"{{\"title\": \"小さな幸せ\", \"seconds\": 4.5}}.")
+    title = raw.get("title")
+    if title is not None and not isinstance(title, str):
+        raise ScriptError(f"{where} có \"intro.title\" không phải chuỗi.")
+    return IntroSpec(
+        title=title or None,
+        seconds=_seconds(raw.get("seconds"), "intro.seconds", where,
+                         DEFAULT_INTRO_SECONDS),
+    )
+
+
+def _outro(raw: object, where: str) -> OutroSpec | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise ScriptError(f"{where} có \"outro\" phải là object, ví dụ "
+                          f"{{\"text\": \"またあした\", \"seconds\": 3}}.")
+    text = raw.get("text", DEFAULT_OUTRO_TEXT)
+    if not isinstance(text, str) or not text.strip():
+        raise ScriptError(f"{where} có \"outro.text\" rỗng hoặc không phải chuỗi.")
+    return OutroSpec(
+        text=text,
+        seconds=_seconds(raw.get("seconds"), "outro.seconds", where,
+                         DEFAULT_OUTRO_SECONDS),
+    )
+
+
+def _transition(raw: object, where: str) -> str:
+    if raw is None:
+        return "crossfade"
+    if raw not in TRANSITIONS:
+        raise ScriptError(
+            f"{where} có \"transition\" là \"{raw}\", không có kiểu đó. "
+            f"Chỉ có: {', '.join(TRANSITIONS)}."
+        )
+    return raw
 
 
 def _text(value: object, key: str, where: str) -> str:
@@ -141,6 +228,14 @@ def load(content_dir: Path, slug: str) -> Script:
         bgm_volume=float(doc.get("bgmVolume", 0.12)),
         reading=doc.get("reading", "cutlet"),
         tags=_tags(doc.get("tags"), src.name),
+        intro=_intro(doc.get("intro"), src.name),
+        outro=_outro(doc.get("outro"), src.name),
+        transition=_transition(doc.get("transition"), src.name),
+        transition_seconds=_seconds(
+            doc.get("transitionSeconds"), "transitionSeconds", src.name,
+            DEFAULT_TRANSITION_SECONDS,
+        ),
+        show_hira=bool(doc.get("showHira", False)),
         target_seconds=target,
         lines=lines,
     )
