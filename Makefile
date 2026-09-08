@@ -9,22 +9,16 @@
 #   make clean                       xoá file máy sinh
 #
 # Quy ước đường dẫn: mọi lệnh chạy từ gốc repo. Remotion cần chạy trong
-# studio/ (nơi có package.json), nên đường dẫn truyền vào nó là tương đối
-# so với studio/ — đó là lý do có tiền tố ../ ở PROPS và OUT.
+# studio/ (nơi có package.json), nên đường dẫn truyền vào nó phải có tiền tố
+# ../ — quy ước đó nằm gọn trong pipeline/render.py, Makefile không lo nữa.
 
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-COMPOSITION := Daily
 STUDIO      := studio
 CONTENT     := content
 OUT         := out
 FRAME       ?= 300
-
-# Đường dẫn nhìn từ bên trong studio/
-PROPS = ../$(CONTENT)/$(DAY).build.json
-DEST  = ../$(OUT)/$(DAY).mp4
-STILL = ../$(OUT)/$(DAY)-f$(FRAME).png
 
 # Bắt lỗi thiếu DAY sớm, kèm gợi ý — thay vì để lệnh con báo lỗi khó hiểu.
 define need_day
@@ -77,25 +71,19 @@ studio:
 ## Kịch bản -> giọng đọc -> content/<DAY>.build.json
 content:
 	$(need_day)
-	@python3 scripts/legacy_build.py $(DAY)
+	@python3 -m pipeline.run $(DAY)
 
-## content/<DAY>.build.json -> out/<DAY>.mp4
-video: content
-	@mkdir -p $(OUT)
-	cd $(STUDIO) && npx remotion render $(COMPOSITION) "$(DEST)" --props="$(PROPS)"
-	@echo ""
-	@echo "Xong: $(OUT)/$(DAY).mp4"
+## Kịch bản -> giọng đọc -> timeline -> out/<DAY>.mp4, một lượt
+video:
+	$(need_day)
+	@python3 -m pipeline.run $(DAY) --render
 	@ffprobe -v error -show_entries format=duration -of csv=p=0 $(OUT)/$(DAY).mp4 \
 		| xargs printf "  thời lượng %.2f giây\n"
 
 ## Render đúng 1 frame — cách nhanh nhất để bắt lỗi font và bố cục caption
 still:
 	$(need_day)
-	@mkdir -p $(OUT)
-	@test -f $(CONTENT)/$(DAY).build.json \
-		|| { echo "Chưa có $(CONTENT)/$(DAY).build.json — chạy 'make content DAY=$(DAY)' trước."; exit 1; }
-	cd $(STUDIO) && npx remotion still $(COMPOSITION) "$(STILL)" --frame=$(FRAME) --props="$(PROPS)"
-	@echo "Xong: $(OUT)/$(DAY)-f$(FRAME).png"
+	@python3 -m pipeline.run $(DAY) --still $(FRAME)
 
 ## Soi tài sản media — file nào thiếu, file nào còn là hàng mẫu
 assets:

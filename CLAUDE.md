@@ -52,7 +52,8 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Mọi lệnh đi qua `Makefile`.** Đừng hướng dẫn người dùng gõ `npx remotion` trực
   tiếp — thêm target vào Makefile.
 - **Remotion phải chạy với cwd là `studio/`** (nơi có `package.json`). Đường dẫn
-  truyền vào nó là tương đối so với `studio/`, nên có tiền tố `../`.
+  truyền vào nó là tương đối so với `studio/`, nên có tiền tố `../`. Quy ước này
+  chỉ được viết ở `pipeline/render.py`; Makefile không tự dựng đường dẫn nữa.
 - **`calculateMetadata` suy thời lượng từ props.** Không được hardcode
   `durationInFrames` trong `studio/src/Composition.tsx`.
 - **Font phải nạp qua `@remotion/google-fonts`.** Chrome lúc render không có font
@@ -82,7 +83,15 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 ## Cây thư mục
 
 ```
-pipeline/     Lớp A + B (Python)      — còn rỗng, xem BƯỚC 2
+pipeline/     Lớp A + B (Python)
+  probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
+  script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
+  tts.py        edge-tts từng câu + cache theo vân tay nội dung
+  assets.py     xác minh clip nền và nhạc nền có thật, đo phần còn lại sau điểm cắt
+  timeline.py   ★ nơi DUY NHẤT đổi giây ra frame (P-2)
+  contract.py   ghi build.json — hình dạng hợp đồng khai báo ở đây (P-3)
+  render.py     gọi Remotion — chỗ duy nhất biết quy ước cwd=studio/ và ../
+  run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N]
 studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
@@ -91,21 +100,23 @@ content/      <ngày>.json  (người viết, commit)
               <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
 library/      shots.json — metadata và giấy phép mọi clip. Còn rỗng, xem BƯỚC 4
 out/          MP4 và PNG (không commit)
-scripts/      legacy_build.py  — bản cũ, đường quay lui cho BƯỚC 2
-              check_assets.py  — soi nhạc nền và clip nền
+scripts/      check_assets.py  — soi nhạc nền và clip nền
 docs/         tài liệu
 ```
 
 ## Trạng thái
 
-**BƯỚC 0 và BƯỚC 1 đã xong trọn vẹn.** `pipeline/` còn rỗng; `make content` vẫn
-gọi `scripts/legacy_build.py`. BƯỚC 2 sẽ thay nó bằng các module trong `pipeline/`
-— khi đó tiêu chí nghiệm thu là `2026-08-20` phải ra **đúng 1462 frame**
-(48,7 giây) như bản hiện tại.
+**BƯỚC 0, 1 và 2 đã xong trọn vẹn.** `make content` gọi `python3 -m
+pipeline.run`; `scripts/legacy_build.py` đã bị xoá. Nghiệm thu BƯỚC 2 đạt:
+`2026-08-20` ra **đúng 1462 frame** (48,7 giây) và file `build.json` **giống hệt
+từng byte** bản do legacy sinh ra.
 
-> Con số này từng là 1327. Nó đổi ở BƯỚC 1 vì `leadIn`/`pauseAfter` giãn ra
+> Con số 1462 vẫn là mốc hồi quy cho mọi bước sau. Đổi bất cứ thứ gì trong
+> `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số đó. Nó đổi
+> mà bạn không cố ý đổi nhịp đọc, tức là bạn vừa làm hỏng timeline.
+
+> Con số này từng là 1327 trước BƯỚC 1, đổi vì `leadIn`/`pauseAfter` giãn ra
 > (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15 frame cho mỗi câu trong 9 câu.
-> Đo lại bằng `make content DAY=2026-08-20` nếu còn nghi ngờ.
 
 Năm khiếm khuyết đo được ở BƯỚC 1 — đã đóng hết:
 
