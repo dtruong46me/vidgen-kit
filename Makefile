@@ -4,6 +4,7 @@
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
+#   make assets                      soi nhạc nền và clip: thiếu gì, còn hàng mẫu gì
 #   make all                         dựng mọi kịch bản chưa có MP4
 #   make clean                       xoá file máy sinh
 #
@@ -38,7 +39,7 @@ define need_day
 	fi
 endef
 
-.PHONY: help studio content video still all clean check new
+.PHONY: help studio content video still assets all clean check new
 
 help:
 	@echo "vidgen-kit"
@@ -47,6 +48,7 @@ help:
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
+	@echo "  make assets                       soi nhạc nền và clip nền"
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
 	@echo "  make clean                        xoá file máy sinh"
 	@echo ""
@@ -78,6 +80,10 @@ still:
 		|| { echo "Chưa có $(CONTENT)/$(DAY).build.json — chạy 'make content DAY=$(DAY)' trước."; exit 1; }
 	cd $(STUDIO) && npx remotion still $(COMPOSITION) "$(STILL)" --frame=$(FRAME) --props="$(PROPS)"
 	@echo "Xong: $(OUT)/$(DAY)-f$(FRAME).png"
+
+## Soi tài sản media — file nào thiếu, file nào còn là hàng mẫu
+assets:
+	@python3 scripts/check_assets.py
 
 ## Dựng mọi kịch bản chưa có MP4 tương ứng
 all:

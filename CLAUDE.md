@@ -79,11 +79,24 @@ docs/         tài liệu
 
 ## Trạng thái
 
-Đang ở **BƯỚC 0** của kế hoạch tám bước. `pipeline/` còn rỗng; `make content` hiện
-vẫn gọi `scripts/legacy_build.py`. BƯỚC 2 sẽ thay nó bằng các module trong
-`pipeline/` — khi đó tiêu chí nghiệm thu là video mới phải có **đúng 1327 frame**
-như bản cũ.
+Đã xong **BƯỚC 0** (dọn nhà) và **BƯỚC 1** phần code. `pipeline/` còn rỗng;
+`make content` hiện vẫn gọi `scripts/legacy_build.py`. BƯỚC 2 sẽ thay nó bằng các
+module trong `pipeline/` — khi đó tiêu chí nghiệm thu là `2026-08-20` phải ra
+**đúng 1462 frame** (48,7 giây) như bản hiện tại.
 
-Bốn khiếm khuyết đã đo được và sẽ xử lý ở BƯỚC 1: nhạc nền đang là file test tone,
-clip nền là video mẫu 960×540 nằm ngang, caption căn giữa màn hình thay vì 2/3
-dưới, và khoảng nghỉ giữa câu chỉ 0,55 s là quá gấp.
+> Con số này từng là 1327. Nó đổi ở BƯỚC 1 vì `leadIn`/`pauseAfter` giãn ra
+> (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15 frame cho mỗi câu trong 9 câu.
+> Đo lại bằng `make content DAY=2026-08-20` nếu còn nghi ngờ.
+
+Năm khiếm khuyết đã đo được ở BƯỚC 1:
+
+| | Khiếm khuyết | Tình trạng |
+|---|---|---|
+| D-1 | Nhạc nền là file test tone (trùng md5 với `assets/audio/sample.mp3`) | **Còn** — cần người tải nhạc thật |
+| D-2 | Clip nền là video hoa mẫu 960×540 NẰM NGANG, chỉ có 2/9 cảnh | **Còn** — cần người tải clip dọc thật |
+| D-3 | Caption căn giữa màn hình thay vì 2/3 dưới | Đã sửa — neo đáy, chừa 400 px |
+| D-4 | Nghỉ giữa câu chỉ 0,55 s, quá gấp | Đã sửa — 1,05 s |
+| D-5 | Romaji hiện ra `Kyo¯mo` thay vì `Kyō mo` | Đã sửa — tách hai họ font |
+
+D-1 và D-2 là việc của người dùng, không phải việc của code: chọn nhạc và chọn
+cảnh là chuyện thẩm mỹ. Xem `docs/tai-san-can-tai.md`.

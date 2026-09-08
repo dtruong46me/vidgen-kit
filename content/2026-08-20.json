@@ -9,8 +9,8 @@
   "fps": 30,
   "width": 1080,
   "height": 1920,
-  "leadIn": 0.2,
-  "pauseAfter": 0.35,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
   "lines": [
     {
       "ja": "今日も新しい一日が始まりました。",
@@ -68,7 +68,7 @@
     }
   ],
   "targetSeconds": [
-    35,
-    45
+    45,
+    60
   ]
 }
