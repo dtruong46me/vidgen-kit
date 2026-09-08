@@ -1,49 +1,84 @@
 # Nhạc nền và clip nền
 
 Chọn nhạc và chọn cảnh là chuyện thẩm mỹ, code không quyết hộ được. Tài liệu này
-ghi lại đang có gì, và khi cần thêm thì tải ở đâu, lưu thế nào.
+ghi lại khi cần thêm thì tải ở đâu, lưu thế nào.
 
-Chạy `make assets` bất cứ lúc nào để máy soi lại.
-
----
-
-## Đang có gì
-
-**Nhạc nền** — `studio/public/audio/`
-
-| File | Dài | Đang dùng cho |
-|---|---|---|
-| `bgm-lonely-self.mp3` | 150 s | `2026-08-20` |
-| `bgm-lofi-piano.mp3` | 223 s | (chưa dùng) |
-
-Cả hai đều dài hơn video 48,7 giây nên không phải lặp lần nào. Đổi bản nhạc bằng
-cách sửa trường `bgm` trong `content/<ngày>.json` — một dòng, không đụng code.
-
-**Clip nền** — `studio/public/video/`, cả ba đều 1080×1920, H.264
-
-| File | Dài | Nội dung |
-|---|---|---|
-| `tea-room.mp4` | 22,9 s | Toàn cảnh phòng trà, tranh cuộn, chiếu tatami |
-| `matcha-whisk.mp4` | 12,8 s | Cận cảnh tay đánh matcha, nhìn từ trên xuống |
-| `tea-tray.mp4` | 12,9 s | Hai người chuyền khay trà, nền đỏ ấm |
-
-Ba clip cộng lại 48,6 giây, mà chín cảnh cũng đúng 48,6 giây — không thể xếp kín
-mà không dùng lại. Nên mỗi clip được cắt ở 2–3 điểm khác nhau qua trường
-`clipStartInSeconds`. Cách xếp hiện tại không cảnh nào phải loop.
-
-> **Chưa ghi nguồn và giấy phép.** Ba clip trông như tải từ Pexels (tên file gốc
-> có dạng `8507912-hd_1080_1920_25fps.mp4`). BƯỚC 4 sẽ dựng `library/shots.json`
-> để lưu link gốc và giấy phép từng clip. Nếu bạn còn nhớ link, chép ra một chỗ
-> ngay bây giờ sẽ đỡ phải đi tìm lại.
+**Đang có gì thì hỏi máy, đừng hỏi tài liệu.** `make shots` in ra cả sổ kèm số
+đo thật, ai đang dùng, và chỗ nào còn thiếu thông tin. Bảng chép tay trong tài
+liệu chỉ chờ ngày lệch với thư mục thật, nên nó đã bị bỏ đi.
 
 ---
 
-## Khi cần thêm
+## Sổ tài sản
+
+Mỗi file trong `studio/public/` phải có đúng một dòng trong `library/shots.json`.
+Sổ giữ những thứ **không đo được**: nguồn, tác giả, giấy phép, tag. Những thứ
+đo được — độ dài, bề ngang, fps — thì ffprobe đo lúc chạy `make shots`, không
+chép vào sổ, vì số chép tay chỉ chờ ngày lệch với file thật.
+
+```
+$ make shots
+
+CLIP NỀN  (3 dòng)
+  [!! ] tea-room       1080×1920, 25fps, 22.9s
+          video/tea-room.mp4   tags: tea, interior, tatami, scroll, wide, calm, morning
+          pexels: tác giả chưa rõ — https://www.pexels.com/video/8508048/
+          dùng cho: 2026-08-20
+          [!] 25fps ≠ 30fps của video đích
+          [!] chưa ghi tác giả
+```
+
+Đây là **báo cáo, không phải cổng chặn** — thiếu thông tin thì video vẫn dựng
+được, chỉ là bạn đang tích nợ. Cổng chặn thật sự là `make check` ở BƯỚC 6.
+
+`tags` là thứ duy nhất nên sửa tay trong sổ. Chúng quyết định bộ chọn clip lấy
+cảnh nào cho câu nào, nên cứ gắn rộng tay: `tea`, `hands`, `closeup`, `calm`,
+`morning`. Câu nào trong kịch bản khai `"tags": ["matcha"]` thì chỉ những clip
+mang tag đó mới được chọn.
+
+---
+
+## Thêm clip mới
+
+### Có khoá API
+
+Điền `PEXELS_API_KEY` vào `.env` trước — xem [cai-dat.md](cai-dat.md).
+
+```bash
+make shots-find SOURCE=pexels Q="tea ceremony"
+make shots-get  SOURCE=pexels ID=8507912 NAME=matcha-whisk TAGS=tea,matcha,closeup
+```
+
+`shots-find` đã lọc sẵn hướng dọc và đánh dấu `!` vào clip không đạt chuẩn.
+`shots-get` tải file, đặt vào `studio/public/video/<NAME>.mp4`, ghi sổ kèm tác
+giả và giấy phép lấy thẳng từ API, rồi đo lại bằng ffprobe và cảnh báo nếu clip
+nằm ngang hoặc sai fps. Một lệnh, không có bước nào để quên.
+
+### Không có khoá API
+
+Tải bằng trình duyệt như bình thường, rồi:
+
+```bash
+make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
+               URL=https://www.pexels.com/video/8507912/ \
+               AUTHOR="Tên tác giả" LICENSE="Pexels License" \
+               TAGS=tea,matcha,closeup
+```
+
+`URL`, `AUTHOR` và `LICENSE` là **bắt buộc**. Không phải để hành: sáu tháng nữa
+không ai nhớ clip ở đâu ra, mà YouTube thì có nhớ.
 
 ### Nhạc nền
 
-Lưu vào `studio/public/audio/bgm-<tên-gợi-nhớ>.mp3`, rồi trỏ trường `bgm` của
-kịch bản vào đó.
+Chưa có lệnh tự động — lưu tay vào `studio/public/audio/bgm-<tên>.mp3`, thêm một
+dòng vào ngăn `music` của `library/shots.json`, rồi trỏ trường `bgm` của kịch
+bản vào đó.
+
+---
+
+## Tìm ở đâu, chọn thế nào
+
+### Nhạc nền
 
 | | |
 |---|---|
@@ -66,14 +101,15 @@ toàn bộ là CC-BY, tức **bắt buộc ghi công** trong mô tả video.
 
 ### Clip nền
 
-Lưu vào `studio/public/video/<tên-theo-nội-dung>.mp4`. Đặt tên theo cảnh quay
-chứ đừng theo số thứ tự — cùng một clip thường dùng cho nhiều cảnh.
+Đặt `NAME` theo nội dung cảnh quay chứ đừng theo số thứ tự — cùng một clip
+thường dùng cho nhiều cảnh, nên `scene-01` là cái tên sai ngay từ hôm sau.
 
 | | |
 |---|---|
 | Hướng | **DỌC**. Đây là điều quan trọng nhất |
 | Kích thước | ≥ 1080×1920 |
 | Định dạng | MP4, mã hoá H.264 |
+| Khung hình | **30fps**. Ba clip đang có đều 25fps, nên cảnh lia chậm hơi giật — `make shots` cảnh báo chỗ này |
 | Độ dài | càng dài càng đỡ phải dùng lại; 20 giây là thoải mái |
 | Chuyển động | chậm, ít — mây trôi, nước chảy, lá rung, hơi trà bốc |
 | Tránh | mặt người nhìn thẳng, chữ cháy sẵn trong hình, cắt cảnh giật |
@@ -99,26 +135,43 @@ ffmpeg -i clip-goc.mp4 \
 ```
 
 `-an` bỏ tiếng của clip: video này chỉ dùng giọng đọc và nhạc nền, tiếng gốc chỉ
-gây nhiễu.
+gây nhiễu. Cắt xong thì `make shots-add` file đã cắt, và ghi vào ô `URL` link
+của clip GỐC — đó mới là thứ giấy phép bám vào.
+
+Ép luôn về 30fps thì thêm `-r 30` vào cùng lệnh trên.
 
 ---
 
 ## Gán clip vào cảnh
 
-Trong `content/<ngày>.json`, mỗi câu có hai trường:
+**Cách thường dùng: đừng gán gì cả.** Bỏ trống trường `clip` thì `shots.py` tự
+chọn, và nó chọn tốt hơn tay người vì nó biết chính xác mỗi cảnh dài bao nhiêu
+giây — con số đó chỉ có sau khi TTS chạy xong, tức là sau lúc bạn viết kịch bản.
 
 ```json
 {
-  "ja": "毎日の生活は、…",
-  "clip": "video/matcha-whisk.mp4",
-  "clipStartInSeconds": 0
+  "tags": ["tea", "calm"],
+  "lines": [
+    { "ja": "毎日の生活は、…", "vi": "…" },
+    { "ja": "美味しいご飯を…", "vi": "…", "tags": ["matcha"] }
+  ]
 }
 ```
 
-Cắt từ giây thứ mấy là do bạn chọn. `make content` sẽ tự đo phần còn lại sau
-điểm cắt; nếu không đủ dài cho cảnh thì Remotion cho clip chạy lặp. Muốn biết
-cảnh nào đang phải lặp thì xem `clipDurationInFrames` trong file build.json —
-nhỏ hơn `durationInFrames` là đang lặp.
+`tags` ở cấp kịch bản là gợi ý mặc định cho mọi câu; `tags` ở cấp câu đè lên nó.
+Không clip nào mang tag đang tìm thì bộ chọn rơi về cả thư viện và nói ra.
 
-Bỏ trống `clip` (hoặc trỏ vào file không tồn tại) thì cảnh đó dùng nền gradient
-tông trầm. Không lỗi, chỉ nhạt hơn.
+Bộ chọn chạy theo bốn quy tắc, ưu tiên từ trên xuống: đủ dài (kèm biên an toàn
+0,25 giây) → đúng tag → không trùng clip của cảnh ngay trước → ưu tiên đoạn hình
+chưa dùng → clip nào dùng ít nhất thì đến lượt. Không có random: cùng kịch bản
+và cùng thư viện thì luôn ra cùng kết quả.
+
+**Muốn tự chọn thì cứ ghi ra, máy không đụng vào:**
+
+```json
+{ "ja": "…", "clip": "video/matcha-whisk.mp4", "clipStartInSeconds": 5.5 }
+```
+
+Cảnh nào clip không đủ dài thì Remotion cho chạy lặp, và `make content` nói ra
+ngay trên màn hình. Bỏ trống `clip` khi sổ chưa có clip nào dùng được thì cảnh
+đó dùng nền gradient tông trầm — không lỗi, chỉ nhạt hơn.

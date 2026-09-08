@@ -55,13 +55,24 @@ class Timeline:
         return self.total_frames / self.fps
 
 
+def scene_seconds(script: Script, voices: list[Voiceover]) -> list[float]:
+    """Mỗi cảnh dài bao nhiêu GIÂY — chưa đổi ra frame.
+
+    Hàm này tồn tại vì `shots.py` phải biết cảnh dài bao nhiêu mới chọn được
+    clip đủ dài, mà nó chạy TRƯỚC lúc quy ra frame. Đặt công thức ở đây để nó
+    vẫn chỉ có đúng một bản: `_scene` bên dưới cũng gọi chính hàm này chứ không
+    tự cộng lại lần nữa. Cộng lại lần nữa là mở đường cho hai chỗ lệch nhau.
+    """
+    return [script.lead_in + v.seconds + script.pause_after for v in voices]
+
+
 def _scene(
-    fps: int, lead_in: float, pause_after: float,
-    voice: Voiceover, clip: SceneClip,
+    fps: int, seconds: float,
+    voice: Voiceover, clip: SceneClip, lead_in: float,
 ) -> Scene:
     return Scene(
         audio_duration_in_frames=math.ceil(voice.seconds * fps),
-        duration_in_frames=math.ceil((lead_in + voice.seconds + pause_after) * fps),
+        duration_in_frames=math.ceil(seconds * fps),
         # round() của Python làm tròn về số chẵn khi đúng .5 — leadIn 0,35s ở
         # 30fps ra 10 chứ không phải 11. Giữ nguyên: lệch tối đa một frame ở
         # điểm vào giọng đọc, và không ảnh hưởng tổng thời lượng.
@@ -89,8 +100,10 @@ def build(
     return Timeline(
         fps=script.fps,
         scenes=[
-            _scene(script.fps, script.lead_in, script.pause_after, voice, clip)
-            for voice, clip in zip(voices, clips)
+            _scene(script.fps, seconds, voice, clip, script.lead_in)
+            for voice, clip, seconds in zip(
+                voices, clips, scene_seconds(script, voices)
+            )
         ],
         bgm_duration_in_frames=(
             math.floor(bgm.seconds * script.fps) if bgm.seconds is not None else None

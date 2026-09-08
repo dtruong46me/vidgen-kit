@@ -21,10 +21,11 @@ import sys
 from pathlib import Path
 
 from . import (
-    assets, contract, reading as reading_mod, render,
-    script as script_mod, timeline as timeline_mod, tts,
+    assets, contract, library as library_mod, reading as reading_mod, render,
+    script as script_mod, shots as shots_mod, timeline as timeline_mod, tts,
 )
-from .probe import ProbeError
+from .library import LibraryError
+from .probe import ProbeError, duration_seconds
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = ROOT / "content"
@@ -47,7 +48,13 @@ def build_day(slug: str, log=print) -> Path:
     voices = tts.synthesize(
         doc, PUBLIC_DIR, CONTENT_DIR / f".{slug}.cache.json", log=log
     )
-    clips = [assets.resolve_clip(line, PUBLIC_DIR, log=log) for line in doc.lines]
+
+    # Chọn clip PHẢI đứng sau TTS: muốn biết clip có đủ dài không thì trước hết
+    # phải biết cảnh dài bao nhiêu, mà cảnh dài bao nhiêu là do giọng đọc quyết
+    # định (P-1). Câu nào kịch bản đã ghi clip thì bộ chọn không đụng vào.
+    lines = _pick_clips(doc, voices, log)
+
+    clips = [assets.resolve_clip(line, PUBLIC_DIR, log=log) for line in lines]
     bgm = assets.resolve_bgm(doc, PUBLIC_DIR, log=log)
 
     timeline = timeline_mod.build(doc, voices, clips, bgm)
@@ -63,6 +70,27 @@ def build_day(slug: str, log=print) -> Path:
     _warn_if_off_target(doc, timeline.seconds, log)
     _warn_if_clip_loops(doc, clips, timeline, log)
     return dest
+
+
+def _pick_clips(doc, voices, log):
+    """Điền clip cho những câu bỏ trống. Trả về danh sách câu đã đủ clip."""
+    blanks = sum(1 for line in doc.lines if not line.clip)
+    if not blanks:
+        return doc.lines
+
+    choices = shots_mod.choose(
+        doc.lines,
+        timeline_mod.scene_seconds(doc, voices),
+        library_mod.load(),
+        PUBLIC_DIR,
+        default_tags=doc.tags,
+        log=log,
+    )
+    log(f"\n  Chọn clip cho {blanks}/{len(doc.lines)} câu bỏ trống:")
+    for i, choice in enumerate(choices, start=1):
+        if choice.automatic:
+            log(f"    câu {i}: {choice.reason}")
+    return shots_mod.apply(doc.lines, choices)
 
 
 def _warn_if_off_target(doc, seconds: float, log) -> None:
@@ -123,8 +151,11 @@ def main(argv: list[str] | None = None) -> int:
         if "--render" in flags:
             print()
             dest = render.video(slug)
+            # Đo lại file vừa dựng ra, không tin con số đã tính. Lệch giữa hai
+            # số này nghĩa là Remotion và timeline đang hiểu khác nhau.
             print(f"\nXong: {dest.relative_to(ROOT)}")
-    except (script_mod.ScriptError, tts.TTSError, ProbeError,
+            print(f"      thời lượng {duration_seconds(dest):.2f} giây")
+    except (script_mod.ScriptError, tts.TTSError, ProbeError, LibraryError,
             reading_mod.ReadingError, render.RenderError) as exc:
         print(f"\n[lỗi] {exc}", file=sys.stderr)
         return 1

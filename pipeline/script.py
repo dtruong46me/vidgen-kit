@@ -26,8 +26,12 @@ class ScriptLine:
 
     ja: str
     vi: str
+    #: Clip nền. Bỏ trống thì `shots.py` tự chọn từ library/shots.json.
     clip: str | None
     clip_start_seconds: float
+    #: Gợi ý cho bộ chọn clip: chỉ lấy clip có ít nhất một tag trùng. Bỏ trống
+    #: thì dùng `tags` của cả kịch bản; bỏ trống nốt thì clip nào cũng được.
+    tags: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -48,6 +52,8 @@ class Script:
     bgm_volume: float
     #: Tên provider sinh romaji. Đổi provider = sửa đúng dòng này trong kịch bản.
     reading: str
+    #: Tag mặc định cho mọi câu chưa tự khai tag.
+    tags: tuple[str, ...]
     target_seconds: tuple[float, float] | None
     lines: list[ScriptLine]
 
@@ -56,6 +62,14 @@ def _require(doc: dict, key: str, where: str) -> object:
     if key not in doc:
         raise ScriptError(f"{where} thiếu trường bắt buộc \"{key}\".")
     return doc[key]
+
+
+def _tags(raw: object, where: str) -> tuple[str, ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, list) or any(not isinstance(t, str) for t in raw):
+        raise ScriptError(f"{where} có \"tags\" phải là danh sách chuỗi.")
+    return tuple(raw)
 
 
 def _text(value: object, key: str, where: str) -> str:
@@ -103,6 +117,7 @@ def load(content_dir: Path, slug: str) -> Script:
             vi=raw.get("vi", ""),
             clip=clip or None,
             clip_start_seconds=float(start),
+            tags=_tags(raw.get("tags"), where),
         ))
 
     target = doc.get("targetSeconds")
@@ -125,6 +140,7 @@ def load(content_dir: Path, slug: str) -> Script:
         bgm=doc.get("bgm") or None,
         bgm_volume=float(doc.get("bgmVolume", 0.12)),
         reading=doc.get("reading", "cutlet"),
+        tags=_tags(doc.get("tags"), src.name),
         target_seconds=target,
         lines=lines,
     )

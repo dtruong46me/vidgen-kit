@@ -5,7 +5,8 @@
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
-#   make assets                      soi nhạc nền và clip: thiếu gì, còn hàng mẫu gì
+#   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
+#   make shots-find / shots-get / shots-add   thêm clip vào thư viện
 #   make all                         dựng mọi kịch bản chưa có MP4
 #   make clean                       xoá file máy sinh
 #
@@ -20,7 +21,11 @@ STUDIO      := studio
 CONTENT     := content
 OUT         := out
 FRAME       ?= 300
+# PROVIDER là của `make reading` (cutlet/pykakasi) — để trống thì kịch bản tự
+# quyết. SOURCE là của `make shots-*` (pexels/pixabay). Hai thứ khác hẳn nhau,
+# nên hai tên khác nhau: gộp lại là `make reading` đi tìm provider tên "pexels".
 PROVIDER    ?=
+SOURCE      ?= pexels
 
 # Bắt lỗi thiếu DAY sớm, kèm gợi ý — thay vì để lệnh con báo lỗi khó hiểu.
 define need_day
@@ -35,7 +40,8 @@ define need_day
 	fi
 endef
 
-.PHONY: help setup studio content video still reading assets all clean check new
+.PHONY: help setup studio content video still reading shots assets \
+        shots-find shots-get shots-add all clean check new
 
 help:
 	@echo "vidgen-kit"
@@ -46,7 +52,10 @@ help:
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
 	@echo "  make reading DAY=2026-08-20       in romaji + hiragana máy sinh"
-	@echo "  make assets                       soi nhạc nền và clip nền"
+	@echo "  make shots                        soi sổ tài sản (nguồn, giấy phép, tag)"
+	@echo "  make shots-find SOURCE=pexels Q=\"tea ceremony\""
+	@echo "  make shots-get  SOURCE=pexels ID=8507912 NAME=matcha-whisk TAGS=tea"
+	@echo "  make shots-add  FILE=... NAME=... URL=... AUTHOR=... LICENSE=..."
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
 	@echo "  make clean                        xoá file máy sinh"
 	@echo ""
@@ -61,6 +70,16 @@ help:
 setup:
 	@echo "Cài vào: $$(python3 -c 'import sys; print(sys.executable)')"
 	@python3 -m pip install -r requirements.txt
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo ""; \
+		echo "Đã tạo .env từ .env.example."; \
+		echo "Mở .env ra điền khoá API nếu muốn dùng 'make shots-find/shots-get'."; \
+		echo "Không điền cũng chạy được mọi lệnh dựng video."; \
+	else \
+		echo ""; \
+		echo "Đã có .env, giữ nguyên (không đè lên khoá bạn đã điền)."; \
+	fi
 	@echo ""
 	@echo "Xong. Kiểm nhanh: make reading DAY=2026-08-20"
 
@@ -93,8 +112,6 @@ content:
 video:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --render
-	@ffprobe -v error -show_entries format=duration -of csv=p=0 $(OUT)/$(DAY).mp4 \
-		| xargs printf "  thời lượng %.2f giây\n"
 
 ## Render đúng 1 frame — cách nhanh nhất để bắt lỗi font và bố cục caption
 still:
@@ -106,9 +123,33 @@ reading:
 	$(need_day)
 	@python3 -m pipeline.reading $(CONTENT)/$(DAY).json $(PROVIDER)
 
-## Soi tài sản media — file nào thiếu, file nào còn là hàng mẫu
-assets:
-	@python3 scripts/check_assets.py
+## Soi sổ tài sản: file thật, nguồn, tác giả, giấy phép, tag, ai đang dùng
+shots assets:
+	@python3 -m pipeline.library
+
+## Tìm clip trên Pexels/Pixabay. Cần khoá API — xem pipeline/fetch.py
+shots-find:
+	@if [ -z "$(Q)" ]; then echo 'Thiếu Q. Ví dụ: make shots-find SOURCE=pexels Q="tea ceremony"'; exit 1; fi
+	@python3 -m pipeline.fetch find $(SOURCE) "$(Q)"
+
+## Tải một clip theo id rồi ghi thẳng vào sổ
+shots-get:
+	@if [ -z "$(ID)" ] || [ -z "$(NAME)" ]; then \
+		echo 'Thiếu ID hoặc NAME.'; \
+		echo 'Ví dụ: make shots-get SOURCE=pexels ID=8507912 NAME=matcha-whisk TAGS=tea,matcha'; \
+		exit 1; \
+	fi
+	@python3 -m pipeline.fetch get $(SOURCE) $(ID) $(NAME) "$(TAGS)"
+
+## Nhận một file đã tải sẵn vào thư viện. URL, AUTHOR, LICENSE là bắt buộc.
+shots-add:
+	@if [ -z "$(FILE)" ] || [ -z "$(NAME)" ]; then \
+		echo 'Thiếu FILE hoặc NAME.'; \
+		echo 'Ví dụ: make shots-add FILE=~/tai/san-vuon.mp4 NAME=zen-garden \'; \
+		echo '                      URL=https://... AUTHOR="Tên" LICENSE="CC0" TAGS=garden,calm'; \
+		exit 1; \
+	fi
+	@python3 -m pipeline.fetch add "$(FILE)" $(NAME) "$(URL)" "$(AUTHOR)" "$(LICENSE)" "$(TAGS)"
 
 ## Dựng mọi kịch bản chưa có MP4 tương ứng
 all:

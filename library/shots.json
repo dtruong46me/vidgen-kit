@@ -1,0 +1,115 @@
+{
+  "_doc": [
+    "Sổ đăng ký tài sản hình và tiếng. Mỗi file trong studio/public/ phải có",
+    "đúng một dòng ở đây, nếu không thì không ai biết nó ở đâu ra và có được",
+    "phép dùng thương mại hay không. `make shots` soi lại sổ này bất cứ lúc nào.",
+    "",
+    "KHÔNG ghi width/height/fps/độ dài vào đây. Những số đó ffprobe đo được, mà",
+    "cái gì đo được thì chép tay chỉ tạo ra cơ hội sai lệch. `make shots` đo và",
+    "in ra tại chỗ.",
+    "",
+    "Thêm clip mới: `make shots-get` (tải qua API) hoặc `make shots-add` (file",
+    "đã có sẵn trên máy). Đừng sửa tay file này trừ khi chỉ chỉnh tags."
+  ],
+  "shots": [
+    {
+      "id": "tea-room",
+      "file": "video/tea-room.mp4",
+      "tags": [
+        "tea",
+        "interior",
+        "tatami",
+        "scroll",
+        "wide",
+        "calm",
+        "morning"
+      ],
+      "note": "Toàn cảnh phòng trà, tranh cuộn, chiếu tatami",
+      "source": "pexels",
+      "sourceId": "8508048",
+      "url": "https://www.pexels.com/video/8508048/",
+      "author": "",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "matcha-whisk",
+      "file": "video/matcha-whisk.mp4",
+      "tags": [
+        "tea",
+        "matcha",
+        "hands",
+        "closeup",
+        "green",
+        "calm",
+        "ritual"
+      ],
+      "note": "Cận cảnh tay đánh matcha, nhìn từ trên xuống",
+      "source": "pexels",
+      "sourceId": "8507912",
+      "url": "https://www.pexels.com/video/8507912/",
+      "author": "",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "tea-tray",
+      "file": "video/tea-tray.mp4",
+      "tags": [
+        "tea",
+        "hands",
+        "people",
+        "closeup",
+        "warm",
+        "ritual"
+      ],
+      "note": "Hai người chuyền khay trà, nền đỏ ấm",
+      "source": "pexels",
+      "sourceId": "8507953",
+      "url": "https://www.pexels.com/video/8507953/",
+      "author": "",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    }
+  ],
+  "music": [
+    {
+      "id": "lonely-self",
+      "file": "audio/bgm-lonely-self.mp3",
+      "tags": [
+        "lofi",
+        "piano",
+        "calm",
+        "melancholy"
+      ],
+      "note": "Bản đang dùng cho 2026-08-20",
+      "source": "manual",
+      "sourceId": "",
+      "url": "",
+      "author": "Snoozy Beats",
+      "license": "",
+      "licenseUrl": "",
+      "attributionRequired": null
+    },
+    {
+      "id": "lofi-piano",
+      "file": "audio/bgm-lofi-piano.mp3",
+      "tags": [
+        "lofi",
+        "piano",
+        "calm"
+      ],
+      "note": "Chưa dùng cho ngày nào",
+      "source": "manual",
+      "sourceId": "",
+      "url": "",
+      "author": "Snoozy Beats",
+      "license": "",
+      "licenseUrl": "",
+      "attributionRequired": null
+    }
+  ]
+}

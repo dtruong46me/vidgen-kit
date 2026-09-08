@@ -90,6 +90,28 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   macron (今日 ra `Kyou`, tức mở lại D-5), không đọc số (`8月20日` ra
   `8 gatsu 20ka`), và đọc sai chữ nhiều nghĩa. Lớp macron bám vào `pron` và
   `kana` của MeCab chứ không đoán theo mặt chữ — nhờ vậy `思う` không thành `omō`.
+- **Mỗi file trong `studio/public/` phải có một dòng trong `library/shots.json`.**
+  Câu hỏi "clip này ở đâu ra" chỉ rẻ đúng một lúc: lúc vừa tải về. Ba clip đầu
+  tiên suýt mất dấu, may là lịch sử git còn tên file gốc nên truy ngược được.
+  Vì vậy `make shots-get` và `make shots-add` tải và ghi sổ trong CÙNG một lệnh —
+  đừng tách ra, tách ra là sẽ có ngày tải xong quên ghi.
+- **Cái gì ffprobe đo được thì đừng chép vào sổ.** Độ dài, bề ngang, fps đều đo
+  được, mà số chép tay thì chỉ chờ ngày lệch với file thật. Sổ chỉ giữ thứ không
+  đo được: nguồn, tác giả, giấy phép, tag.
+- **Trường `clip` trong kịch bản có thể bỏ trống.** Bỏ trống thì `shots.py` chọn
+  hộ, và nó chọn tốt hơn tay người: bản xếp tay của `2026-08-20` có cảnh chỉ dư
+  5 frame trước khi phải loop, bản máy chọn dư ít nhất 48 frame. Câu nào đã ghi
+  `clip` thì máy không đụng vào — người viết luôn thắng máy.
+- **Bộ chọn clip phải tất định.** Không random. Cùng kịch bản, cùng thư viện thì
+  phải ra cùng kết quả, nếu không thì `make content` chạy hai lần ra hai file
+  khác nhau và mốc hồi quy mất nghĩa. Phá hoà bằng thứ tự dòng trong sổ.
+- **Chọn clip phải chạy SAU tts.** Muốn biết clip có đủ dài không thì phải biết
+  cảnh dài bao nhiêu, mà cảnh dài bao nhiêu là do giọng đọc quyết định (P-1).
+- **Khoá API đọc từ `.env` ở gốc repo, không bao giờ vào git.** `pipeline/env.py`
+  nạp file đó; biến môi trường thật thắng file. `.env` nằm trong `.gitignore`,
+  `.env.example` mới là file được commit, và `make setup` chép cái sau thành cái
+  trước nếu chưa có (đã có thì KHÔNG đè). Không có khoá thì mọi lệnh dựng video
+  vẫn chạy đủ — khoá chỉ để tìm và tải clip tự động.
 - **Không để file mẫu, file test, file trung gian nằm lại trong repo.** Muốn thử
   gì thì thử trong thư mục scratch ngoài repo.
 
@@ -97,10 +119,14 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 
 ```
 pipeline/     Lớp A + B (Python)
+  env.py        nạp .env — chỗ duy nhất đọc khoá API
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
   script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
   reading.py    sinh romaji + hiragana từ câu Nhật (cutlet, có đường lui)
+  library.py    sổ đăng ký tài sản — đọc/ghi library/shots.json, soi bằng `make shots`
+  fetch.py      tải clip từ Pexels/Pixabay rồi ghi sổ ngay trong một lệnh
+  shots.py      chọn clip cho cảnh nào kịch bản bỏ trống trường `clip`
   assets.py     xác minh clip nền và nhạc nền có thật, đo phần còn lại sau điểm cắt
   timeline.py   ★ nơi DUY NHẤT đổi giây ra frame (P-2)
   contract.py   ghi build.json — hình dạng hợp đồng khai báo ở đây (P-3)
@@ -110,19 +136,21 @@ studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
-content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji)
+content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji;
+                            trường `clip` giờ CÓ THỂ bỏ trống, máy tự chọn)
               <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
 library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
-              shots.json — metadata và giấy phép mọi clip. Còn rỗng, xem BƯỚC 4
+              shots.json — nguồn, tác giả, giấy phép và tag của mọi clip/nhạc
 out/          MP4 và PNG (không commit)
-scripts/      check_assets.py  — soi nhạc nền và clip nền
-docs/         tài liệu
+.env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
+docs/         cai-dat.md, tai-san-can-tai.md
 ```
 
 ## Trạng thái
 
-**BƯỚC 0, 1, 2 và 3 đã xong trọn vẹn.** `make content` gọi `python3 -m
-pipeline.run`; `scripts/legacy_build.py` đã bị xoá.
+**BƯỚC 0, 1, 2, 3 và 4 đã xong trọn vẹn.** `make content` gọi `python3 -m
+pipeline.run`; `scripts/legacy_build.py` và `scripts/check_assets.py` đã bị xoá
+(thư mục `scripts/` không còn).
 
 Nghiệm thu BƯỚC 2 đạt: `2026-08-20` ra **đúng 1462 frame** (48,7 giây) và file
 `build.json` **giống hệt từng byte** bản do legacy sinh ra.
@@ -138,6 +166,29 @@ không đổi, vì romaji không dính gì tới thời lượng.
 
 > Con số này từng là 1327 trước BƯỚC 1, đổi vì `leadIn`/`pauseAfter` giãn ra
 > (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15 frame cho mỗi câu trong 9 câu.
+
+Nghiệm thu BƯỚC 4 đạt trên ba mặt:
+
+1. **Nguồn và giấy phép truy ngược được hết.** `library/shots.json` ghi đủ năm
+   tài sản. Ba clip là Pexels 8508048 / 8507912 / 8507953 — lấy từ tên file gốc
+   trong commit `09e08ce`, đối chiếu md5 qua lần đổi tên `R100` ở `c61b177`.
+   Hai bản nhạc là của Snoozy Beats. **Tên tác giả ba clip vẫn để trống**, vì
+   Pexels chặn cả `curl` lẫn WebFetch bằng Cloudflare; điền nốt được khi có
+   `PEXELS_API_KEY`, và `make shots` kêu cho tới lúc đó.
+2. **Máy chọn clip tốt hơn tay người.** Bỏ hết trường `clip` khỏi
+   `2026-08-20.json` rồi để `shots.py` tự chọn: vẫn đúng 1462 frame, không cảnh
+   nào loop, và biên mỏng nhất là **48 frame (1,6 giây)** — so với **5 frame
+   (0,17 giây)** của bản xếp tay. Chạy hai lần ra kết quả giống hệt.
+3. **Không hồi quy.** Kịch bản còn nguyên trường `clip` thì bộ chọn không chạy,
+   và `build.json` giống hệt từng byte bản trước BƯỚC 4.
+
+Ba khiếm khuyết đo được ở BƯỚC 4 — hai đã đóng, một còn mở:
+
+| | Khiếm khuyết | Trạng thái |
+|---|---|---|
+| D-6 | Ba clip nền không có nguồn, không có giấy phép | Đóng — `library/shots.json` |
+| D-7 | `scripts/check_assets.py` gọi ffprobe riêng, trái quy ước "probe.py là chỗ duy nhất" | Đóng — gộp vào `pipeline/library.py`, `make assets` thành bí danh của `make shots` |
+| D-8 | Cả ba clip đều 25fps trong timeline 30fps — cảnh lia chậm hơi giật | **Còn mở.** `make shots` cảnh báo. Sửa bằng cách tìm clip 30fps, không sửa được bằng code |
 
 Năm khiếm khuyết đo được ở BƯỚC 1 — đã đóng hết:
 
