@@ -1,0 +1,36 @@
+{
+  "id": "_sample",
+  "title": "Bản mẫu cho Remotion Studio",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "bgm": "audio/bgm.mp3",
+  "bgmDurationInFrames": 576,
+  "bgmVolume": 0.12,
+  "lines": [
+    {
+      "ja": "今日も新しい一日が始まりました。",
+      "romaji": "Kyō mo atarashii ichinichi ga hajimarimashita.",
+      "vi": "Hôm nay, một ngày mới lại bắt đầu.",
+      "audio": "audio/_sample/line-01.mp3",
+      "audioDurationInFrames": 112,
+      "durationInFrames": 129,
+      "audioStartInFrames": 6,
+      "clip": null,
+      "clipDurationInFrames": null,
+      "clipStartInSeconds": 0
+    },
+    {
+      "ja": "おはようございます。",
+      "romaji": "Ohayō gozaimasu.",
+      "vi": "Chào buổi sáng.",
+      "audio": "audio/_sample/line-02.mp3",
+      "audioDurationInFrames": 67,
+      "durationInFrames": 84,
+      "audioStartInFrames": 6,
+      "clip": null,
+      "clipDurationInFrames": null,
+      "clipStartInSeconds": 0
+    }
+  ]
+}

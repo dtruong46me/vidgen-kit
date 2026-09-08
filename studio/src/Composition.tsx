@@ -1,5 +1,5 @@
 import { CalculateMetadataFunction, Composition } from "remotion";
-import buildData from "../content/2026-08-20.build.json";
+import sampleData from "../../content/_sample.build.json";
 import { DailyVideo } from "./DailyVideo";
 import type { DailyVideoProps } from "./types";
 
@@ -33,7 +33,9 @@ export const MyComposition = () => {
       id="Daily"
       component={DailyVideo}
       calculateMetadata={calculateMetadata}
-      defaultProps={buildData as DailyVideoProps}
+      // Bản mẫu cố định, chỉ để Studio có gì đó mà mở. Khi render thật,
+      // --props=./content/<slug>.build.json ghi đè toàn bộ chỗ này.
+      defaultProps={sampleData as DailyVideoProps}
       // Các số dưới đây chỉ là giá trị tạm; calculateMetadata sẽ ghi đè hết
       durationInFrames={1}
       fps={30}

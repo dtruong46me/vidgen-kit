@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
+BẢN CŨ — giữ lại làm đường quay lui cho BƯỚC 2 (xem CLAUDE.md).
+Sẽ bị pipeline/ thay thế; đừng thêm tính năng mới vào đây.
+
 Chuẩn bị nguyên liệu cho 1 video: TTS từng câu -> đo độ dài -> sinh file build JSON.
 
 Cách dùng:
-    python3 scripts/build.py 2026-08-20
+    python3 scripts/legacy_build.py 2026-08-20
 
 Đầu vào : content/<slug>.json          (kịch bản do bạn viết)
 Đầu ra  : public/audio/<slug>/line-XX.mp3   (giọng đọc từng câu)
@@ -21,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = ROOT / "content"
-PUBLIC_DIR = ROOT / "public"
+PUBLIC_DIR = ROOT / "studio" / "public"
 
 
 def ffprobe_duration(path: Path) -> float:

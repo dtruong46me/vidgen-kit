@@ -217,3 +217,18 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 # /tmp
+# ---------------------------------------------------------------
+# vidgen-kit
+# ---------------------------------------------------------------
+# Sản phẩm và file trung gian do máy sinh: chạy lại `make video` là có.
+out/
+studio/public/audio/20*/
+content/*.build.json
+content/.*.cache.json
+
+# Ngoại lệ: bản mẫu cố định để Remotion Studio mở được trên clone mới.
+!content/_sample.build.json
+
+# Phụ thuộc Node của studio/
+studio/node_modules/
+studio/dist/
