@@ -12,3 +12,4 @@ edge-tts        # DEC-01 — giọng đọc tiếng Nhật
 cutlet          # DEC-02 — romaji Hepburn
 unidic-lite     # từ điển MeCab cho cutlet; thiếu nó là cutlet không khởi động được
 pykakasi        # đường lui của DEC-02, xem pipeline/reading.py
+anthropic       # DEC-06 — chỉ nạp khi `make new` gọi Claude; thiếu nó thì ngân hàng vẫn chạy

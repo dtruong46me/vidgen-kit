@@ -225,16 +225,65 @@ class CutletProvider:
         self.unread: list[str] = []
 
     def read(self, ja: str) -> Reading:
+        """Cắt câu thành từng khúc ở ranh giới các đoạn đã chuẩn hoá.
+
+        Đoạn kana do ta tự sinh (số, bảng đè) được romaji hoá THẲNG, không qua
+        MeCab, vì hai lẽ:
+
+        1. MeCab đọc kana thuần rất tệ: 「はつか」 (ngày 20) bị nó thấy chữ 「は」
+           đứng đầu rồi coi là trợ từ, cho ra `watsuka`.
+        2. MeCab không biết ranh giới đoạn nằm đâu. 「くがつとおか」 (9月10日) bị
+           cắt thành くが / つと / おか — mẩu 「つと」 vắt qua hai đoạn, và bản cũ
+           (khớp token vào đoạn theo vị trí) để sót nó thành `kugatsu tsuto tōka`.
+           Ngày 5, 6, 8, 9, 10, 12, 30, 31 đều hỏng kiểu này; 8月20日 của video
+           đầu tiên chỉ tình cờ cắt khớp.
+
+        Nên chỉ phần chữ thường mới đưa cho MeCab, và mỗi khúc đưa riêng — không
+        token nào còn vắt qua được ranh giới nữa.
+        """
         norm = normalize(ja, self.overrides)
         self.unread = list(norm.unread)
-        words = list(self._katsu.tagger(norm.text))
-        tokens = self._katsu.romaji_tokens(words)
-        self._glue(words, tokens)
-        self._rewrite_spans(words, tokens, norm)
-        self._macronize(words, tokens)
 
-        romaji = "".join(t.surface + (" " if t.space else "") for t in tokens).strip()
-        return Reading(romaji=romaji, hira=self._hira(words))
+        romaji: list[str] = []
+        hira: list[str] = []
+        cursor = 0
+        end = len(norm.text)
+        for lo, hi in (*norm.spans, (end, end)):
+            if cursor < lo:
+                words = list(self._katsu.tagger(norm.text[cursor:lo]))
+                tokens = self._katsu.romaji_tokens(words)
+                self._glue(words, tokens)
+                self._macronize(words, tokens)
+                chunk = "".join(
+                    t.surface + (" " if t.space else "") for t in tokens
+                ).strip()
+                # Cutlet viết hoa chữ đầu mỗi lần gọi. Khúc giữa câu thì hạ
+                # xuống, trừ khi đó thật là danh từ riêng.
+                if romaji and words and words[0].feature.pos2 != "固有名詞":
+                    chunk = chunk[:1].lower() + chunk[1:]
+                romaji.append(chunk)
+                hira.append(self._hira(words))
+            if lo < hi:
+                kana = norm.text[lo:hi]
+                # Dấu cách trong bảng đè (いちご いちえ) là chỗ tách chữ romaji.
+                # map_kana của cutlet sập khi gặp dấu cách, nên tách trước; còn
+                # tiếng Nhật không có dấu cách nên dòng hiragana bỏ nó đi.
+                romaji.append(" ".join(
+                    self._collapse_all(self._katsu.map_kana(part))
+                    for part in kana.split()
+                ))
+                hira.append(kana.replace(" ", ""))
+            cursor = hi
+
+        text = ""
+        for chunk in romaji:
+            if not chunk:
+                continue
+            # Khúc bắt đầu bằng dấu câu thì dính vào chữ trước: "hatsuka, hare".
+            if text and chunk[0] not in ",.!?;:":
+                text += " "
+            text += chunk
+        return Reading(romaji=text[:1].upper() + text[1:], hira="".join(hira))
 
     # -- ghép chữ ----------------------------------------------------------
     @staticmethod
@@ -253,36 +302,6 @@ class CutletProvider:
                 tokens[i].space = True
 
     # -- đoạn đã chuẩn hoá --------------------------------------------------
-    def _rewrite_spans(self, words, tokens, norm) -> None:
-        """Romaji hoá thẳng các đoạn kana do ta tự sinh, không qua tokenizer.
-
-        MeCab đọc kana thuần rất tệ: 「はつか」 (ngày 20) bị nó thấy chữ 「は」
-        đứng đầu rồi coi là trợ từ, cho ra `watsuka`. Nhưng đoạn này do chính ta
-        sinh ra từ bảng đọc số nên ta biết chắc cách đọc — cứ tra thẳng bảng kana
-        của cutlet là xong, không cần đoán.
-        """
-        offset, starts = 0, []
-        for word in words:
-            starts.append(offset)
-            offset += len(word.surface)
-
-        for lo, hi in norm.spans:
-            inside = [
-                i for i, st in enumerate(starts)
-                if st >= lo and st + len(words[i].surface) <= hi
-            ]
-            if not inside:
-                continue
-            roma = self._collapse_all(self._katsu.map_kana(norm.text[lo:hi]))
-            first, last = inside[0], inside[-1]
-            if first == 0:
-                roma = roma[:1].upper() + roma[1:]
-            tokens[first].surface = roma
-            tokens[first].space = tokens[last].space
-            for i in inside[1:]:
-                tokens[i].surface = ""
-                tokens[i].space = False
-
     #: Trong kana ta tự sinh, mọi nguyên âm đôi đều là nguyên âm dài thật.
     #: Trừ "ii" và "ei" — Hepburn viết nguyên hai chữ (kii, seikatsu).
     _LONG = (("ou", "ō"), ("oo", "ō"), ("uu", "ū"), ("aa", "ā"), ("ee", "ē"))
@@ -320,13 +339,17 @@ class CutletProvider:
         out, i, done = [], 0, 0
         while i < len(roma):
             ch = roma[i]
+            # So chữ thường: cutlet viết hoa chữ đầu câu, và 「大きく」 đứng đầu
+            # câu ra "Ookiku" — so "O" với "o" thì không khớp, mất macron.
+            low = ch.lower()
             # Cutlet viết nguyên âm dài hàng お thành "ou" (kyou), các hàng
             # khác thành chữ đôi (kuuki). Bắt cả hai dạng.
-            twin = roma[i + 1] if i + 1 < len(roma) else ""
-            if done < count and ch in cls._MACRON and (
-                twin == ch or (ch == "o" and twin == "u")
+            twin = roma[i + 1].lower() if i + 1 < len(roma) else ""
+            if done < count and low in cls._MACRON and (
+                twin == low or (low == "o" and twin == "u")
             ):
-                out.append(cls._MACRON[ch])
+                macron = cls._MACRON[low]
+                out.append(macron.upper() if ch.isupper() else macron)
                 i += 2
                 done += 1
                 continue

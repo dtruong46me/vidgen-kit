@@ -58,7 +58,7 @@ ngoài edge-tts. Khoá chỉ để **tìm và tải clip tự động**.
 |---|---|---|---|
 | `PEXELS_API_KEY` | https://www.pexels.com/api/ | ~2 phút, không cần thẻ | `make shots-find` / `shots-get` với `SOURCE=pexels` |
 | `PIXABAY_API_KEY` | https://pixabay.com/api/docs/ | ~2 phút, cần tài khoản | `SOURCE=pixabay` |
-| `ANTHROPIC_API_KEY` | https://console.anthropic.com/ | tốn tiền theo lượt gọi | BƯỚC 6, chưa dùng tới |
+| `ANTHROPIC_API_KEY` | https://console.anthropic.com/ | tốn tiền theo lượt gọi | `make new` nhờ Claude viết kịch bản. **Điền vào là bật** — xem [kich-ban-va-kiem-tra.md](kich-ban-va-kiem-tra.md) |
 
 Điền vào `.env`:
 
@@ -95,9 +95,11 @@ make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
 ```bash
 make reading DAY=2026-08-20      # romaji + hiragana, không cần khoá
 make shots                       # sổ tài sản
-make content DAY=2026-08-20      # phải ra đúng 1462 frame
+make content DAY=2026-08-20      # 1462 frame thoại, tổng 1687
 make video   DAY=2026-08-20      # ~10 phút trên máy 2 nhân
+make check   DAY=2026-08-20      # phải PASS, đếm frame trên chính MP4
+make bank                        # ngân hàng kịch bản, không cần khoá
 ```
 
-Con số **1462 frame** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp đọc thì
-có thứ gì đó vừa hỏng.
+Con số **1462 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp
+đọc thì có thứ gì đó vừa hỏng.

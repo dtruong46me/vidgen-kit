@@ -7,6 +7,9 @@
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
 #   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
 #   make shots-find / shots-get / shots-add   thêm clip vào thư viện
+#   make new     DAY=2026-09-10      tạo kịch bản mới (ngân hàng, hoặc Claude nếu có khoá)
+#   make bank                        in ngân hàng kịch bản kèm ước lượng thời lượng
+#   make check   DAY=2026-08-20      kiểm MP4: số đo + trang duyệt từng cảnh
 #   make all                         dựng mọi kịch bản chưa có MP4
 #   make clean                       xoá file máy sinh
 #
@@ -26,6 +29,9 @@ FRAME       ?= 300
 # nên hai tên khác nhau: gộp lại là `make reading` đi tìm provider tên "pexels".
 PROVIDER    ?=
 SOURCE      ?= pexels
+# MODEL là của `make new`: để trống = có ANTHROPIC_API_KEY thì gọi Claude, không
+# thì lấy ngân hàng. `bank` ép lấy ngân hàng; `opus`/`sonnet`/`haiku` ép gọi Claude.
+MODEL       ?=
 
 # Bắt lỗi thiếu DAY sớm, kèm gợi ý — thay vì để lệnh con báo lỗi khó hiểu.
 define need_day
@@ -41,7 +47,7 @@ define need_day
 endef
 
 .PHONY: help setup studio content video still reading shots assets \
-        shots-find shots-get shots-add all clean check new
+        shots-find shots-get shots-add all clean check new bank
 
 help:
 	@echo "vidgen-kit"
@@ -56,10 +62,11 @@ help:
 	@echo "  make shots-find SOURCE=pexels Q=\"tea ceremony\""
 	@echo "  make shots-get  SOURCE=pexels ID=8507912 NAME=matcha-whisk TAGS=tea"
 	@echo "  make shots-add  FILE=... NAME=... URL=... AUTHOR=... LICENSE=..."
+	@echo "  make new     DAY=2026-09-10       tạo kịch bản mới [MODEL=bank|opus|sonnet|haiku]"
+	@echo "  make bank                         in ngân hàng kịch bản viết sẵn"
+	@echo "  make check   DAY=2026-08-20       kiểm MP4 + trang duyệt từng cảnh"
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
 	@echo "  make clean                        xoá file máy sinh"
-	@echo ""
-	@echo "  make check / make new             chưa có — xem BƯỚC 6 trong kế hoạch"
 
 ## Cài phụ thuộc Python vào ĐÚNG trình thông dịch mà Makefile sẽ gọi.
 ##
@@ -173,6 +180,17 @@ clean:
 	@echo "Kịch bản, nhạc nền và clip nền còn nguyên — chỉ giọng đọc bị xoá,"
 	@echo "chạy lại 'make content' là edge-tts sinh lại."
 
-check new:
-	@echo "'make $@' chưa có. Nó thuộc BƯỚC 6 trong kế hoạch triển khai."
-	@exit 1
+## Tạo content/<DAY>.json. Không có khoá thì lấy ngân hàng, không gọi mạng.
+## Không bao giờ đè kịch bản đã có.
+new:
+	$(need_day)
+	@python3 -m pipeline.new $(DAY) $(MODEL)
+
+## In ngân hàng: mỗi mục bao nhiêu câu, ước lượng bao nhiêu giây, đã dùng ngày nào
+bank:
+	@python3 -m pipeline.new --bank
+
+## Kiểm MP4 đã dựng: số đo tự kết luận + trang duyệt để mắt bắt tofu và chữ bị che
+check:
+	$(need_day)
+	@python3 -m pipeline.check $(DAY)

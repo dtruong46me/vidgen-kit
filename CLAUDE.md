@@ -123,6 +123,27 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `.env.example` mới là file được commit, và `make setup` chép cái sau thành cái
   trước nếu chưa có (đã có thì KHÔNG đè). Không có khoá thì mọi lệnh dựng video
   vẫn chạy đủ — khoá chỉ để tìm và tải clip tự động.
+- **`make new` không bao giờ đè kịch bản đã có.** File trong `content/` là file
+  người viết. Muốn tạo lại thì xoá tay.
+- **Kịch bản mới kế thừa CÀI ĐẶT từ ngày gần nhất; chỉ NỘI DUNG lấy từ ngân hàng
+  hoặc Claude.** Đừng đưa giọng đọc, nhạc nền hay nhịp nghỉ vào
+  `library/bank.json` hay vào prompt — chỉnh ở ngày gần nhất một lần là mọi ngày
+  sau theo.
+- **LLM mặc định tắt (DEC-06).** `make new` chỉ gọi Claude khi `.env` có
+  `ANTHROPIC_API_KEY` hoặc khi gõ `MODEL=`. Không module nào được import
+  `pipeline/llm.py` ở đầu file — `new.py` nạp nó muộn, để xoá `llm.py` hay thiếu
+  thư viện `anthropic` thì đường ngân hàng vẫn chạy.
+- **Ngân hàng chọn tất định:** mục chưa dùng đầu tiên theo thứ tự trong file, hết
+  thì mục dùng lâu nhất (đọc trường `source` của các kịch bản đã có). Thêm mục
+  mới vào CUỐI file.
+- **Đoạn kana tự sinh (số, bảng đè) romaji hoá NGOÀI MeCab, phần chữ thường đưa
+  MeCab từng khúc riêng.** MeCab không biết ranh giới đoạn: 「くがつとおか」 bị
+  cắt thành くが / つと / おか, mẩu vắt qua ranh giới bị sót thành
+  `kugatsu tsuto tōka`. `8月20日` chỉ tình cờ cắt khớp — nên đổi gì trong
+  `reading.py` thì quét đủ 12 tháng × 31 ngày, đừng chỉ thử một ngày.
+- **`make check` đếm frame trên chính MP4, không tin `duration × fps`.** Độ dài
+  container tính cả luồng tiếng. Đếm gói (`-count_packets`) ra cùng số với giải
+  mã từng frame mà gần như không tốn CPU.
 - **Không để file mẫu, file test, file trung gian nằm lại trong repo.** Muốn thử
   gì thì thử trong thư mục scratch ngoài repo.
 
@@ -144,6 +165,9 @@ pipeline/     Lớp A + B (Python)
   contract.py   ghi build.json — hình dạng hợp đồng khai báo ở đây (P-3)
   render.py     gọi Remotion — chỗ duy nhất biết quy ước cwd=studio/ và ../
   run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N]
+  new.py        make new — kịch bản mới: nội dung từ ngân hàng/Claude, cài đặt kế thừa
+  llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
+  check.py      make check — số đo MP4 + trang duyệt từng cảnh
 studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, Intro, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
@@ -153,9 +177,10 @@ content/      <ngày>.json  (người viết, commit — KHÔNG còn trường r
               <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
 library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
               shots.json — nguồn, tác giả, giấy phép và tag của mọi clip/nhạc
-out/          MP4 và PNG (không commit)
+              bank.json — ngân hàng kịch bản viết sẵn cho `make new` khi không có khoá
+out/          MP4 và PNG (không commit); <ngày>-check/ là trang duyệt của make check
 .env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
-docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md
+docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md, kich-ban-va-kiem-tra.md
 ```
 
 ## Việc đang treo, chờ người làm
@@ -168,13 +193,16 @@ Không cái nào chặn dây chuyền — `make video` chạy đủ mà không c
 | T-2 | Lấy `PIXABAY_API_KEY` | Chưa làm. Dễ hơn Pexels nhiều: đăng nhập xong khoá hiện thẳng trên `pixabay.com/api/docs/` | `make shots-find SOURCE=pixabay` chạy được. Code đã đối chiếu với tài liệu API của họ, khớp |
 | T-3 | Tìm clip 30fps thay ba clip 25fps (D-8) | Cần người xem và chọn, máy không quyết hộ | Hết giật ở cảnh lia chậm |
 | T-4 | Gắn tag cho thư viện khi nó lớn lên (s4e) | Chỉ có 3 clip nên chưa cấp bách | Bộ chọn ghép cảnh đúng chủ đề hơn |
+| T-5 | Quyết có cắm `ANTHROPIC_API_KEY` (s6f) | Tốn tiền theo lượt gọi; không cắm cũng không chặn gì | `make new` do Claude viết, tránh lặp ý 7 ngày gần nhất. Đường gọi thật CHƯA được kiểm — lần đầu hãy đọc kỹ kịch bản trước khi dựng |
+| T-6 | Nới ngân hàng kịch bản | Mới có 7 mục, tức 7 ngày không cần khoá. Tag `rain`, `window`, `walk`, `flower`, `garden` trong ngân hàng chưa khớp clip nào | Chạy dài ngày không cần khoá; clip đúng chủ đề hơn |
+| T-7 | Vài chỗ romaji tách chữ chưa chuẩn | Không sai cách đọc, chỉ sai chỗ dấu cách (`sumaseruto`, `shizumuka mo`, `ni do to`, `Da kara koso`, `Itsu mo`) — cần người đọc chốt cách viết | Sửa từng chữ bằng `library/readings.json`: dấu cách trong cách đọc là chỗ tách |
 
 Không có khoá nào thì đường `make shots-add` vẫn làm được mọi thứ đường API làm —
 xem `docs/cai-dat.md`. Khoá chỉ tiết kiệm công tìm clip.
 
 ## Trạng thái
 
-**BƯỚC 0, 1, 2, 3, 4 và 5 đã xong trọn vẹn.** `make content` gọi `python3 -m
+**BƯỚC 0 tới 6 đã xong trọn vẹn.** `make content` gọi `python3 -m
 pipeline.run`; `scripts/legacy_build.py` và `scripts/check_assets.py` đã bị xoá
 (thư mục `scripts/` không còn).
 
@@ -239,6 +267,29 @@ thấy hai vấn đề — caption thành bốn dòng lấn vào vùng an toàn,
 toàn kana thì dòng hiragana lặp y hệt dòng tiếng Nhật. Vấn đề thứ hai đã sửa
 (câu như vậy tự ẩn dòng đó), vấn đề thứ nhất thì không sửa được bằng code. Công
 tắc `showHira` vẫn còn để đổi ý mà không phải viết lại gì.
+
+Nghiệm thu BƯỚC 6 đạt:
+
+1. **Kịch bản mới không cần khoá.** `make new DAY=2026-09-10` lấy mục
+   `ame-no-oto` từ ngân hàng, qua `script.py`, và `make content` dựng được ngay:
+   1549 frame = 51,6 giây, trong khi ước lượng trước TTS là ~52 giây (tốc độ
+   đọc 4,23 chữ/giây, đo trên 2026-08-20).
+2. **`make check DAY=2026-08-20` PASS cả sáu mục**, 1687 frame đếm trên chính
+   MP4 — đếm gói ra đúng bằng đếm giải mã từng frame.
+3. **Đường Claude chạy tới máy chủ.** Thiếu khoá, khoá sai (401) và tên model
+   sai đều ra một dòng hướng dẫn, không để lại file. Chưa gọi thật lần nào vì
+   chưa có khoá.
+
+Hai lỗi của BƯỚC 3 lộ ra khi soi romaji ngân hàng — cả hai đã sửa, và
+`build.json` của 2026-08-20 vẫn giống hệt từng byte:
+
+| | Khiếm khuyết | Đã sửa bằng |
+|---|---|---|
+| D-9 | Ngày 5, 6, 8, 9, 10, 12, 30, 31 đọc sai hoặc dính chữ — `9月10日` ra `kugatsu tsuto tōka` | Romaji hoá đoạn số ngoài MeCab, phần còn lại đưa MeCab từng khúc. Quét 372/372 tổ hợp tháng-ngày ra đúng |
+| D-10 | Mất macron ở chữ hoa đầu câu — `大きく` ra `Ookiku` | So nguyên âm bằng chữ thường |
+
+Kèm theo, `library/readings.json` thêm 一歩 (`ippo`), 一杯 (`ippai`), 一期一会
+(`ichigo ichie`) — ba chữ ngân hàng dùng mà máy đọc sai.
 
 Năm khiếm khuyết đo được ở BƯỚC 1 — đã đóng hết:
 
