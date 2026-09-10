@@ -42,10 +42,31 @@ def _props_path(slug: str) -> Path:
     return props
 
 
+def _check_toolchain() -> None:
+    """Chặn hai lỗi mà npx báo bằng câu không ai hiểu nổi.
+
+    Thiếu node_modules thì npx chỉ nói "could not determine executable to run",
+    câu đó không nhắc gì tới cài đặt. Và trong WSL, `npm` có thể là bản Windows
+    lọt vào qua PATH của Windows trong khi `node` bản Linux không hề có — cài
+    bằng nó thì Remotion tải nhị phân win32 về, lỗi nổ ở tận lúc mở trình duyệt.
+    """
+    if not (STUDIO_DIR / "node_modules" / "remotion").is_dir():
+        raise RenderError(
+            f"Chưa cài phụ thuộc Node trong {STUDIO_DIR.relative_to(ROOT)}/. "
+            "Chạy 'make setup' trước."
+        )
+
+
 def _run(args: list[str]) -> None:
+    _check_toolchain()
     # Không nuốt stdout/stderr: thanh tiến trình của Remotion và thông báo lỗi
     # của nó là thứ đáng xem nhất khi render hỏng.
-    proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)
+    try:
+        proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)
+    except FileNotFoundError as exc:  # chưa cài Node
+        raise RenderError(
+            "Không tìm thấy lệnh npx. Cài Node 18 trở lên rồi chạy 'make setup'."
+        ) from exc
     if proc.returncode != 0:
         raise RenderError(f"Remotion dừng với mã {proc.returncode}. Xem log phía trên.")
 

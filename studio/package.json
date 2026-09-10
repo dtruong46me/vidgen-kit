@@ -24,8 +24,6 @@
   },
   "scripts": {
     "dev": "remotion studio",
-    "content": "python3 scripts/build.py",
-    "make": "./scripts/make.sh",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
