@@ -11,7 +11,7 @@ video đã dựng xong. Không lệnh nào cần khoá API.
 make new     DAY=2026-09-10    # tạo content/2026-09-10.json
                                # mở file ra đọc, sửa câu nào muốn sửa
 make reading DAY=2026-09-10    # đọc đối chiếu romaji máy sinh
-make video   DAY=2026-09-10    # ~10 phút trên máy 2 nhân
+make video   DAY=2026-09-10    # ~10 phút trên máy 2 nhân, ra MP4 + ảnh bìa
 make check   DAY=2026-09-10    # số đo + trang duyệt từng cảnh
 ```
 

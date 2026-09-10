@@ -2,8 +2,9 @@
 Xâu cả dây chuyền lại thành một lệnh.
 
     python3 -m pipeline.run 2026-08-20              chỉ chuẩn bị nội dung
-    python3 -m pipeline.run 2026-08-20 --render     chuẩn bị rồi dựng MP4
+    python3 -m pipeline.run 2026-08-20 --render     chuẩn bị rồi dựng MP4 + ảnh bìa
     python3 -m pipeline.run 2026-08-20 --still 300  chỉ render 1 frame ra PNG
+    python3 -m pipeline.run 2026-08-20 --thumbnail  chỉ render ảnh bìa ra PNG
 
 Đọc  : content/<slug>.json
 Ghi  : studio/public/audio/<slug>/line-XX.mp3
@@ -156,15 +157,23 @@ def main(argv: list[str] | None = None) -> int:
             # vì mục đích của still là soi font và bố cục thật nhanh.
             print(f"Đã ghi {render.still(slug, still_frame).relative_to(ROOT)}")
             return 0
+        if "--thumbnail" in flags:
+            # Như --still: chỉ vẽ từ build.json đã có, không dựng lại nội dung.
+            print(f"Đã ghi {render.thumbnail(slug).relative_to(ROOT)}")
+            return 0
 
         build_day(slug)
         if "--render" in flags:
             print()
             dest = render.video(slug)
+            # Video nào đăng lên cũng cần ảnh bìa, nên dựng luôn trong cùng lệnh.
+            print()
+            thumb = render.thumbnail(slug)
             # Đo lại file vừa dựng ra, không tin con số đã tính. Lệch giữa hai
             # số này nghĩa là Remotion và timeline đang hiểu khác nhau.
             print(f"\nXong: {dest.relative_to(ROOT)}")
             print(f"      thời lượng {duration_seconds(dest):.2f} giây")
+            print(f"      ảnh bìa    {thumb.relative_to(ROOT)}")
     except (script_mod.ScriptError, tts.TTSError, ProbeError, LibraryError,
             reading_mod.ReadingError, render.RenderError) as exc:
         print(f"\n[lỗi] {exc}", file=sys.stderr)

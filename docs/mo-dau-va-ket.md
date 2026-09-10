@@ -16,7 +16,7 @@ ra đúng như trước BƯỚC 5, không lệch một frame nào.
 Video **vào thẳng cảnh 1 ở frame 0**, không còn cảnh nền gradient nào đứng
 trước. Tiêu đề hiện đè lên chính cảnh 1:
 
-- **Chữ to: ngày tháng** — `8月20日`, tâm đặt ở **1/3 khung hình từ trên xuống**.
+- **Chữ to: ngày tháng** — `8月20日`, tâm đặt ở **1/4 khung hình từ trên xuống**.
 - **Chữ nhỏ bên dưới: chủ đề** — `小さな幸せ`, hiện sau ngày 14 frame.
 - Cảnh 1 **lặng `pauseSeconds`** rồi mới đọc câu 1 (`今日は、8月20日です。おはようございます。`).
   Caption câu 1 cũng chờ bấy nhiêu, để tiêu đề và caption không hiện cùng lúc.
@@ -25,7 +25,7 @@ trước. Tiêu đề hiện đè lên chính cảnh 1:
 | Trường | Bỏ trống thì | Ghi chú |
 |---|---|---|
 | `title` | lấy `title` của cả kịch bản | Chủ đề, dòng nhỏ dưới ngày |
-| `pauseSeconds` | 1,5 | Tiêu đề vào trong 34 frame (~1,1 giây); ngắn hơn thế thì tiếng đọc chen vào lúc chữ còn đang hiện |
+| `pauseSeconds` | 1,5 | Tiêu đề vào trong 34 frame (~1,1 giây); ngắn hơn thế thì tiếng đọc chen vào lúc chữ còn đang hiện. Dưới 1,5 thì ảnh bìa bắt chủ đề đang hiện dở |
 
 Không khai `intro` thì không có tiêu đề, và cảnh 1 cũng không lặng thêm.
 
@@ -44,6 +44,20 @@ qua thì người sửa số đó sẽ không hiểu vì sao video không đổi
 `captionStartInFrames` (0 ở mọi cảnh trừ cảnh 1). Trường `intro` **vẫn còn nhưng
 luôn là `null`** — Remotion bản cũ cộng `intro.durationInFrames` vào tổng, null
 tức 0, nên nó vẫn đếm đúng tổng frame (P-3). Tổng giờ là **các cảnh + màn kết**.
+
+### Ảnh bìa
+
+```bash
+make thumbnail DAY=2026-08-20    # out/2026-08-20-thumbnail.png
+```
+
+Chụp đúng frame caption câu 1 bắt đầu vào — `thumbnailFrame` trong build.json,
+mặc định 45. Ở frame đó ngày và chủ đề đã hiện đủ (chủ đề vào xong ở frame 44),
+caption còn trong suốt, và chưa có tiếng đọc. Frame do `timeline.py` chọn,
+`render.py` chỉ đọc số đó (P-2).
+
+Như `make still`, lệnh này chỉ vẽ từ build.json đã có. `make video` thì dựng
+luôn ảnh bìa ngay sau MP4, nên ngày thường không phải gọi riêng.
 
 ### Chữ
 

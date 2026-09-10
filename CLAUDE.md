@@ -77,10 +77,15 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả. Tiêu đề ngày
   cố tình chậm hơn nữa (34 frame): nó không phải nhường chỗ cho câu nào.
 - **Không có màn mở đầu riêng.** Video vào thẳng cảnh 1 ở frame 0; tiêu đề ngày
-  (`titleCard`, vd. `8月20日`, chủ đề nhỏ bên dưới) đè lên cảnh 1 ở 1/3 trên.
+  (`titleCard`, vd. `8月20日`, chủ đề nhỏ bên dưới) đè lên cảnh 1 ở 1/4 trên.
   Cảnh 1 lặng `intro.pauseSeconds` (mặc định 1,5 giây) rồi mới đọc, và caption
   câu 1 chờ đúng bấy nhiêu (`captionStartInFrames`). `build.json` vẫn ghi
   `intro: null` để Remotion bản cũ đếm đúng tổng — đừng xoá trường đó.
+- **Ảnh bìa chụp đúng lúc caption câu 1 bắt đầu vào** (`thumbnailFrame`, do
+  `timeline.py` chọn): ngày và chủ đề đã hiện đủ, caption còn trong suốt, chưa
+  có tiếng. Chủ đề vào xong ở frame 44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong
+  `TitleCard.tsx`) — nâng hai số đó hoặc hạ `pauseSeconds` dưới 1,5 là ảnh bìa
+  bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4.
 - **`calculateMetadata` và `timeline.py` phải ra CÙNG một con số.** Cả hai đều
   cộng các cảnh + màn kết (tiêu đề nằm trong cảnh 1, không cộng thêm frame).
   Lệch nhau là video cụt đuôi hoặc thừa một đoạn đen — mà không bên nào báo
@@ -179,7 +184,7 @@ pipeline/     Lớp A + B (Python)
   timeline.py   ★ nơi DUY NHẤT đổi giây ra frame (P-2)
   contract.py   ghi build.json — hình dạng hợp đồng khai báo ở đây (P-3)
   render.py     gọi Remotion — chỗ duy nhất biết quy ước cwd=studio/ và ../
-  run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N]
+  run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N|--thumbnail]
   new.py        make new — kịch bản mới: nội dung từ ngân hàng/Claude, cài đặt kế thừa
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
   check.py      make check — số đo MP4 + trang duyệt từng cảnh

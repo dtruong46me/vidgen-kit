@@ -41,7 +41,7 @@ export type Line = {
  * không đọc `intro` nữa.
  */
 export type TitleCard = {
-  /** Chữ to ở 1/3 trên: ngày tháng, vd. 8月20日 */
+  /** Chữ to ở 1/4 trên: ngày tháng, vd. 8月20日 */
   title: string;
   /** Chữ nhỏ dưới ngày: chủ đề của ngày. Rỗng thì không hiện */
   subtitle: string;

@@ -12,6 +12,7 @@ sẵn rồi bảo Remotion vẽ ra.
 
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 
@@ -66,14 +67,33 @@ def video(slug: str) -> Path:
     return dest
 
 
-def still(slug: str, frame: int) -> Path:
-    """build.json -> out/<slug>-f<frame>.png — cách nhanh nhất bắt lỗi font và bố cục."""
+def _still(slug: str, frame: int, dest: Path) -> Path:
     props = _props_path(slug)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    dest = OUT_DIR / f"{slug}-f{frame}.png"
     _run([
         "still", COMPOSITION, _from_studio(dest),
         f"--frame={frame}",
         f"--props={_from_studio(props)}",
     ])
     return dest
+
+
+def still(slug: str, frame: int) -> Path:
+    """build.json -> out/<slug>-f<frame>.png — cách nhanh nhất bắt lỗi font và bố cục."""
+    return _still(slug, frame, OUT_DIR / f"{slug}-f{frame}.png")
+
+
+def thumbnail(slug: str) -> Path:
+    """build.json -> out/<slug>-thumbnail.png — ảnh bìa: tiêu đề ngày đã hiện, câu 1 chưa đọc.
+
+    Frame lấy từ `thumbnailFrame` trong build.json, do timeline.py chọn. Module
+    này chỉ đọc số đó, không tự đoán frame nào đẹp (P-2).
+    """
+    props = _props_path(slug)
+    frame = json.loads(props.read_text(encoding="utf-8")).get("thumbnailFrame")
+    if frame is None:
+        raise RenderError(
+            f"{props.relative_to(ROOT)} dựng từ bản cũ, chưa có thumbnailFrame — "
+            f"chạy 'make content DAY={slug}' rồi thử lại."
+        )
+    return _still(slug, frame, OUT_DIR / f"{slug}-thumbnail.png")

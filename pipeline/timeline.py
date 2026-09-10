@@ -77,6 +77,17 @@ class Timeline:
     def seconds(self) -> float:
         return self.total_frames / self.fps
 
+    @property
+    def thumbnail_frame(self) -> int:
+        """Frame làm ảnh bìa: tiêu đề ngày đã hiện đủ, câu 1 chưa đọc.
+
+        Chính là lúc caption cảnh 1 bắt đầu vào. Ở frame đó caption còn trong suốt
+        hoàn toàn và giọng đọc chưa cất lên, còn TitleCard.tsx cho ngày và chủ đề
+        vào xong ở frame 44 — kịp trước khoảng lặng mặc định 45 frame. Không có
+        tiêu đề thì là frame 0.
+        """
+        return self.scenes[0].caption_start_in_frames if self.scenes else 0
+
 
 def _opening_pause(script: Script) -> float:
     """Khoảng lặng thêm ở đầu cảnh 1 cho tiêu đề. 0 khi kịch bản không khai `intro`."""

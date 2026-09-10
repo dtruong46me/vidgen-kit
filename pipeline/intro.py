@@ -5,7 +5,7 @@ Module này chỉ sinh CHỮ, không sinh frame. Nó trả lời "tiêu đề vi
 "lặng bao nhiêu frame trước câu 1" là việc của `timeline.py` (P-2).
 
 Tiêu đề không còn là một cảnh riêng trên nền gradient. Nó hiện đè lên cảnh 1,
-ở khoảng 1/3 khung hình từ trên xuống, và câu 1 được đọc sau một khoảng lặng
+ở khoảng 1/4 khung hình từ trên xuống, và câu 1 được đọc sau một khoảng lặng
 ngắn — video vào thẳng hình thật ngay từ frame đầu tiên.
 
 Ngày tháng do máy suy ra từ tên file kịch bản, không phải gõ tay. Kịch bản tên

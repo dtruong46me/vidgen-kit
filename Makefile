@@ -3,8 +3,9 @@
 #   make setup                       cài phụ thuộc Python (ĐÚNG python3 này) + Node cho studio/
 #   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
-#   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
+#   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4 + ảnh bìa
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
+#   make thumbnail DAY=2026-08-20    render ảnh bìa: tiêu đề ngày đã hiện, câu 1 chưa đọc
 #   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
 #   make shots-find / shots-get / shots-add   thêm clip vào thư viện
 #   make new     DAY=2026-09-10      tạo kịch bản mới (ngân hàng, hoặc Claude nếu có khoá)
@@ -46,7 +47,7 @@ define need_day
 	fi
 endef
 
-.PHONY: help setup studio content video still reading shots assets \
+.PHONY: help setup studio content video still thumbnail reading shots assets \
         shots-find shots-get shots-add all clean check new bank
 
 help:
@@ -55,8 +56,9 @@ help:
 	@echo "  make setup                        cài phụ thuộc Python + Node"
 	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
-	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
+	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4 + ảnh bìa"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
+	@echo "  make thumbnail DAY=2026-08-20     chỉ render ảnh bìa ra out/<ngày>-thumbnail.png"
 	@echo "  make reading DAY=2026-08-20       in romaji + hiragana máy sinh"
 	@echo "  make shots                        soi sổ tài sản (nguồn, giấy phép, tag)"
 	@echo "  make shots-find SOURCE=pexels Q=\"tea ceremony\""
@@ -148,7 +150,7 @@ content:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY)
 
-## Kịch bản -> giọng đọc -> timeline -> out/<DAY>.mp4, một lượt
+## Kịch bản -> giọng đọc -> timeline -> out/<DAY>.mp4 + out/<DAY>-thumbnail.png, một lượt
 video:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --render
@@ -157,6 +159,13 @@ video:
 still:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --still $(FRAME)
+
+## Ảnh bìa: frame mà ngày và chủ đề vừa hiện đủ, caption câu 1 chưa vào, chưa có
+## tiếng đọc. Frame đó do timeline.py chọn (thumbnailFrame trong build.json).
+## Như `still`, chỉ vẽ từ build.json đã có — sửa kịch bản thì `make content` trước.
+thumbnail:
+	$(need_day)
+	@python3 -m pipeline.run $(DAY) --thumbnail
 
 ## In romaji và hiragana máy sinh, để đọc đối chiếu trước khi tin nó
 reading:

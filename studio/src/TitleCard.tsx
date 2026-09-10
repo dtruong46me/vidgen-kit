@@ -17,21 +17,27 @@ import type { TitleCard as TitleCardData } from "./types";
  *
  * Ba điều kiềm chế có chủ ý:
  *
- * 1. ĐẶT Ở 1/3 TRÊN, không ở giữa. Caption neo ở 2/3 dưới; tiêu đề ở giữa khung
+ * 1. ĐẶT Ở 1/4 TRÊN, không ở giữa. Caption neo ở 2/3 dưới; tiêu đề ở giữa khung
  *    thì hai khối chữ dính vào nhau thành một mảng.
  * 2. CHỮ VÀO CHẬM HƠN CAPTION. Caption vào trong 26 frame vì phải nhường chỗ
  *    cho câu sau; tiêu đề không vội đi đâu nên vào trong 34 frame. Caption câu 1
  *    cũng chờ tiêu đề hiện xong mới vào — `captionStartInFrames`, timeline.py tính.
  * 3. CHỦ ĐỀ VÀO SAU NGÀY. Hai dòng hiện cùng lúc thì mắt không biết đọc dòng
- *    nào trước. Lệch nhau 14 frame là đủ để mắt tự đi từ trên xuống.
+ *    nào trước. Lệch nhau 10 frame là đủ để mắt tự đi từ trên xuống.
  */
 
 /** Chữ trôi vào trong bao nhiêu frame. Chậm hơn caption (26) một cách có chủ ý. */
 const TITLE_IN = 34;
-/** Dòng chủ đề hiện sau dòng ngày bấy nhiêu frame. */
-const SUBTITLE_DELAY = 14;
-/** Tâm dòng ngày nằm ở 1/3 chiều cao khung hình, tính từ trên xuống. */
-const TITLE_CENTER = 1 / 3;
+/**
+ * Dòng chủ đề hiện sau dòng ngày bấy nhiêu frame.
+ *
+ * Nó vào xong ở frame 10 + 34 = 44 — kịp trước frame 45, lúc caption câu 1 bắt
+ * đầu vào (khoảng lặng mặc định 1,5 giây ở 30fps). `make thumbnail` chụp đúng
+ * frame 45 đó, nên nâng số này lên là ảnh bìa bắt chủ đề đang hiện dở.
+ */
+const SUBTITLE_DELAY = 10;
+/** Tâm dòng ngày nằm ở 1/4 chiều cao khung hình, tính từ trên xuống. */
+const TITLE_CENTER = 1 / 4;
 const TITLE_LINE_HEIGHT = 1.3;
 /** Lề hai bên — rộng hơn SAFE_SIDE của caption một chút, tiêu đề cần thở. */
 const SIDE = 120;
@@ -67,14 +73,14 @@ export const TitleCard: React.FC<{
   });
 
   const size = fitTitle(visualLength(data.title));
-  // Neo TÂM dòng ngày vào 1/3, không neo mép trên — cỡ chữ đổi thì tâm vẫn đứng yên.
+  // Neo TÂM dòng ngày vào 1/4, không neo mép trên — cỡ chữ đổi thì tâm vẫn đứng yên.
   const top = height * TITLE_CENTER - (size * TITLE_LINE_HEIGHT) / 2;
 
   return (
     <AbsoluteFill style={{ opacity: exit }}>
       {/*
-        Quầng tối sau chữ. Lớp phủ của Background cố tình nhạt nhất ở dải 1/3
-        trên — đó là phần khán giả xem hình — nên chữ trắng đặt ở đây dễ chìm
+        Quầng tối sau chữ. Lớp phủ của Background cố tình nhạt ở dải trên — đó
+        là phần khán giả xem hình — nên chữ trắng đặt ở đây dễ chìm
         vào clip sáng. Tiêu đề tự mang một quầng tối riêng, hiện và tắt cùng chữ,
         thay vì phủ đậm cả khung cho mọi cảnh.
       */}

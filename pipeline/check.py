@@ -235,7 +235,7 @@ def write_page(slug: str, build: dict, findings: list[Finding],
         if moment.line is None and build.get("outro"):
             text = f'<p class="ja">{esc(build["outro"]["text"])}</p>'
         else:
-            # Cảnh 1 còn có tiêu đề ngày đè lên ở 1/3 trên — cũng là chữ phải hiện.
+            # Cảnh 1 còn có tiêu đề ngày đè lên ở 1/4 trên — cũng là chữ phải hiện.
             card = build.get("titleCard") if moment.label == "Cảnh 1" else None
             text = ((f'<p class="ja">{esc(card["title"])}　{esc(card.get("subtitle") or "")}</p>'
                      if card else "")

@@ -72,6 +72,9 @@ def compose(
         # Trường `hira` đã có từ BƯỚC 3 nhưng chưa ai hiện nó. Đây là công tắc.
         # Mặc định tắt — xem lý do ở script.py.
         "showHira": script.show_hira,
+        # Frame làm ảnh bìa, do timeline.py chọn. `make thumbnail` đọc nó;
+        # Remotion không dùng, nên bản cũ bỏ qua cũng không sao.
+        "thumbnailFrame": timeline.thumbnail_frame,
         "lines": [
             {
                 "ja": line.ja,
