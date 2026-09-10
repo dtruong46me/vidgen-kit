@@ -50,12 +50,14 @@ def compose(
         # intro/outro là null, transition là crossfade 24 frame — đúng bằng
         # hằng số CROSSFADE mà DailyVideo.tsx vẫn dùng từ trước. Nhờ vậy bản
         # Remotion CŨ đọc build.json MỚI vẫn ra y hệt video cũ (P-3).
-        "intro": (
-            {
-                "title": intro.title,
-                "dateText": intro.date_text,
-                "durationInFrames": timeline.intro_duration_in_frames,
-            }
+        # Màn mở đầu nền gradient đã bỏ, nên `intro` luôn là null. Giữ trường
+        # chứ không xoá (P-3): Remotion cũ cộng intro.durationInFrames vào tổng,
+        # null tức 0 — khớp đúng tổng của timeline.py.
+        "intro": None,
+        # Tiêu đề hiện đè lên cảnh 1. Remotion cũ không biết trường này thì
+        # video chỉ thiếu tiêu đề, số frame vẫn đúng.
+        "titleCard": (
+            {"title": intro.title, "subtitle": intro.subtitle}
             if intro is not None else None
         ),
         "outro": (
@@ -83,6 +85,8 @@ def compose(
                 "audioDurationInFrames": scene.audio_duration_in_frames,
                 "durationInFrames": scene.duration_in_frames,
                 "audioStartInFrames": scene.audio_start_in_frames,
+                # Mặc định 0 = caption vào ngay đầu cảnh, đúng hành vi cũ.
+                "captionStartInFrames": scene.caption_start_in_frames,
                 "clip": clip.path,
                 "clipDurationInFrames": scene.clip_duration_in_frames,
                 "clipStartInSeconds": clip.start_seconds,

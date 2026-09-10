@@ -44,11 +44,11 @@ loadBeVietnamPro("italic", {
 });
 
 /**
- * Màn mở đầu và màn kết — nét bút lông.
+ * Tiêu đề ngày và màn kết — nét bút lông.
  *
  * Yuji Syuku là font viết tay bằng bút lông, KHÔNG dùng cho caption được: nét
  * mảnh và không đều, đọc lâu thì mỏi mắt, mà caption thì người xem phải đọc kịp
- * trong vài giây. Ở màn mở đầu thì ngược lại — chỉ vài chữ, đứng yên đủ lâu, và
+ * trong vài giây. Ở tiêu đề thì ngược lại — chỉ vài chữ, đứng yên đủ lâu, và
  * chính cái nét tay ấy mới tạo được không khí.
  *
  * Chỉ có một độ đậm (400), đúng bản chất font viết tay.

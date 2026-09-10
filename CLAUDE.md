@@ -74,11 +74,17 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Lớp phủ tối phải đậm nhất ở dải có caption**, không phủ đều. Clip thật rất
   sáng; phủ đều là chữ chìm. Xem `Background.tsx`.
 - **Hiệu ứng đi chậm.** Chữ hiện trong 26 frame, tắt trong 20, nền mờ chồng 24.
-  Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả. Màn mở đầu
+  Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả. Tiêu đề ngày
   cố tình chậm hơn nữa (34 frame): nó không phải nhường chỗ cho câu nào.
+- **Không có màn mở đầu riêng.** Video vào thẳng cảnh 1 ở frame 0; tiêu đề ngày
+  (`titleCard`, vd. `8月20日`, chủ đề nhỏ bên dưới) đè lên cảnh 1 ở 1/3 trên.
+  Cảnh 1 lặng `intro.pauseSeconds` (mặc định 1,5 giây) rồi mới đọc, và caption
+  câu 1 chờ đúng bấy nhiêu (`captionStartInFrames`). `build.json` vẫn ghi
+  `intro: null` để Remotion bản cũ đếm đúng tổng — đừng xoá trường đó.
 - **`calculateMetadata` và `timeline.py` phải ra CÙNG một con số.** Cả hai đều
-  cộng màn mở đầu + các cảnh + màn kết. Lệch nhau là video cụt đuôi hoặc thừa
-  một đoạn đen — mà không bên nào báo lỗi, phải xem mới biết.
+  cộng các cảnh + màn kết (tiêu đề nằm trong cảnh 1, không cộng thêm frame).
+  Lệch nhau là video cụt đuôi hoặc thừa một đoạn đen — mà không bên nào báo
+  lỗi, phải xem mới biết.
 - **Ba kiểu chuyển cảnh khác nhau ở CHỖ ĐẶT cảnh, không chỉ ở hiệu ứng.**
   `crossfade` cho cảnh bắt đầu sớm hơn T frame để chồng lên cảnh trước;
   `dip_to_black` và `cut` để cảnh nằm đúng ô của nó. Vì vậy `DailyVideo.tsx`
@@ -161,7 +167,7 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 ```
 pipeline/     Lớp A + B (Python)
   env.py        nạp .env — chỗ duy nhất đọc khoá API
-  intro.py      chữ cho màn mở đầu và màn kết; ngày kiểu Nhật suy từ tên kịch bản
+  intro.py      chữ cho tiêu đề ngày và màn kết; ngày suy từ tên kịch bản
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
   script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
@@ -178,7 +184,7 @@ pipeline/     Lớp A + B (Python)
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
   check.py      make check — số đo MP4 + trang duyệt từng cảnh
 studio/       Lớp C (Remotion)
-  src/          Composition, DailyVideo, Background, Caption, Intro, Outro, fonts
+  src/          Composition, DailyVideo, Background, Caption, TitleCard, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
 content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji;
@@ -223,17 +229,20 @@ khác bản gõ tay **đúng 1 chỗ trên 9 câu** — `sukina` thành `suki na
 tay vốn tự mâu thuẫn ở chỗ này (câu 9 viết `Suteki na` có dấu cách). Số frame
 không đổi, vì romaji không dính gì tới thời lượng.
 
-> **Mốc hồi quy giờ có hai con số.** `1427` là phần THOẠI của `2026-08-20`.
-> `1652` là tổng sau khi cộng màn mở đầu (135) và màn kết (90). Đổi bất cứ thứ
-> gì trong `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số
-> đó. Nó đổi mà bạn không cố ý đổi nhịp đọc hay nội dung kịch bản, tức là bạn
-> vừa làm hỏng timeline.
+> **Mốc hồi quy giờ có hai con số.** `1472` là phần THOẠI của `2026-08-20`, đã
+> gồm 45 frame lặng đầu cảnh 1 cho tiêu đề ngày. `1562` là tổng sau khi cộng
+> màn kết (90) — không còn màn mở đầu riêng. Đổi bất cứ thứ gì trong
+> `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số đó. Nó đổi
+> mà bạn không cố ý đổi nhịp đọc hay nội dung kịch bản, tức là bạn vừa làm
+> hỏng timeline.
 
-> Con số này đã đổi hai lần, cả hai đều có chủ ý. Từ 1327 thành 1462 ở BƯỚC 1,
+> Con số này đã đổi ba lần, cả ba đều có chủ ý. Từ 1327 thành 1462 ở BƯỚC 1,
 > vì `leadIn`/`pauseAfter` giãn ra (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15
 > frame cho mỗi câu trong 9 câu; 1462 (tổng 1687) là mốc suốt BƯỚC 1–6. Rồi
 > thành 1427 (tổng 1652) khi gộp `今日は、8月20日です。` và `おはようございます。`
 > thành một dòng mở đầu: 9 câu còn 8, bớt một khoảng nghỉ, và TTS đọc liền hai vế.
+> Rồi thành 1472 (tổng 1562) khi bỏ màn mở đầu nền gradient 135 frame: tiêu đề
+> ngày đè lên cảnh 1, và cảnh 1 lặng thêm đúng 45 frame (1,5 giây) trước câu 1.
 > Các con số 1462/1687 trong phần nghiệm thu bên dưới là số đo của thời đó.
 
 Nghiệm thu BƯỚC 4 đạt trên ba mặt:

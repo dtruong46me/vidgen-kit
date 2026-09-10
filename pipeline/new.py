@@ -85,7 +85,7 @@ DEFAULT_SETTINGS = {
     "height": 1920,
     "leadIn": 0.35,
     "pauseAfter": 0.7,
-    "intro": {"seconds": script_mod.DEFAULT_INTRO_SECONDS},
+    "intro": {"pauseSeconds": script_mod.DEFAULT_INTRO_PAUSE_SECONDS},
     "outro": {"text": script_mod.DEFAULT_OUTRO_TEXT,
               "seconds": script_mod.DEFAULT_OUTRO_SECONDS},
     "targetSeconds": [45, 60],
@@ -205,7 +205,7 @@ def _fixed_seconds(settings: dict, n_lines: int) -> float:
     outro = settings.get("outro")
     return (
         n_lines * gap
-        + (float(intro.get("seconds", script_mod.DEFAULT_INTRO_SECONDS))
+        + (float(intro.get("pauseSeconds", script_mod.DEFAULT_INTRO_PAUSE_SECONDS))
            if isinstance(intro, dict) else 0.0)
         + (float(outro.get("seconds", script_mod.DEFAULT_OUTRO_SECONDS))
            if isinstance(outro, dict) else 0.0)
@@ -341,7 +341,7 @@ def compose(slug: str, day: date, draft: Draft, settings: dict) -> dict:
     doc: dict = {"id": slug, "title": f"{day.month}月{day.day}日 - {draft.theme}"}
     for key, value in settings.items():
         if key == "intro" and isinstance(value, dict):
-            # Độ dài màn mở đầu là cài đặt, chữ trên nó là nội dung.
+            # Khoảng lặng đầu video là cài đặt, chủ đề dưới tiêu đề là nội dung.
             value = {"title": draft.theme,
                      **{k: v for k, v in value.items() if k != "title"}}
         doc[key] = value

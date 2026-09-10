@@ -133,11 +133,11 @@ make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
 ```bash
 make reading DAY=2026-08-20      # romaji + hiragana, không cần khoá
 make shots                       # sổ tài sản
-make content DAY=2026-08-20      # 1427 frame thoại, tổng 1652
+make content DAY=2026-08-20      # 1472 frame thoại, tổng 1562
 make video   DAY=2026-08-20      # ~10 phút trên máy 2 nhân
 make check   DAY=2026-08-20      # phải PASS, đếm frame trên chính MP4
 make bank                        # ngân hàng kịch bản, không cần khoá
 ```
 
-Con số **1427 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp
+Con số **1472 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp
 đọc thì có thứ gì đó vừa hỏng.

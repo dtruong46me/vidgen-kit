@@ -61,20 +61,19 @@ def build_day(slug: str, log=print) -> Path:
     intro = intro_mod.build_intro(doc.intro, slug, doc.title)
     outro = intro_mod.build_outro(doc.outro)
 
-    timeline = timeline_mod.build(doc, voices, clips, bgm, intro, outro)
+    timeline = timeline_mod.build(doc, voices, clips, bgm, outro)
     dest = contract.write(
         contract.compose(doc, voices, clips, bgm, timeline, readings, intro, outro),
         CONTENT_DIR / f"{slug}.build.json",
     )
 
     log(f"\nĐã ghi {dest.relative_to(ROOT)}")
-    if intro or outro:
-        parts = [f"{timeline.scenes_frames} frame thoại"]
-        if intro:
-            parts.insert(0, f"{timeline.intro_duration_in_frames} frame mở đầu")
-        if outro:
-            parts.append(f"{timeline.outro_duration_in_frames} frame kết")
-        log(f"  {' + '.join(parts)}")
+    if intro:
+        log(f"  tiêu đề {intro.title} trên cảnh 1, lặng "
+            f"{timeline.scenes[0].caption_start_in_frames} frame trước câu 1")
+    if outro:
+        log(f"  {timeline.scenes_frames} frame thoại + "
+            f"{timeline.outro_duration_in_frames} frame kết")
     log(f"{len(timeline.scenes)} câu — tổng {timeline.total_frames} frame "
         f"= {timeline.seconds:.1f} giây")
 

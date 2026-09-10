@@ -1,8 +1,8 @@
 import { AbsoluteFill, Audio, Loop, Sequence, staticFile } from "remotion";
 import { Background } from "./Background";
 import { Caption } from "./Caption";
-import { Intro } from "./Intro";
 import { Outro } from "./Outro";
+import { TitleCard } from "./TitleCard";
 import type { DailyVideoProps } from "./types";
 
 /**
@@ -18,12 +18,9 @@ import type { DailyVideoProps } from "./types";
 export const CROSSFADE = 24;
 
 /** Vị trí bắt đầu (frame) của từng câu, cộng dồn từ độ dài các câu trước. */
-export const getStarts = (
-  lines: { durationInFrames: number }[],
-  offset = 0,
-) => {
+export const getStarts = (lines: { durationInFrames: number }[]) => {
   const starts: number[] = [];
-  let cursor = offset;
+  let cursor = 0;
   for (const line of lines) {
     starts.push(cursor);
     cursor += line.durationInFrames;
@@ -36,19 +33,18 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
   bgm,
   bgmDurationInFrames,
   bgmVolume,
-  intro = null,
+  titleCard = null,
   outro = null,
   transition = "crossfade",
   transitionInFrames,
   showHira = false,
 }) => {
   const fade = transitionInFrames ?? CROSSFADE;
-  const introFrames = intro?.durationInFrames ?? 0;
   const outroFrames = outro?.durationInFrames ?? 0;
 
-  // Mọi cảnh dịch xuống sau màn mở đầu. Đây là chỗ DUY NHẤT cộng offset đó —
-  // caption, giọng đọc và nền đều lấy mốc từ cùng một mảng `starts`.
-  const starts = getStarts(lines, introFrames);
+  // Video vào thẳng cảnh 1 ở frame 0 — không còn màn mở đầu nào đẩy các cảnh
+  // lùi lại. Caption, giọng đọc và nền đều lấy mốc từ cùng một mảng `starts`.
+  const starts = getStarts(lines);
   const scenesEnd =
     starts[starts.length - 1] + lines[lines.length - 1].durationInFrames;
   const total = scenesEnd + outroFrames;
@@ -59,13 +55,6 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#0a0c0b" }}>
-      {/* Lớp 0 — MÀN MỞ ĐẦU. Không có thì cả khối này biến mất, video bắt đầu ngay ở câu 1. */}
-      {intro ? (
-        <Sequence durationInFrames={introFrames} name="Mở đầu">
-          <Intro data={intro} fadeOutFrames={fade} />
-        </Sequence>
-      ) : null}
-
       {/*
         Lớp 1 — NỀN.
         Với crossfade, mỗi cảnh bắt đầu sớm hơn đúng `fade` frame và sáng dần
@@ -93,7 +82,26 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
       })}
 
       {/*
-        Lớp 2 — CAPTION + GIỌNG ĐỌC.
+        Lớp 2 — TIÊU ĐỀ NGÀY, đè lên cảnh 1 và sống đúng bằng cảnh đó.
+        Nằm trên nền, dưới caption. Không có thì video vẫn bắt đầu y như vậy,
+        chỉ thiếu dòng ngày.
+      */}
+      {titleCard ? (
+        <Sequence
+          from={starts[0]}
+          durationInFrames={lines[0].durationInFrames}
+          name="Tiêu đề"
+        >
+          <TitleCard
+            data={titleCard}
+            durationInFrames={lines[0].durationInFrames}
+            fadeOutFrames={fade}
+          />
+        </Sequence>
+      ) : null}
+
+      {/*
+        Lớp 3 — CAPTION + GIỌNG ĐỌC.
         Lớp này KHÔNG chồng nhau: mỗi câu nằm đúng ô thời gian của nó,
         để giọng đọc không bao giờ bị chồng tiếng.
       */}
@@ -114,7 +122,7 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
         </Sequence>
       ))}
 
-      {/* Lớp 3 — MÀN KẾT */}
+      {/* Lớp 4 — MÀN KẾT */}
       {outro ? (
         <Sequence from={scenesEnd} durationInFrames={outroFrames} name="Kết">
           <Outro data={outro} />
@@ -122,9 +130,9 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
       ) : null}
 
       {/*
-        Lớp 4 — NHẠC NỀN: lặp lại cho đủ độ dài video, âm lượng nhỏ để không át lời.
-        Chạy suốt cả video KỂ CẢ màn mở đầu và màn kết — nhạc dừng giữa chừng ở
-        chỗ nối là thứ tai bắt được ngay, còn rõ hơn cả hình cắt.
+        Lớp 5 — NHẠC NỀN: lặp lại cho đủ độ dài video, âm lượng nhỏ để không át lời.
+        Chạy suốt cả video KỂ CẢ khoảng lặng đầu và màn kết — nhạc dừng giữa chừng
+        ở chỗ nối là thứ tai bắt được ngay, còn rõ hơn cả hình cắt.
       */}
       {bgm && bgmDurationInFrames ? (
         <Sequence durationInFrames={total} name="Nhạc nền">

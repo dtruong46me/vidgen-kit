@@ -60,8 +60,9 @@ const opacityFor = (
     );
   }
 
-  // crossfade — cảnh đầu tiên không fade từ màu đen ra vì nó đã có màn mở đầu
-  // hoặc chính là khung hình đầu video; các cảnh sau fade chồng lên cảnh trước.
+  // crossfade — cảnh đầu tiên không fade từ màu đen ra: nó chính là khung hình
+  // đầu video, cũng là ảnh bìa lúc người xem lướt tới, nên phải có hình ngay từ
+  // frame 0. Các cảnh sau fade chồng lên cảnh trước.
   if (index === 0) return 1;
   return interpolate(frame, [0, fadeFrames], [0, 1], {
     extrapolateLeft: "clamp",

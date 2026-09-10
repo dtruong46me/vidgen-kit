@@ -94,7 +94,7 @@ Tiếng Việt:
 - Dịch cho người Việt đọc thấy tự nhiên, giữ sắc thái mềm của câu Nhật.
   Không dịch từng chữ. Các tiểu từ ね、よ thường ra "nhỉ", "nhé".
 
-Chủ đề (theme): 2–8 chữ tiếng Nhật, là tiêu đề viết bút lông ở màn mở đầu.
+Chủ đề (theme): 2–8 chữ tiếng Nhật, viết bút lông dưới ngày tháng ở đầu video.
 """
 
 

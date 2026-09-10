@@ -24,7 +24,7 @@ Kịch bản gồm hai phần, lấy từ hai chỗ khác nhau:
 | Phần | Gồm | Lấy từ đâu |
 |---|---|---|
 | **Nội dung** | chủ đề, tag, các câu Nhật + Việt | ngân hàng viết sẵn, hoặc Claude |
-| **Cài đặt** | giọng đọc, nhạc nền, nhịp nghỉ, màn mở đầu/kết, `targetSeconds` | **kịch bản của ngày gần nhất** |
+| **Cài đặt** | giọng đọc, nhạc nền, nhịp nghỉ, khoảng lặng đầu video, màn kết, `targetSeconds` | **kịch bản của ngày gần nhất** |
 
 Nên muốn đổi nhạc nền hay đọc chậm lại cho mọi ngày sau, chỉ cần sửa ở ngày gần
 nhất một lần. Ngân hàng và prompt không chứa cài đặt nào.
@@ -94,7 +94,7 @@ mục dùng lâu nhất. Không random — cùng một repo thì luôn ra cùng 
 - **Dòng đầu cố định: nói ngày trước, chào sau, chung một dòng** — đúng như ví dụ
   trên. Dòng đó khai ở `OPENING` trong `pipeline/new.py`; `make bank` đánh dấu
   `[!]` mục nào lệch, `make new` cũng cảnh báo.
-- `theme` là tiêu đề màn mở đầu viết bút lông: 2–8 chữ.
+- `theme` là chủ đề hiện nhỏ dưới ngày tháng ở đầu video, nét bút lông: 2–8 chữ.
 - `{date}` ra `9月10日`, `{date_vi}` ra `ngày 10 tháng 9`.
 - Giữ trong khoảng **120–180 chữ, 8–10 câu, mỗi câu dưới 40 chữ**. `make bank`
   đánh dấu `[!]` mục nào ước lượng ra ngoài khoảng.
@@ -151,8 +151,8 @@ make check DAY=2026-08-20
   PASS  Khổ hình     1080×1920
   PASS  fps          30
   PASS  Luồng tiếng  có
-  PASS  Số frame     1652 = 135 mở đầu + 1427 thoại + 90 kết
-  PASS  Thời lượng   ~55s, khoảng mong muốn 45–60s
+  PASS  Số frame     1562 = 1472 thoại + 90 kết
+  PASS  Thời lượng   ~52s, khoảng mong muốn 45–60s
   PASS  Độ mới       MP4 dựng sau build.json
 ```
 
@@ -174,8 +174,8 @@ Lệnh trả mã lỗi 1 nếu có mục FAIL, nên xâu được: `make video D
 
 Ghi ra `out/<ngày>-check/`:
 
-- **`sheet.jpg`** — mở thẳng trong VS Code. Mỗi ô một khung: màn mở đầu, giữa
-  từng cảnh, màn kết. Viền đỏ là vùng giao diện TikTok/Reels che (đáy 380px,
+- **`sheet.jpg`** — mở thẳng trong VS Code. Mỗi ô một khung: giữa
+  từng cảnh (cảnh 1 có cả tiêu đề ngày), màn kết. Viền đỏ là vùng giao diện TikTok/Reels che (đáy 380px,
   dải phải 110px).
 - **`index.html`** — cùng các khung đó, kèm bảng số đo và **chữ lẽ ra phải hiện**
   ngay dưới mỗi ảnh.

@@ -13,7 +13,7 @@
   "pauseAfter": 0.7,
   "intro": {
     "title": "雨の音",
-    "seconds": 4.5
+    "pauseSeconds": 1.5
   },
   "outro": {
     "text": "またあした",

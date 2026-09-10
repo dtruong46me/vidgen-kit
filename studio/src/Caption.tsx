@@ -76,8 +76,12 @@ export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
   line,
   showHira = false,
 }) => {
-  const frame = useCurrentFrame();
-  const d = line.durationInFrames;
+  // Caption vào ở captionStartInFrames thay vì đầu cảnh. Chỉ cảnh 1 có số này
+  // khác 0: ở đó caption chờ tiêu đề ngày hiện xong (xem timeline.py). Mọi phép
+  // tính bên dưới đo từ lúc caption vào, nên nhịp 26/20 frame giữ nguyên.
+  const start = line.captionStartInFrames ?? 0;
+  const frame = useCurrentFrame() - start;
+  const d = line.durationInFrames - start;
 
   const inF = Math.min(IN_FRAMES, Math.round(d * MAX_RATIO));
   const outF = Math.min(OUT_FRAMES, Math.round(d * MAX_RATIO));

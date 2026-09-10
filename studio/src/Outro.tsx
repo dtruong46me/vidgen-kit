@@ -5,7 +5,7 @@ import type { Outro as OutroData } from "./types";
 /**
  * Màn kết — một câu chào, rồi tối dần.
  *
- * Ngắn hơn màn mở đầu và chỉ có một dòng. Lý do: người xem đã nhận được thứ họ
+ * Ngắn và chỉ có một dòng. Lý do: người xem đã nhận được thứ họ
  * đến để nhận: kéo dài phần kết chỉ tạo cơ hội cho họ lướt đi trước khi video
  * hết, mà lướt đi sớm thì thuật toán hiểu là video dở.
  *

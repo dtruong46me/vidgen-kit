@@ -64,7 +64,7 @@ class Finding:
 
 @dataclass(frozen=True)
 class Moment:
-    """Một khung hình đáng trích: giữa màn mở đầu, giữa mỗi cảnh, trong màn kết."""
+    """Một khung hình đáng trích: giữa mỗi cảnh, trong màn kết."""
 
     label: str
     frame: int
@@ -72,27 +72,21 @@ class Moment:
 
 
 def total_frames(build: dict) -> int:
-    """Tổng frame build.json hứa: mở đầu + các cảnh + kết. Cùng phép cộng với calculateMetadata."""
-    intro = (build.get("intro") or {}).get("durationInFrames", 0)
+    """Tổng frame build.json hứa: các cảnh + kết. Cùng phép cộng với calculateMetadata."""
     outro = (build.get("outro") or {}).get("durationInFrames", 0)
-    return intro + sum(line["durationInFrames"] for line in build["lines"]) + outro
+    return sum(line["durationInFrames"] for line in build["lines"]) + outro
 
 
 def moments(build: dict) -> list[Moment]:
     """Chọn khung hình mà chữ đã hiện đủ và chưa bắt đầu tắt.
 
-    - Mở đầu: giữa màn. Dòng ngày hiện xong ở frame 48, màn mờ đi từ cuối trừ
-      24 frame, nên giữa màn (67 với màn 135 frame) nằm gọn trong quãng hiện đủ.
     - Mỗi cảnh: giữa cảnh. Chữ vào trong 26 frame, tắt trong 20, cảnh sau chồng
-      vào 24 frame cuối — giữa cảnh luôn an toàn với cảnh dài hơn 2 giây.
+      vào 24 frame cuối — giữa cảnh luôn an toàn với cảnh dài hơn 2 giây. Ở cảnh
+      1, giữa cảnh là lúc tiêu đề ngày và caption câu 1 cùng đang hiện đủ.
     - Kết: 40% màn. Chữ vào xong ở frame 30, bắt đầu nhạt ở 55%.
     """
     out: list[Moment] = []
     cursor = 0
-    intro = build.get("intro")
-    if intro:
-        out.append(Moment("Mở đầu", intro["durationInFrames"] // 2, None))
-        cursor = intro["durationInFrames"]
     for i, line in enumerate(build["lines"], start=1):
         out.append(Moment(f"Cảnh {i}", cursor + line["durationInFrames"] // 2, line))
         cursor += line["durationInFrames"]
@@ -140,10 +134,7 @@ def measure(slug: str, build: dict, build_path: Path, mp4: Path) -> list[Finding
     # Phép kiểm đáng giá nhất: lệch ở đây là video cụt đuôi hoặc thừa đoạn đen,
     # mà Remotion lẫn timeline.py đều không báo lỗi gì.
     want_frames = total_frames(build)
-    parts = []
-    if build.get("intro"):
-        parts.append(f"{build['intro']['durationInFrames']} mở đầu")
-    parts.append(f"{sum(l['durationInFrames'] for l in build['lines'])} thoại")
+    parts = [f"{sum(l['durationInFrames'] for l in build['lines'])} thoại"]
     if build.get("outro"):
         parts.append(f"{build['outro']['durationInFrames']} kết")
     breakdown = " + ".join(parts)
@@ -241,13 +232,14 @@ def write_page(slug: str, build: dict, findings: list[Finding],
     cards = []
     for moment, path in picked:
         line = moment.line or {}
-        if moment.line is None and moment.label == "Mở đầu" and build.get("intro"):
-            text = (f'<p class="ja">{esc(build["intro"]["title"])}</p>'
-                    f'<p class="ro">{esc(build["intro"].get("dateText") or "")}</p>')
-        elif moment.line is None and build.get("outro"):
+        if moment.line is None and build.get("outro"):
             text = f'<p class="ja">{esc(build["outro"]["text"])}</p>'
         else:
-            text = (f'<p class="ja">{esc(line.get("ja", ""))}</p>'
+            # Cảnh 1 còn có tiêu đề ngày đè lên ở 1/3 trên — cũng là chữ phải hiện.
+            card = build.get("titleCard") if moment.label == "Cảnh 1" else None
+            text = ((f'<p class="ja">{esc(card["title"])}　{esc(card.get("subtitle") or "")}</p>'
+                     if card else "")
+                    + f'<p class="ja">{esc(line.get("ja", ""))}</p>'
                     f'<p class="ro">{esc(line.get("romaji", ""))}</p>'
                     f'<p class="vi">{esc(line.get("vi", ""))}</p>')
         cards.append(

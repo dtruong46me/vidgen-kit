@@ -23,6 +23,8 @@ export type Line = {
   durationInFrames: number;
   /** Giọng đọc bắt đầu ở frame thứ mấy trong cảnh */
   audioStartInFrames: number;
+  /** Caption vào ở frame thứ mấy trong cảnh. Không có = 0. Cảnh 1 chờ tiêu đề hiện xong */
+  captionStartInFrames?: number;
   /** Clip nền, tính từ public/. null = dùng nền gradient */
   clip: string | null;
   /** Độ dài clip nền tính bằng frame (để loop khi clip ngắn hơn cảnh) */
@@ -31,13 +33,18 @@ export type Line = {
   clipStartInSeconds: number;
 };
 
-/** Màn mở đầu. null = không có, và đó là mặc định. */
-export type Intro = {
-  /** Chủ đề của ngày, viết bằng nét bút lông */
+/**
+ * Tiêu đề đầu video, hiện đè lên cảnh 1. null = không có.
+ *
+ * Thay cho màn mở đầu nền gradient cũ. build.json vẫn còn trường `intro` nhưng
+ * luôn là null — giữ để Remotion bản cũ đếm đúng tổng frame (P-3). Bản này
+ * không đọc `intro` nữa.
+ */
+export type TitleCard = {
+  /** Chữ to ở 1/3 trên: ngày tháng, vd. 8月20日 */
   title: string;
-  /** Ngày kiểu Nhật kèm thứ, vd. 八月二十日　木曜日. Rỗng nếu tên kịch bản không phải ngày */
-  dateText: string;
-  durationInFrames: number;
+  /** Chữ nhỏ dưới ngày: chủ đề của ngày. Rỗng thì không hiện */
+  subtitle: string;
 };
 
 /** Màn kết. null = không có. */
@@ -65,8 +72,9 @@ export type DailyVideoProps = {
   /** Độ dài file nhạc nền (frame), dùng để loop cho đủ video */
   bgmDurationInFrames: number | null;
   bgmVolume: number;
-  /** BƯỚC 5 — cả bốn trường dưới đây đều tuỳ chọn */
-  intro?: Intro | null;
+  /** Tiêu đề ngày đè lên cảnh 1. Tuỳ chọn */
+  titleCard?: TitleCard | null;
+  /** BƯỚC 5 — các trường dưới đây đều tuỳ chọn */
   outro?: Outro | null;
   transition?: Transition;
   transitionInFrames?: number;

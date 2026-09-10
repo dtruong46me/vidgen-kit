@@ -25,7 +25,9 @@ class ScriptError(ValueError):
 TRANSITIONS = ("crossfade", "dip_to_black", "cut")
 
 #: Mặc định khi kịch bản khai `intro`/`outro` mà không nói dài bao nhiêu.
-DEFAULT_INTRO_SECONDS = 4.5
+#: Khoảng lặng đầu video: tiêu đề ngày hiện lên trên cảnh 1 rồi mới đọc câu 1.
+#: 1,5 giây đủ để tiêu đề (vào trong 34 frame) hiện xong trước khi có tiếng.
+DEFAULT_INTRO_PAUSE_SECONDS = 1.5
 DEFAULT_OUTRO_SECONDS = 3.0
 DEFAULT_OUTRO_TEXT = "またあした"
 DEFAULT_TRANSITION_SECONDS = 0.8
@@ -33,11 +35,15 @@ DEFAULT_TRANSITION_SECONDS = 0.8
 
 @dataclass(frozen=True)
 class IntroSpec:
-    """Khai báo màn mở đầu trong kịch bản. Chữ ngày do máy suy ra (xem intro.py)."""
+    """Khai báo tiêu đề đầu video. Chữ ngày do máy suy ra (xem intro.py).
 
-    #: None thì lấy `title` của cả kịch bản.
+    Không còn là một cảnh riêng: tiêu đề đè lên cảnh 1, và cảnh 1 lặng thêm
+    `pause_seconds` trước khi đọc để tiêu đề kịp hiện.
+    """
+
+    #: Chủ đề, hiện nhỏ dưới ngày. None thì lấy `title` của cả kịch bản.
     title: str | None
-    seconds: float
+    pause_seconds: float
 
 
 @dataclass(frozen=True)
@@ -80,7 +86,8 @@ class Script:
     reading: str
     #: Tag mặc định cho mọi câu chưa tự khai tag.
     tags: tuple[str, ...]
-    #: None = không có màn mở đầu / màn kết. Đó là mặc định, và nhờ vậy kịch bản
+    #: None = không có tiêu đề ngày (cảnh 1 cũng không lặng thêm) / không có màn
+    #: kết. Đó là mặc định, và nhờ vậy kịch bản
     #: viết trước BƯỚC 5 vẫn ra đúng số frame cũ.
     intro: IntroSpec | None
     outro: OutroSpec | None
@@ -121,14 +128,23 @@ def _intro(raw: object, where: str) -> IntroSpec | None:
         return None
     if not isinstance(raw, dict):
         raise ScriptError(f"{where} có \"intro\" phải là object, ví dụ "
-                          f"{{\"title\": \"小さな幸せ\", \"seconds\": 4.5}}.")
+                          f"{{\"title\": \"小さな幸せ\", \"pauseSeconds\": 1.5}}.")
+    if "seconds" in raw:
+        # Bản cũ: màn mở đầu là một cảnh nền gradient dài `seconds` giây. Cảnh
+        # đó đã bỏ. Lẳng lặng bỏ qua thì người sửa số này sẽ không hiểu vì sao
+        # video không đổi — nên nói thẳng.
+        raise ScriptError(
+            f"{where} có \"intro.seconds\" — trường này đã bỏ cùng màn mở đầu nền "
+            f"gradient. Tiêu đề giờ hiện trên cảnh 1; đổi thành \"pauseSeconds\" "
+            f"(khoảng lặng trước câu 1, mặc định {DEFAULT_INTRO_PAUSE_SECONDS:g})."
+        )
     title = raw.get("title")
     if title is not None and not isinstance(title, str):
         raise ScriptError(f"{where} có \"intro.title\" không phải chuỗi.")
     return IntroSpec(
         title=title or None,
-        seconds=_seconds(raw.get("seconds"), "intro.seconds", where,
-                         DEFAULT_INTRO_SECONDS),
+        pause_seconds=_seconds(raw.get("pauseSeconds"), "intro.pauseSeconds",
+                               where, DEFAULT_INTRO_PAUSE_SECONDS),
     )
 
 

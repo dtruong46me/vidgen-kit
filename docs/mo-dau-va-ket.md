@@ -5,30 +5,56 @@ ra đúng như trước BƯỚC 5, không lệch một frame nào.
 
 ---
 
-## Màn mở đầu
+## Tiêu đề ngày — không còn màn mở đầu riêng
 
 ```json
 {
-  "intro": { "title": "小さな幸せ", "seconds": 4.5 }
+  "intro": { "title": "小さな幸せ", "pauseSeconds": 1.5 }
 }
 ```
 
+Video **vào thẳng cảnh 1 ở frame 0**, không còn cảnh nền gradient nào đứng
+trước. Tiêu đề hiện đè lên chính cảnh 1:
+
+- **Chữ to: ngày tháng** — `8月20日`, tâm đặt ở **1/3 khung hình từ trên xuống**.
+- **Chữ nhỏ bên dưới: chủ đề** — `小さな幸せ`, hiện sau ngày 14 frame.
+- Cảnh 1 **lặng `pauseSeconds`** rồi mới đọc câu 1 (`今日は、8月20日です。おはようございます。`).
+  Caption câu 1 cũng chờ bấy nhiêu, để tiêu đề và caption không hiện cùng lúc.
+- Tiêu đề mờ đi đúng lúc cảnh 2 chồng vào.
+
 | Trường | Bỏ trống thì | Ghi chú |
 |---|---|---|
-| `title` | lấy `title` của cả kịch bản | Nên đặt riêng: `title` thường có cả ngày tháng, mà số Ả Rập lọt vào giữa hàng chữ thư pháp là gãy hẳn mạch |
-| `seconds` | 4,5 | Dưới 3 giây thì chữ chưa kịp hiện xong đã tắt |
+| `title` | lấy `title` của cả kịch bản | Chủ đề, dòng nhỏ dưới ngày |
+| `pauseSeconds` | 1,5 | Tiêu đề vào trong 34 frame (~1,1 giây); ngắn hơn thế thì tiếng đọc chen vào lúc chữ còn đang hiện |
 
-**Dòng ngày do máy sinh, đừng gõ tay.** Nó suy từ tên file kịch bản:
-`2026-08-20.json` ra `八月二十日　木曜日`. Thứ trong tuần cũng tính từ chính ngày
-đó. Gõ tay thứ mấy là kiểu sai không ai soi lại được — sai rồi thì phải tự nhớ
-mới phát hiện, mà chẳng ai nhớ.
+Không khai `intro` thì không có tiêu đề, và cảnh 1 cũng không lặng thêm.
 
-Tên kịch bản không phải dạng ngày (`thu-nghiem.json`) thì màn mở đầu chỉ có tiêu
-đề, không có dòng ngày. Không lỗi.
+**Ngày do máy sinh, đừng gõ tay.** Nó suy từ tên file kịch bản: `2026-08-20.json`
+ra `8月20日` — viết đúng như trong câu đọc, để chữ trên màn hình và tiếng đọc là
+cùng một thứ. Tên kịch bản không phải dạng ngày (`thu-nghiem.json`) thì chủ đề
+lên làm chữ to, không có dòng nhỏ. Không lỗi.
 
-Chữ dùng font **Yuji Syuku** — nét bút lông. Nó chỉ dùng ở đây và ở màn kết,
-không dùng cho caption: nét mảnh và không đều, đọc lâu thì mỏi mắt, mà caption
-thì người xem phải đọc kịp trong vài giây.
+Kịch bản cũ còn `"seconds"` trong `intro` thì `make content` dừng lại và bảo đổi
+thành `pauseSeconds` — trường cũ là độ dài của cảnh gradient, giữ im lặng mà bỏ
+qua thì người sửa số đó sẽ không hiểu vì sao video không đổi.
+
+### Hợp đồng
+
+`build.json` có trường `titleCard: {"title", "subtitle"}`, và mỗi câu có
+`captionStartInFrames` (0 ở mọi cảnh trừ cảnh 1). Trường `intro` **vẫn còn nhưng
+luôn là `null`** — Remotion bản cũ cộng `intro.durationInFrames` vào tổng, null
+tức 0, nên nó vẫn đếm đúng tổng frame (P-3). Tổng giờ là **các cảnh + màn kết**.
+
+### Chữ
+
+Font **Yuji Syuku** — nét bút lông. Nó chỉ dùng cho tiêu đề và màn kết, không
+dùng cho caption: nét mảnh và không đều, đọc lâu thì mỏi mắt, mà caption thì
+người xem phải đọc kịp trong vài giây.
+
+Lớp phủ tối của `Background.tsx` cố tình nhạt ở dải trên để khán giả xem hình,
+nên tiêu đề tự mang một quầng tối nhỏ sau chữ, hiện và tắt cùng chữ. Cỡ chữ tính
+theo bề ngang ước lượng (chữ số chỉ chiếm nửa ô), nên mọi ngày trong năm — từ
+`1月1日` tới `12月31日` — đều cùng một cỡ.
 
 ## Màn kết
 
@@ -38,7 +64,7 @@ thì người xem phải đọc kịp trong vài giây.
 }
 ```
 
-Ngắn hơn màn mở đầu có chủ ý. Người xem đã nhận được thứ họ đến để nhận; kéo dài
+Ngắn có chủ ý. Người xem đã nhận được thứ họ đến để nhận; kéo dài
 phần kết chỉ tạo cơ hội cho họ lướt đi trước khi video hết, mà lướt đi sớm thì
 thuật toán hiểu là video dở.
 
