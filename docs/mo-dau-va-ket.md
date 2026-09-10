@@ -45,6 +45,24 @@ qua thì người sửa số đó sẽ không hiểu vì sao video không đổi
 luôn là `null`** — Remotion bản cũ cộng `intro.durationInFrames` vào tổng, null
 tức 0, nên nó vẫn đếm đúng tổng frame (P-3). Tổng giờ là **các cảnh + màn kết**.
 
+### Sóng giọng đọc
+
+Ngay trên dòng ngày là một hàng vạch nhỏ nhảy theo giọng đang đọc — người xem
+tắt tiếng vẫn biết video đang có lời. Nó đọc từ chính file giọng của từng câu,
+không phải nhạc nền, nên chỉ động khi có người nói; nghỉ giữa câu thì phẳng
+thành một hàng chấm.
+
+- Chạy suốt các cảnh ở cùng một chỗ, kể cả sau khi tiêu đề đã tắt.
+- Hiện dần cùng tiêu đề ở đầu video, tắt đi trước màn kết. Ảnh bìa bắt nó ở
+  dạng hàng chấm, vì lúc đó chưa có tiếng.
+- Neo vào `TITLE_CENTER` của `TitleCard.tsx`: dời tiêu đề là sóng đi theo.
+- Không có trường nào trong hợp đồng — `audio`, `audioStartInFrames` đã đủ.
+  Dùng `useAudioData` + `visualizeAudio` của `@remotion/media-utils`, gói này
+  phải cùng bản với `remotion` (hiện 4.0.513).
+
+Sóng cao thấp theo `GAIN` trong `VoiceWave.tsx`: giọng nói bình thường nên lên
+chừng 2/3 chiều cao, chừa chỗ cho chỗ nhấn giọng.
+
 ### Ảnh bìa
 
 ```bash

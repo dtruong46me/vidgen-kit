@@ -86,6 +86,10 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   có tiếng. Chủ đề vào xong ở frame 44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong
   `TitleCard.tsx`) — nâng hai số đó hoặc hạ `pauseSeconds` dưới 1,5 là ảnh bìa
   bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4.
+- **Sóng giọng đọc (`VoiceWave.tsx`) đọc từ file giọng của từng câu, không phải
+  nhạc nền.** Nằm ngay trên tiêu đề, chạy suốt các cảnh, lặng thì phẳng thành
+  hàng chấm. Chỉ là lớp vẽ: không có trường nào trong hợp đồng, vì `audio` và
+  `audioStartInFrames` đã đủ. `@remotion/media-utils` phải cùng bản với `remotion`.
 - **`calculateMetadata` và `timeline.py` phải ra CÙNG một con số.** Cả hai đều
   cộng các cảnh + màn kết (tiêu đề nằm trong cảnh 1, không cộng thêm frame).
   Lệch nhau là video cụt đuôi hoặc thừa một đoạn đen — mà không bên nào báo
@@ -189,7 +193,7 @@ pipeline/     Lớp A + B (Python)
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
   check.py      make check — số đo MP4 + trang duyệt từng cảnh
 studio/       Lớp C (Remotion)
-  src/          Composition, DailyVideo, Background, Caption, TitleCard, Outro, fonts
+  src/          Composition, DailyVideo, Background, Caption, TitleCard, VoiceWave, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
 content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji;

@@ -36,8 +36,11 @@ const TITLE_IN = 34;
  * frame 45 đó, nên nâng số này lên là ảnh bìa bắt chủ đề đang hiện dở.
  */
 const SUBTITLE_DELAY = 10;
-/** Tâm dòng ngày nằm ở 1/4 chiều cao khung hình, tính từ trên xuống. */
-const TITLE_CENTER = 1 / 4;
+/**
+ * Tâm dòng ngày nằm ở 1/4 chiều cao khung hình, tính từ trên xuống.
+ * VoiceWave.tsx neo sóng giọng đọc vào chính số này, nên dời tiêu đề là sóng đi theo.
+ */
+export const TITLE_CENTER = 1 / 4;
 const TITLE_LINE_HEIGHT = 1.3;
 /** Lề hai bên — rộng hơn SAFE_SIDE của caption một chút, tiêu đề cần thở. */
 const SIDE = 120;

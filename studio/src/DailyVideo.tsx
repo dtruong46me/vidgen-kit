@@ -4,6 +4,7 @@ import { Caption } from "./Caption";
 import { Outro } from "./Outro";
 import { TitleCard } from "./TitleCard";
 import type { DailyVideoProps } from "./types";
+import { VoiceWave } from "./VoiceWave";
 
 /**
  * Độ dài đoạn mờ chồng giữa 2 cảnh (frame) khi build.json không nói gì.
@@ -113,11 +114,22 @@ export const DailyVideo: React.FC<DailyVideoProps> = ({
           name={`Câu ${i + 1} — ${line.ja.slice(0, 12)}`}
         >
           <Caption line={line} showHira={showHira} />
-          {/* Câu chưa có giọng đọc (props mặc định của Studio) thì bỏ qua lớp tiếng */}
+          {/*
+            Câu chưa có giọng đọc (props mặc định của Studio) thì bỏ qua lớp tiếng
+            và cả sóng giọng đọc — không có file thì không có gì để vẽ.
+            Sóng nằm cùng Sequence với câu, nên các câu nối nhau là sóng liền mạch.
+          */}
           {line.audio ? (
-            <Sequence from={line.audioStartInFrames} name="Giọng đọc">
-              <Audio src={staticFile(line.audio)} />
-            </Sequence>
+            <>
+              <VoiceWave
+                line={line}
+                fadeIn={i === 0}
+                fadeOut={i === lines.length - 1}
+              />
+              <Sequence from={line.audioStartInFrames} name="Giọng đọc">
+                <Audio src={staticFile(line.audio)} />
+              </Sequence>
+            </>
           ) : null}
         </Sequence>
       ))}
