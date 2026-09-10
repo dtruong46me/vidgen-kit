@@ -21,21 +21,15 @@
   },
   "lines": [
     {
-      "ja": "今日も新しい一日が始まりました。",
-      "vi": "Hôm nay, một ngày mới lại bắt đầu.",
-      "clip": "video/tea-room.mp4",
+      "ja": "今日は、8月20日です。おはようございます。",
+      "vi": "Hôm nay là ngày 20 tháng 8. Chào buổi sáng.",
+      "clip": "video/tea-tray.mp4",
       "clipStartInSeconds": 0.0
     },
     {
-      "ja": "おはようございます。",
-      "vi": "Chào buổi sáng.",
+      "ja": "今日も新しい一日が始まりました。",
+      "vi": "Hôm nay, một ngày mới lại bắt đầu.",
       "clip": "video/tea-room.mp4",
-      "clipStartInSeconds": 6.0
-    },
-    {
-      "ja": "今日は、8月20日です。",
-      "vi": "Hôm nay là ngày 20 tháng 8.",
-      "clip": "video/tea-tray.mp4",
       "clipStartInSeconds": 0.0
     },
     {

@@ -23,7 +23,7 @@ Bốn quy tắc, theo đúng thứ tự ưu tiên:
 
 Cùng một kịch bản và cùng một thư viện thì luôn ra cùng một kết quả — không có
 random. Đó là điều kiện để `make content` chạy lại hai lần cho ra file giống
-nhau, và để mốc hồi quy 1462 frame còn nghĩa lý.
+nhau, và để mốc hồi quy số frame còn nghĩa lý.
 
 Module này đo giây, không đổi ra frame (P-2).
 """

@@ -74,6 +74,17 @@ class Reading:
     hira: str
 
 
+#: Chữ cái đầu dòng, và chữ cái ngay sau dấu kết câu. Một dòng có thể gồm hai
+#: câu — dòng mở đầu 「今日は、9月10日です。おはようございます。」 — nên chỉ viết
+#: hoa chữ đầu dòng là ra `desu. ohayō`.
+_SENTENCE_START = re.compile(r"(^|[.!?。！？]\s*)([^\W\d_])")
+
+
+def _sentence_case(text: str) -> str:
+    """Viết hoa chữ đầu mỗi câu: "desu. ohayō gozaimasu." -> "desu. Ohayō gozaimasu."."""
+    return _SENTENCE_START.sub(lambda m: m.group(1) + m.group(2).upper(), text)
+
+
 # ---------------------------------------------------------------------------
 # Đọc số. Cutlet trả số nguyên dạng chữ số, nên phải đổi sang kana TRƯỚC khi
 # đưa vào nó. Ngày và tháng tiếng Nhật đọc bất quy tắc nên phải tra bảng.
@@ -283,7 +294,7 @@ class CutletProvider:
             if text and chunk[0] not in ",.!?;:":
                 text += " "
             text += chunk
-        return Reading(romaji=text[:1].upper() + text[1:], hira="".join(hira))
+        return Reading(romaji=_sentence_case(text), hira="".join(hira))
 
     # -- ghép chữ ----------------------------------------------------------
     @staticmethod
@@ -389,7 +400,7 @@ class PykakasiProvider:
         romaji = " ".join(p["hepburn"] for p in parts if p["hepburn"].strip())
         romaji = re.sub(r"\s+([,.!?、。])", r"\1", romaji)
         return Reading(
-            romaji=romaji[:1].upper() + romaji[1:],
+            romaji=_sentence_case(romaji),
             hira="".join(p["hira"] for p in parts),
         )
 

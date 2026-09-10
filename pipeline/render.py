@@ -43,6 +43,10 @@ def _props_path(slug: str) -> Path:
 
 
 def _run(args: list[str]) -> None:
+    # Thiếu node_modules thì npx chỉ báo "could not determine executable to run",
+    # không nói thiếu gì — chặn trước bằng một câu dễ hiểu.
+    if not (STUDIO_DIR / "node_modules" / ".bin" / "remotion").exists():
+        raise RenderError("Chưa cài Remotion (studio/node_modules trống) — chạy 'make setup' trước.")
     # Không nuốt stdout/stderr: thanh tiến trình của Remotion và thông báo lỗi
     # của nó là thứ đáng xem nhất khi render hỏng.
     proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)

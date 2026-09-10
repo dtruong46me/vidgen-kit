@@ -63,6 +63,8 @@ class Brief:
     #: Câu đã dùng ở các ngày gần nhất — vừa làm mẫu giọng văn, vừa để tránh lặp ý.
     recent: tuple[str, ...]
     max_line_chars: int = 40
+    #: Các câu mở đầu cố định (ja, vi), ngày đã điền sẵn. Model chép nguyên văn.
+    opening: tuple[tuple[str, str], ...] = ()
 
 
 SYSTEM = """\
@@ -78,7 +80,9 @@ Giọng văn:
 - Không giáo điều, không khẩu hiệu, không "hãy cố gắng lên". Gợi, đừng giảng.
 - Một hình ảnh cụ thể (một tách trà, tiếng mưa, một bông hoa) rồi mới đến suy
   ngẫm. Suy ngẫm rút ra từ hình ảnh đó, không dán từ ngoài vào.
-- Nhịp thường gặp: lời chào → quan sát nhỏ → suy ngẫm → lời chúc. Không bắt buộc.
+- Mở đầu CỐ ĐỊNH: một dòng nói ngày trước, rồi mới chào. Nó được ghi nguyên văn
+  trong yêu cầu — chép đúng từng chữ, không tách đôi, không thêm lời chào khác.
+- Sau mở đầu, nhịp thường gặp: quan sát nhỏ → suy ngẫm → lời chúc. Không bắt buộc.
 
 Tiếng Nhật:
 - Đơn giản, tự nhiên, khoảng trình độ N4–N3. Thể です/ます là chính.
@@ -138,11 +142,21 @@ def _prompt(brief: Brief) -> str:
             "- tags: chọn 1–3 tag khớp nhất với hình ảnh của bài, từ danh sách: "
             + ", ".join(brief.tags) + "."
         )
+    if brief.opening:
+        parts += [
+            "",
+            "Mở đầu CỐ ĐỊNH dưới đây phải đứng đầu bài — chép nguyên văn cả ja lẫn "
+            "vi, đúng thứ tự, rồi mới viết tiếp. Nó tính vào số câu và số chữ ở trên:",
+            "",
+            *(f"  {i}. ja: {ja}\n     vi: {vi}"
+              for i, (ja, vi) in enumerate(brief.opening, start=1)),
+        ]
     if brief.recent:
         parts += [
             "",
             "Các câu dưới đây đã dùng ở những ngày gần nhất. Giữ CÙNG giọng văn, "
-            "nhưng đừng lặp lại ý, hình ảnh hay câu chào kết giống hệt:",
+            "nhưng đừng lặp lại ý, hình ảnh hay lời chúc cuối giống hệt "
+            "(các câu mở đầu cố định thì cứ lặp):",
             "",
             *(f"  {line}" for line in brief.recent),
         ]

@@ -55,6 +55,10 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   và báo thiếu thư viện. `make setup` dùng `python3 -m pip`, tức luôn đúng trình
   thông dịch mà Makefile sẽ gọi. Vì lý do đó, mọi thông báo "thiếu thư viện"
   trong `pipeline/` đều phải in kèm `sys.executable`.
+- **`make setup` cũng cài Node cho `studio/` bằng `npm ci`.** `studio/node_modules`
+  không vào git, thiếu nó thì `npx remotion` chỉ báo "could not determine
+  executable". Nó chứa binary theo hệ điều hành, nên cài ở đúng môi trường chạy
+  `make` (WSL thì cài trong WSL, đừng `npm install` từ Windows).
 - **Mọi lệnh đi qua `Makefile`.** Đừng hướng dẫn người dùng gõ `npx remotion` trực
   tiếp — thêm target vào Makefile.
 - **Remotion phải chạy với cwd là `studio/`** (nơi có `package.json`). Đường dẫn
@@ -89,7 +93,7 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   build.json của ngày mới nhất. Props mặc định trong `Composition.tsx` chỉ là
   đường lui khi chưa dựng ngày nào.
 - **Không commit file máy sinh:** `out/`, `content/*.build.json`,
-  `content/.*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
+  `content/*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
   Studio mở bằng props mặc định viết thẳng trong `Composition.tsx`, không đọc file.
 - **Nhạc nền và clip nền thì CÓ commit.** Chúng là tài sản thật, tải một lần dùng
   mãi, và thiếu chúng là video mất hình mất tiếng. Chỉ giọng đọc mới là đồ máy
@@ -133,6 +137,11 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `ANTHROPIC_API_KEY` hoặc khi gõ `MODEL=`. Không module nào được import
   `pipeline/llm.py` ở đầu file — `new.py` nạp nó muộn, để xoá `llm.py` hay thiếu
   thư viện `anthropic` thì đường ngân hàng vẫn chạy.
+- **Mọi kịch bản mở đầu bằng MỘT dòng: `今日は、<ngày>です。おはようございます。`.**
+  Nói ngày trước, chào sau, chung một dòng — một file tiếng, một cảnh, không có
+  khoảng nghỉ giữa hai vế. Dòng đó nằm ở `OPENING` trong `pipeline/new.py` — chỗ
+  duy nhất khai nó. Ngân hàng ghi sẵn ở đầu mỗi mục, prompt Claude chép nguyên
+  văn; `make bank` và `make new` cảnh báo chỗ nào lệch.
 - **Ngân hàng chọn tất định:** mục chưa dùng đầu tiên theo thứ tự trong file, hết
   thì mục dùng lâu nhất (đọc trường `source` của các kịch bản đã có). Thêm mục
   mới vào CUỐI file.
@@ -214,15 +223,18 @@ khác bản gõ tay **đúng 1 chỗ trên 9 câu** — `sukina` thành `suki na
 tay vốn tự mâu thuẫn ở chỗ này (câu 9 viết `Suteki na` có dấu cách). Số frame
 không đổi, vì romaji không dính gì tới thời lượng.
 
-> **Mốc hồi quy giờ có hai con số.** `1462` là phần THOẠI — không đổi từ BƯỚC 1
-> và không được đổi. `1687` là tổng của `2026-08-20` sau khi bật màn mở đầu
-> (135) và màn kết (90). Kịch bản không khai `intro`/`outro` thì tổng vẫn đúng
-> 1462, nên mốc cũ còn nguyên giá trị. Đổi bất cứ thứ gì trong
-> `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số đó. Nó đổi
-> mà bạn không cố ý đổi nhịp đọc, tức là bạn vừa làm hỏng timeline.
+> **Mốc hồi quy giờ có hai con số.** `1427` là phần THOẠI của `2026-08-20`.
+> `1652` là tổng sau khi cộng màn mở đầu (135) và màn kết (90). Đổi bất cứ thứ
+> gì trong `pipeline/` xong, chạy `make content DAY=2026-08-20` và nhìn con số
+> đó. Nó đổi mà bạn không cố ý đổi nhịp đọc hay nội dung kịch bản, tức là bạn
+> vừa làm hỏng timeline.
 
-> Con số này từng là 1327 trước BƯỚC 1, đổi vì `leadIn`/`pauseAfter` giãn ra
-> (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15 frame cho mỗi câu trong 9 câu.
+> Con số này đã đổi hai lần, cả hai đều có chủ ý. Từ 1327 thành 1462 ở BƯỚC 1,
+> vì `leadIn`/`pauseAfter` giãn ra (0,2/0,35 -> 0,35/0,7 giây), cộng đúng 15
+> frame cho mỗi câu trong 9 câu; 1462 (tổng 1687) là mốc suốt BƯỚC 1–6. Rồi
+> thành 1427 (tổng 1652) khi gộp `今日は、8月20日です。` và `おはようございます。`
+> thành một dòng mở đầu: 9 câu còn 8, bớt một khoảng nghỉ, và TTS đọc liền hai vế.
+> Các con số 1462/1687 trong phần nghiệm thu bên dưới là số đo của thời đó.
 
 Nghiệm thu BƯỚC 4 đạt trên ba mặt:
 

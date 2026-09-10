@@ -84,13 +84,16 @@ mục dùng lâu nhất. Không random — cùng một repo thì luôn ra cùng 
   "theme": "雨の音",
   "tags": ["rain", "window", "calm"],
   "lines": [
-    { "ja": "おはようございます。", "vi": "Chào buổi sáng." },
-    { "ja": "今日は、{date}です。", "vi": "Hôm nay là {date_vi}." }
+    { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+    { "ja": "窓の外で、静かに雨が降っています。", "vi": "Ngoài cửa sổ, mưa đang rơi thật khẽ." }
   ]
 }
 ```
 
 - **Thêm vào CUỐI** mảng `scripts`, để không đảo thứ tự các mục cũ.
+- **Dòng đầu cố định: nói ngày trước, chào sau, chung một dòng** — đúng như ví dụ
+  trên. Dòng đó khai ở `OPENING` trong `pipeline/new.py`; `make bank` đánh dấu
+  `[!]` mục nào lệch, `make new` cũng cảnh báo.
 - `theme` là tiêu đề màn mở đầu viết bút lông: 2–8 chữ.
 - `{date}` ra `9月10日`, `{date_vi}` ra `ngày 10 tháng 9`.
 - Giữ trong khoảng **120–180 chữ, 8–10 câu, mỗi câu dưới 40 chữ**. `make bank`
@@ -119,6 +122,7 @@ hàng. Muốn romaji tách chữ thì đặt dấu cách trong cách đọc (`"�
 Những gì được gửi đi, và không gì khác:
 
 - ngày (kèm thứ trong tuần),
+- dòng mở đầu cố định (`OPENING`, ngày đã điền sẵn) — model chép nguyên văn,
 - khoảng số chữ suy ra từ `targetSeconds` của ngày gần nhất (hiện là 127–173 chữ),
 - số câu 8–10, tối đa 40 chữ mỗi câu,
 - danh sách tag thư viện clip đang có,
@@ -147,8 +151,8 @@ make check DAY=2026-08-20
   PASS  Khổ hình     1080×1920
   PASS  fps          30
   PASS  Luồng tiếng  có
-  PASS  Số frame     1687 = 135 mở đầu + 1462 thoại + 90 kết
-  PASS  Thời lượng   56.28s, khoảng mong muốn 45–60s
+  PASS  Số frame     1652 = 135 mở đầu + 1427 thoại + 90 kết
+  PASS  Thời lượng   ~55s, khoảng mong muốn 45–60s
   PASS  Độ mới       MP4 dựng sau build.json
 ```
 

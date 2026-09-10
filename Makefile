@@ -1,6 +1,6 @@
 # vidgen-kit — mọi lệnh đi qua đây.
 #
-#   make setup                       cài phụ thuộc Python vào ĐÚNG python3 này
+#   make setup                       cài phụ thuộc Python (ĐÚNG python3 này) + Node cho studio/
 #   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4
@@ -52,7 +52,7 @@ endef
 help:
 	@echo "vidgen-kit"
 	@echo ""
-	@echo "  make setup                        cài phụ thuộc Python"
+	@echo "  make setup                        cài phụ thuộc Python + Node"
 	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4"
@@ -74,9 +74,38 @@ help:
 ## câu nệ: máy này có hai Python (conda base và python của codespace). `pip`
 ## trần trỏ vào cái nào là tuỳ PATH, nên rất dễ cài xong một chỗ rồi `make`
 ## chạy ở chỗ kia và báo thiếu thư viện.
+##
+## Node cũng cùng bẫy đó, theo kiểu WSL: PATH của Windows lọt vào nên `npm` có
+## thể là bản Windows. studio/node_modules không vào git, thiếu nó thì `npx
+## remotion` chỉ báo "could not determine executable to run".
 setup:
-	@echo "Cài vào: $$(python3 -c 'import sys; print(sys.executable)')"
+	@echo "Python:  $$(python3 -c 'import sys; print(sys.executable)')"
+	@echo "Node:    $$(command -v node || echo '(không có)')"
+	@echo "npm:     $$(command -v npm || echo '(không có)')"
+	@if ! command -v node >/dev/null 2>&1; then \
+		echo ""; \
+		echo "[lỗi] Không có node. Remotion cần Node 18 trở lên."; \
+		echo "      Cài bản Linux bằng nvm — xem docs/cai-dat.md."; \
+		exit 1; \
+	fi
+	@case "$$(command -v npm)" in /mnt/*) \
+		echo ""; \
+		echo "[lỗi] npm đang trỏ sang bản Windows: $$(command -v npm)"; \
+		echo "      Đó là PATH của Windows lọt vào WSL, không phải Node của WSL."; \
+		echo "      Cài bằng nó thì Remotion tải nhị phân win32, render sẽ chết."; \
+		echo "      Cài Node bản Linux bằng nvm — xem docs/cai-dat.md."; \
+		exit 1;; \
+	esac
+	@major=$$(node -p 'process.versions.node.split(".")[0]'); \
+	if [ "$$major" -lt 18 ]; then \
+		echo ""; \
+		echo "[lỗi] Node $$(node -v) quá cũ. Remotion cần Node 18 trở lên."; \
+		exit 1; \
+	fi
+	@echo ""
 	@python3 -m pip install -r requirements.txt
+	@echo ""
+	@cd $(STUDIO) && if [ -f package-lock.json ]; then npm ci; else npm install; fi
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
 		echo ""; \
@@ -96,6 +125,10 @@ setup:
 ## Chưa dựng ngày nào thì Studio rơi về props mặc định trong Composition.tsx —
 ## một câu, nền gradient, không tiếng. Đó là bản dự phòng, không phải video thật.
 studio:
+	@if [ ! -x $(STUDIO)/node_modules/.bin/remotion ]; then \
+		echo "Chưa cài Remotion ($(STUDIO)/node_modules trống). Chạy 'make setup' trước."; \
+		exit 1; \
+	fi
 	@day="$(DAY)"; \
 	if [ -z "$$day" ]; then \
 		newest=$$(ls -t $(CONTENT)/*.build.json 2>/dev/null | head -1); \

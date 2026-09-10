@@ -28,7 +28,45 @@ Nếu vẫn thấy báo thiếu thư viện, thông báo lỗi sẽ in kèm đư
 chạy — so nó với dòng `Cài vào:` ở trên, lệch nhau là biết ngay vấn đề.
 
 Ngoài Python còn cần **ffmpeg** (`ffprobe` đo độ dài mọi file media) và
-**Node** (Remotion). Codespace này đã có sẵn cả hai.
+**Node 18 trở lên** (Remotion). `make setup` tự chạy `npm ci` trong `studio/` —
+thiếu bước này thì `make studio` báo `npm error could not determine executable
+to run`.
+
+### Node trên WSL: phải là bản Linux
+
+`node_modules` chứa binary riêng cho từng hệ điều hành (esbuild, compositor của
+Remotion). Repo nằm trên ổ Windows mà `make` chạy trong WSL thì Node cũng phải
+là bản Linux cài trong WSL. WSL mặc định chép `PATH` của Windows vào, nên nếu
+WSL chưa có Node thì `npm` sẽ trỏ sang `/mnt/c/.../npm` — cài bằng nó là ra
+binary win32 và render chết. `make setup` in dòng `npm:` và từ chối chạy khi
+đường dẫn bắt đầu bằng `/mnt/`.
+
+Cài Node bản Linux bằng một trong hai cách, trong terminal WSL. Đang dùng env
+conda cho Python thì cách đầu gọn hơn — Node nằm luôn trong env đó:
+
+```bash
+# Cách 1: vào env conda của dự án
+conda install -n vidgenkit -c conda-forge nodejs
+conda activate vidgenkit
+
+# Cách 2: nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+exec $SHELL          # nạp lại shell để có lệnh nvm
+nvm install --lts
+```
+
+Rồi kiểm và cài:
+
+```bash
+command -v npm       # phải ra /home/..., không phải /mnt/c/...
+make setup
+```
+
+Theo cách 1 thì Node chỉ có khi env đang bật — quên `conda activate` là `npm`
+lại rơi về bản Windows, và `make setup` sẽ chặn lại.
+
+Lỡ `npm install` từ Windows rồi thì xoá `studio/node_modules` và chạy lại
+`make setup` trong WSL.
 
 ---
 
@@ -95,11 +133,11 @@ make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
 ```bash
 make reading DAY=2026-08-20      # romaji + hiragana, không cần khoá
 make shots                       # sổ tài sản
-make content DAY=2026-08-20      # 1462 frame thoại, tổng 1687
+make content DAY=2026-08-20      # 1427 frame thoại, tổng 1652
 make video   DAY=2026-08-20      # ~10 phút trên máy 2 nhân
 make check   DAY=2026-08-20      # phải PASS, đếm frame trên chính MP4
 make bank                        # ngân hàng kịch bản, không cần khoá
 ```
 
-Con số **1462 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp
+Con số **1427 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp
 đọc thì có thứ gì đó vừa hỏng.

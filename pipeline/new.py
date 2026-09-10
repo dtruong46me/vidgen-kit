@@ -54,6 +54,15 @@ LINES_RANGE = (8, 10)
 #: Câu dài nhất từng dựng ổn là 39 chữ (câu 5 của 2026-08-20).
 MAX_LINE_CHARS = 40
 
+#: Câu mở đầu CỐ ĐỊNH của mọi ngày: nói ngày trước, chào sau, gộp chung một dòng
+#: để hai vế đọc liền trong một cảnh. Ngân hàng ghi sẵn nó ở đầu mỗi mục; với
+#: Claude thì nó được chép nguyên văn vào prompt. Đổi câu mở đầu thì đổi ở đây,
+#: rồi sửa đầu các mục trong library/bank.json — `make bank` đánh dấu mục lệch.
+OPENING = (
+    {"ja": "今日は、{date}です。おはようございます。",
+     "vi": "Hôm nay là {date_vi}. Chào buổi sáng."},
+)
+
 #: Đưa bao nhiêu ngày gần nhất vào prompt để tránh lặp ý (chỉ khi dùng Claude).
 RECENT_DAYS = 7
 
@@ -287,6 +296,8 @@ def _from_llm(model: str | None, day: date, slug: str,
         recent=tuple(line["ja"] for doc in earlier for line in doc.get("lines", [])
                      if isinstance(line, dict) and line.get("ja")),
         max_line_chars=MAX_LINE_CHARS,
+        opening=tuple((_fill_date(o["ja"], day), _fill_date(o["vi"], day))
+                      for o in OPENING),
     )
     name = model or llm.DEFAULT_MODEL
     try:
@@ -341,9 +352,12 @@ def compose(slug: str, day: date, draft: Draft, settings: dict) -> dict:
     return doc
 
 
-def _review(draft: Draft, settings: dict) -> list[str]:
+def _review(draft: Draft, settings: dict, day: date) -> list[str]:
     """Những chỗ đáng sửa tay trước khi `make content`. Cảnh báo, không chặn."""
     notes = []
+    opening = [_fill_date(o["ja"], day) for o in OPENING]
+    if [line["ja"] for line in draft.lines[:len(opening)]] != opening:
+        notes.append("không mở đầu bằng " + " → ".join(opening))
     lo, hi = LINES_RANGE
     if not lo <= len(draft.lines) <= hi:
         notes.append(f"có {len(draft.lines)} câu, nhịp quen là {lo}–{hi} câu")
@@ -406,7 +420,7 @@ def create(slug: str, model: str = "", log=print) -> Path:
         f"(số thật do TTS quyết)")
     for i, line in enumerate(draft.lines, start=1):
         log(f"  {i:2d}. {line['ja']}")
-    notes = _review(draft, settings)
+    notes = _review(draft, settings, day)
     if notes:
         log("\n[!] Nên xem lại trước khi dựng:")
         for note in notes:
@@ -432,7 +446,14 @@ def report_bank(log=print) -> int:
         lines = [{"ja": _fill_date(l["ja"], sample)} for l in entry["lines"]]
         seconds = estimate_seconds(lines, settings)
         chars = sum(spoken_chars(l["ja"]) for l in lines)
-        flag = "" if lo <= seconds <= hi else "  [!] ngoài khoảng"
+        flags = []
+        if not lo <= seconds <= hi:
+            flags.append("ngoài khoảng")
+        if not LINES_RANGE[0] <= len(lines) <= LINES_RANGE[1]:
+            flags.append(f"{len(lines)} câu")
+        if [l["ja"] for l in entry["lines"][:len(OPENING)]] != [o["ja"] for o in OPENING]:
+            flags.append("lệch mở đầu")
+        flag = f"  [!] {', '.join(flags)}" if flags else ""
         if entry["id"] not in used:
             fresh += 1
         log(f"  {entry['id']:<16} {entry['theme']:<10} {len(lines):>3} {chars:>4} "
