@@ -3,8 +3,9 @@
 #   make setup                       cài phụ thuộc Python (ĐÚNG python3 này) + Node cho studio/
 #   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
-#   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4 + ảnh bìa
-#   make release DAY=2026-08-20      trọn gói để đăng: video + ảnh bìa + check
+#   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4 + ảnh bìa vào out/<ngày>/
+#   make release DAY=2026-08-20      trọn gói để đăng: video + ảnh bìa + check + gói
+#   make release FROM=2026-09-12 [TO=2026-09-30]   như trên cho cả khoảng ngày (hoặc MONTH=2026-09)
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
 #   make thumbnail DAY=2026-08-20    render ảnh bìa: ngày tháng + câu chào cùng trên hình
 #   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
@@ -12,7 +13,8 @@
 #   make new     DAY=2026-09-10      tạo kịch bản mới (ngân hàng, hoặc Claude nếu có khoá)
 #   make bank                        in ngân hàng kịch bản kèm ước lượng thời lượng
 #   make check   DAY=2026-08-20      kiểm MP4: số đo + trang duyệt từng cảnh
-#   make export  DAY=2026-08-20      gói ra out/<ngày>/: caption, lời, audio, ảnh bìa, metadata
+#   make export  DAY=2026-08-20      gói ra out/<ngày>/: video, ảnh bìa, caption, lời, audio, metadata
+#   make export  FROM=2026-09-12 [TO=2026-09-30]   gói cả khoảng ngày (hoặc MONTH=2026-09)
 #   make export-all                  gói mọi ngày đã dựng nội dung
 #   make content-all                 chuẩn bị nội dung cho MỌI kịch bản chưa có
 #   make all                         dựng mọi kịch bản chưa có MP4
@@ -37,6 +39,17 @@ SOURCE      ?= pexels
 # MODEL là của `make new`: để trống = có ANTHROPIC_API_KEY thì gọi Claude, không
 # thì lấy ngân hàng. `bank` ép lấy ngân hàng; `opus`/`sonnet`/`haiku` ép gọi Claude.
 MODEL       ?=
+# Chọn ngày cho `make export` và `make release` — một ngày hay cả loạt:
+#   DAY=2026-09-12                  một ngày
+#   FROM=2026-09-12 TO=2026-09-30   từ ngày tới ngày, tính cả hai đầu (bỏ TO = tới ngày cuối cùng)
+#   MONTH=2026-09                   cả tháng
+# Ghép thành MỘT chuỗi mà pipeline/paths.py hiểu (`2026-09-12..2026-09-30`), để
+# Makefile không phải tự so ngày.
+DAY         ?=
+FROM        ?=
+TO          ?=
+MONTH       ?=
+DAYS        := $(strip $(if $(DAY),$(DAY),$(if $(MONTH),$(MONTH),$(if $(FROM)$(TO),$(FROM)..$(TO)))))
 
 # Bắt lỗi thiếu DAY sớm, kèm gợi ý — thay vì để lệnh con báo lỗi khó hiểu.
 define need_day
@@ -50,8 +63,20 @@ define need_day
 	fi
 endef
 
+# Như need_day, cho lệnh nhận được cả khoảng ngày.
+define need_days
+	@if [ -z "$(DAYS)" ]; then \
+		echo "Thiếu ngày. Ví dụ:"; \
+		echo "  make $@ DAY=2026-09-12"; \
+		echo "  make $@ FROM=2026-09-12 TO=2026-09-30   (bỏ TO = tới ngày cuối cùng)"; \
+		echo "  make $@ MONTH=2026-09"; \
+		exit 1; \
+	fi
+endef
+
 .PHONY: help setup studio content video release still thumbnail reading shots assets \
-        shots-find shots-get shots-add all clean check new bank export export-all \n        content-all
+        shots-find shots-get shots-add all clean check new bank export export-all \
+        content-all
 
 help:
 	@echo "vidgen-kit"
@@ -59,10 +84,11 @@ help:
 	@echo "  make setup                        cài phụ thuộc Python + Node"
 	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
-	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4 + ảnh bìa"
-	@echo "  make release DAY=2026-08-20       trọn gói: MP4 + ảnh bìa + check"
+	@echo "  make video   DAY=2026-08-20       dựng trọn ra out/<ngày>/: MP4 + ảnh bìa"
+	@echo "  make release DAY=2026-08-20       trọn gói: MP4 + ảnh bìa + check + gói đăng"
+	@echo "  make release FROM=2026-09-12 [TO=2026-09-30]   trọn gói cả khoảng (hoặc MONTH=2026-09)"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
-	@echo "  make thumbnail DAY=2026-08-20     chỉ render ảnh bìa ra out/<ngày>-thumbnail.png"
+	@echo "  make thumbnail DAY=2026-08-20     chỉ render ảnh bìa ra out/<ngày>/"
 	@echo "  make reading DAY=2026-08-20       in romaji + hiragana máy sinh"
 	@echo "  make shots                        soi sổ tài sản (nguồn, giấy phép, tag)"
 	@echo "  make shots-find SOURCE=pexels Q=\"tea ceremony\""
@@ -72,6 +98,7 @@ help:
 	@echo "  make bank                         in ngân hàng kịch bản viết sẵn"
 	@echo "  make check   DAY=2026-08-20       kiểm MP4 + trang duyệt từng cảnh"
 	@echo "  make export  DAY=2026-08-20       gói ra out/<ngày>/ để đăng"
+	@echo "  make export  FROM=2026-09-12 [TO=2026-09-30]   gói cả khoảng (hoặc MONTH=2026-09)"
 	@echo "  make export-all                   gói mọi ngày đã dựng nội dung"
 	@echo "  make content-all                  chuẩn bị nội dung mọi kịch bản chưa có"
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
@@ -152,35 +179,45 @@ studio:
 		cd $(STUDIO) && npx remotion studio; \
 	fi
 
-## Kịch bản -> giọng đọc -> content/<DAY>.build.json
+## Kịch bản -> giọng đọc -> content/<DAY>/build.json
 content:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY)
 
-## Kịch bản -> giọng đọc -> timeline -> out/<DAY>.mp4 + out/<DAY>-thumbnail.png, một lượt
+## Kịch bản -> giọng đọc -> timeline -> out/<DAY>/<DAY>.mp4 + ảnh bìa, một lượt
 video:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --render
 
-## Trọn gói một ngày, đủ thứ để đăng: video (nội dung + MP4 + ảnh bìa) rồi check
-## (số đo + trang duyệt). Check chạy trên MP4 VỪA dựng, nên không có chuyện kiểm
-## nhầm bản cũ. Render hỏng thì dừng luôn, không check một file dở dang.
+## Trọn gói, đủ thứ để đăng: video (nội dung + MP4 + ảnh bìa) -> check (số đo +
+## trang duyệt) -> gói out/<ngày>/. Một ngày hay cả khoảng đều được:
+##   make release DAY=2026-09-12
+##   make release FROM=2026-09-12 TO=2026-09-30     (bỏ TO = tới ngày cuối cùng)
+##   make release MONTH=2026-09
+## Trong MỘT ngày: render hỏng thì không check, check FAIL thì không gói — không
+## đóng gói một file dở dang. Nhưng một ngày hỏng KHÔNG chặn các ngày sau: render
+## cả tháng mất hàng giờ, dừng giữa chừng vì một ngày thì sáng ra chẳng còn gì.
+## Cuối lệnh in ra ngày nào hỏng, và thoát bằng mã lỗi nếu có.
 release:
-	$(need_day)
-	@python3 -m pipeline.run $(DAY) --render
-	@echo ""
-	@echo "==> Kiểm MP4 vừa dựng"
-	@python3 -m pipeline.check $(DAY)
-	@echo ""
-	@echo "==> Gói thư mục đăng"
-	@python3 -m pipeline.export $(DAY)
-	@echo ""
-	@echo "Đủ bộ cho $(DAY):"
-	@echo "  thư mục đăng $(OUT)/$(DAY)/  (caption.txt, script.txt, audio/, metadata.json)"
-	@echo "  video        $(OUT)/$(DAY).mp4"
-	@echo "  ảnh bìa      $(OUT)/$(DAY)-thumbnail.png"
-	@echo "  trang duyệt  $(OUT)/$(DAY)-check/index.html"
-	@echo "  ảnh ghép     $(OUT)/$(DAY)-check/sheet.jpg"
+	$(need_days)
+	@days=$$(python3 -m pipeline.paths $(DAYS)) || exit 1; \
+	failed=""; \
+	for day in $$days; do \
+		echo ""; \
+		echo "==> $$day"; \
+		python3 -m pipeline.run $$day --render \
+			&& python3 -m pipeline.check $$day \
+			&& python3 -m pipeline.export $$day \
+			|| failed="$$failed $$day"; \
+	done; \
+	echo ""; \
+	if [ -n "$$failed" ]; then \
+		echo "Hỏng:$$failed — cuộn lên xem lỗi của từng ngày."; \
+		exit 1; \
+	fi; \
+	echo "Xong. Mỗi ngày một thư mục $(OUT)/<ngày>/: <ngày>.mp4, <ngày>-thumbnail.png,"; \
+	echo "caption.txt, description.txt, script.txt, credits.txt, metadata.json, audio/."; \
+	echo "Trang duyệt để soát: $(OUT)/<ngày>-check/index.html"
 
 ## Render đúng 1 frame — cách nhanh nhất để bắt lỗi font và bố cục caption
 still:
@@ -250,7 +287,7 @@ all:
 	@for d in $(CONTENT)/*/; do \
 		day=$$(basename "$$d"); \
 		[ -f "$$d/script.json" ] || continue; \
-		if [ -f "$(OUT)/$$day.mp4" ]; then \
+		if [ -f "$(OUT)/$$day/$$day.mp4" ]; then \
 			echo "bỏ qua $$day (đã có MP4)"; \
 		else \
 			echo "==> $$day"; \
@@ -267,7 +304,7 @@ clean:
 	@echo "Kịch bản, nhạc nền và clip nền còn nguyên — chỉ giọng đọc bị xoá,"
 	@echo "chạy lại 'make content' là edge-tts sinh lại."
 
-## Tạo content/<DAY>.json. Không có khoá thì lấy ngân hàng, không gọi mạng.
+## Tạo content/<DAY>/script.json. Không có khoá thì lấy ngân hàng, không gọi mạng.
 ## Không bao giờ đè kịch bản đã có.
 new:
 	$(need_day)
@@ -277,14 +314,18 @@ new:
 bank:
 	@python3 -m pipeline.new --bank
 
-## Gói một ngày thành thư mục đăng được: out/<ngày>/ có caption, lời Nhật–Việt,
-## giọng đọc từng câu, metadata và ghi công tài sản. Chỉ đọc build.json và MP4
-## đã có — không dựng lại gì, nên chạy lại bao nhiêu lần cũng được.
+## Gói thành thư mục đăng được: out/<ngày>/ có video, ảnh bìa, caption, lời
+## Nhật–Việt, giọng đọc từng câu, metadata và ghi công tài sản. Chỉ đọc
+## build.json và video đã có — không dựng lại gì (trừ ảnh bìa còn thiếu), nên
+## chạy lại bao nhiêu lần cũng được. Một ngày hay cả khoảng:
+##   make export DAY=2026-09-12
+##   make export FROM=2026-09-12 TO=2026-09-30      (bỏ TO = tới ngày cuối cùng)
+##   make export MONTH=2026-09
 export:
-	$(need_day)
-	@python3 -m pipeline.export $(DAY)
+	$(need_days)
+	@python3 -m pipeline.export $(DAYS)
 
-## Gói MỌI ngày đã có content/<ngày>.build.json. Dùng khi đã dựng cả tháng.
+## Gói MỌI ngày đã có content/<ngày>/build.json. Dùng khi đã dựng cả tháng.
 export-all:
 	@python3 -m pipeline.export --all
 

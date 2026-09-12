@@ -88,6 +88,10 @@ def build_day(slug: str, log=print) -> Path:
     log(f"{len(timeline.scenes)} câu — tổng {timeline.total_frames} frame "
         f"= {timeline.seconds:.1f} giây")
     log(f"  caption   {post.caption}")
+    dropped = post_mod.leading_emoji(doc.caption)
+    if dropped:
+        log(f"  [!] caption trong kịch bản mở đầu bằng {dropped} — máy luôn tự ghép "
+            f"{post_mod.EMOJI}, nên {dropped} bị bỏ. Xoá nó khỏi script.json cho khỏi nhầm.")
     if post.borrowed:
         log("  [!] kịch bản chưa có \"caption\" — đang mượn câu tiếng Việt cuối "
             "cùng. Đặt một câu riêng thì bài đăng đỡ nhạt.")

@@ -86,15 +86,15 @@ export const TitleCard: React.FC<{
   return (
     <AbsoluteFill style={{ opacity: exit }}>
       {/*
-        Quầng tối sau chữ. Lớp phủ của Background cố tình nhạt ở dải trên — đó
-        là phần khán giả xem hình — nên chữ trắng đặt ở đây dễ chìm
-        vào clip sáng. Tiêu đề tự mang một quầng tối riêng, hiện và tắt cùng chữ,
-        thay vì phủ đậm cả khung cho mọi cảnh.
+        Quầng tối sau chữ. Lớp phủ của Background rất nhẹ — video phải tươi —
+        nên chữ trắng đặt ở đây dễ chìm vào clip sáng. Tiêu đề tự mang một quầng
+        tối riêng, hiện và tắt cùng chữ, thay vì phủ đậm cả khung cho mọi cảnh.
+        Cùng một cách với CAPTION_SCRIM của caption.
       */}
       <AbsoluteFill
         style={{
           opacity: enter,
-          background: `radial-gradient(75% 18% at 50% ${TITLE_CENTER * 100 + 3}%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.22) 55%, rgba(0,0,0,0) 100%)`,
+          background: `radial-gradient(80% 20% at 50% ${TITLE_CENTER * 100 + 3}%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.26) 55%, rgba(0,0,0,0) 100%)`,
         }}
       />
 
@@ -119,8 +119,10 @@ export const TitleCard: React.FC<{
             lineHeight: TITLE_LINE_HEIGHT,
             letterSpacing: 6,
             textWrap: "balance",
+            // Viền tối sát nét trước (nét bút lông có chỗ rất mảnh), quầng ấm
+            // nhạt hơn bản cũ vì quầng sáng trên clip sáng là tự xoá chữ.
             textShadow:
-              "0 0 40px rgba(255,244,222,0.22), 0 6px 30px rgba(0,0,0,0.75)",
+              "0 0 4px rgba(0,0,0,0.5), 0 0 40px rgba(255,244,222,0.14), 0 6px 30px rgba(0,0,0,0.75)",
           }}
         >
           {data.title}
@@ -146,7 +148,7 @@ export const TitleCard: React.FC<{
                 fontSize: 54,
                 lineHeight: 1.4,
                 letterSpacing: 6,
-                textShadow: "0 4px 22px rgba(0,0,0,0.75)",
+                textShadow: "0 0 3px rgba(0,0,0,0.55), 0 4px 22px rgba(0,0,0,0.75)",
               }}
             >
               {data.subtitle}

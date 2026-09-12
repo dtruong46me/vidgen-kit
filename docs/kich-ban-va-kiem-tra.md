@@ -11,12 +11,14 @@ video đã dựng xong. Không lệnh nào cần khoá API.
 make new     DAY=2026-09-10    # tạo content/2026-09-10/script.json
                                # mở file ra đọc, sửa câu nào muốn sửa
 make reading DAY=2026-09-10    # đọc đối chiếu romaji máy sinh
-make release DAY=2026-09-10    # MP4 + ảnh bìa + check; ~34 phút cho 52 giây video (WSL, concurrency 1)
+make release DAY=2026-09-10    # MP4 + ảnh bìa + check + gói; ~34 phút/video ở máy 2 nhân, ~5 phút ở máy 6 nhân (docs/dang-bai.md)
 ```
 
 `make release` là `make video` (nội dung, MP4, ảnh bìa), `make check` (số đo,
 trang duyệt) rồi `make export` (gói thư mục đăng) trong một lệnh. Render hỏng thì
-dừng trước check. Muốn làm từng bước thì ba lệnh kia vẫn gọi riêng được.
+dừng trước check. Muốn làm từng bước thì ba lệnh kia vẫn gọi riêng được. Cả tuần
+hay cả tháng thì `make release FROM=2026-09-10 TO=2026-09-16` hoặc
+`make release MONTH=2026-09` — xem `docs/dang-bai.md`.
 
 Caption bài đăng và thư mục `out/<ngày>/` nằm ở tài liệu riêng:
 **`docs/dang-bai.md`**.

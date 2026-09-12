@@ -108,27 +108,40 @@ export const Background: React.FC<{
       </AbsoluteFill>
 
       {/*
-        Lớp phủ tối để caption luôn đọc được.
+        Lớp phủ tối — NHẸ TAY. Nó chỉ nâng tông, không gánh việc giữ chữ đọc được.
 
-        Caption neo ở 2/3 dưới (xem SAFE_BOTTOM trong Caption.tsx), nên lớp phủ
-        phải ĐẬM NHẤT Ở DƯỚI chứ không phải đậm đều. Bản đầu phủ nhạt nhất đúng
-        ở giữa khung, mà đó lại là chỗ chữ bắt đầu — chữ Việt nằm trên chiếu tre
-        sáng gần như chìm mất.
+        Bản trước phủ 34–88% cả khung, đậm nhất ở dải caption. Chữ thì đọc được,
+        nhưng video nào cũng xỉn như trời sắp tối — kể cả những lúc KHÔNG có
+        chữ nào trên hình. Giờ việc giữ chữ đọc được giao cho chính lớp chữ:
+        quầng tối đi theo khối caption (CAPTION_SCRIM trong Caption.tsx) và
+        quầng tối sau tiêu đề (TitleCard.tsx). Hai quầng đó hiện cùng chữ, tắt
+        cùng chữ, nên giữa hai câu clip sáng trọn vẹn.
 
-        Nửa trên vẫn để nhẹ tay: đó là phần khán giả xem hình, phủ đậm là phí clip.
+        Lớp này chỉ còn hai việc: đỉnh khung hơi tối cho thanh trạng thái điện
+        thoại khỏi lẫn vào hình, và đáy tối dần vì TikTok/Reels dán tên tài
+        khoản với mô tả ở đó — chữ trắng của họ cũng cần nền.
+
+        Muốn chữ rõ hơn thì đậm quầng hoặc viền chữ, ĐỪNG đậm lại lớp này.
 
         Nền gradient vốn đã tối sẵn -> phủ nhẹ thôi kẻo thành đen kịt.
       */}
       <AbsoluteFill
         style={{
           background: line.clip
-            ? "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.34) 28%, rgba(0,0,0,0.52) 50%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.88) 100%)"
+            ? "linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.06) 16%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.14) 56%, rgba(0,0,0,0.28) 74%, rgba(0,0,0,0.42) 100%)"
             : "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.35) 100%)",
         }}
       />
     </AbsoluteFill>
   );
 };
+
+/**
+ * Clip đậm màu hơn bản gốc một chút. Clip Pexels thường quay màu phẳng, hơi
+ * xám; lớp phủ đậm cũ giấu được chuyện đó, phủ nhẹ rồi thì lộ ra nhạt. 8% là
+ * vừa để hoa ra hồng, lá ra xanh mà da người chưa ngả cam.
+ */
+const CLIP_FILTER = "saturate(1.08)";
 
 const ClipLayer: React.FC<{ line: Line }> = ({ line }) => {
   const { fps } = useVideoConfig();
@@ -138,7 +151,12 @@ const ClipLayer: React.FC<{ line: Line }> = ({ line }) => {
       src={staticFile(line.clip as string)}
       trimBefore={Math.round(line.clipStartInSeconds * fps)}
       muted
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        filter: CLIP_FILTER,
+      }}
     />
   );
 

@@ -87,21 +87,40 @@ const fitVi = (len: number) => (len <= 88 ? VI_SIZE : len <= 120 ? 32 : 28);
 const BALANCED = { textWrap: "balance" } as const;
 
 /**
- * Quầng sáng dịu, không phải neon.
+ * Viền tối sát nét + quầng sáng dịu, không phải neon.
  *
- * Ba lớp bóng chồng nhau, đọc từ trong ra ngoài:
- *   1. quầng ấm sát chữ    -> tạo cảm giác chữ tự phát sáng
- *   2. quầng ấm tán rộng   -> làm mềm rìa, tách chữ khỏi nền
- *   3. bóng tối đổ xuống   -> giữ chữ đọc được khi nền là cảnh sáng
+ * Bốn lớp bóng, lớp viết trước nằm trên:
+ *   1. viền tối 3px sát nét -> tách rìa chữ trắng khỏi nền trắng (tuyết, giấy,
+ *                               cánh hoa). Mỏng tới mức mắt không thấy thành viền.
+ *   2. bóng tối gần         -> dày thêm cho nét mảnh của font Mincho
+ *   3. quầng ấm tán rộng    -> phần cảm xúc. Nhạt hơn bản cũ (0,30 -> 0,14): quầng
+ *                               SÁNG quanh chữ trắng trên nền sáng là tự xoá chữ
+ *   4. bóng tối đổ xuống    -> như cũ
  *
- * Lớp 3 mới là lớp lo phần dễ đọc; hai lớp trên chỉ lo phần cảm xúc. Bỏ lớp 3
- * là chữ trắng sẽ chìm mất trên nền trời hoặc nền tuyết.
+ * Lớp phủ của Background.tsx giờ rất nhẹ, chữ không còn nằm sẵn trên nền tối.
+ * Lớp 1, lớp 2 và CAPTION_SCRIM bên dưới là ba thứ giữ chữ đọc được.
  */
 const SOFT_GLOW = [
-  "0 0 18px rgba(255,248,235,0.30)",
-  "0 0 46px rgba(255,244,220,0.16)",
-  "0 6px 28px rgba(0,0,0,0.72)",
+  "0 0 3px rgba(0,0,0,0.55)",
+  "0 2px 10px rgba(0,0,0,0.45)",
+  "0 0 18px rgba(255,248,235,0.14)",
+  "0 6px 28px rgba(0,0,0,0.6)",
 ].join(", ");
+
+/**
+ * Quầng tối ĐI THEO khối chữ — thay cho việc phủ tối cả khung hình.
+ *
+ * Nó nằm trong khối chữ, nên tự khớp kích thước (câu hai dòng hay ba dòng),
+ * trôi lên cùng chữ và mờ đi cùng chữ. Giữa hai câu, lúc không có chữ nào, clip
+ * sáng trọn vẹn — đó là chỗ video lấy lại độ tươi.
+ *
+ * `closest-side` cho elip chạm đúng bốn mép hộp, tới mép là trong suốt hẳn, nên
+ * không có đường viền hộp nào lộ ra. Hộp tràn khỏi khối chữ (SCRIM_BLEED) để
+ * phần đậm phủ hết chữ còn phần nhạt tan ra ngoài.
+ */
+const CAPTION_SCRIM =
+  "radial-gradient(closest-side, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.16) 75%, rgba(0,0,0,0) 100%)";
+const SCRIM_BLEED = { x: 150, y: 110 };
 
 /** Khối ba dòng chữ. Không biết gì về frame — chỉ nhận độ mờ và độ trôi. */
 const Block: React.FC<{
@@ -112,12 +131,26 @@ const Block: React.FC<{
 }> = ({ piece, showHira, opacity, translateY }) => (
   <div
     style={{
+      position: "relative",
+      // Giữ quầng tối (zIndex -1) nằm SAU chữ nhưng vẫn TRƯỚC clip nền. Thiếu
+      // dòng này thì quầng tụt xuống dưới cả Background, và chỉ còn đúng nhờ
+      // `transform` tình cờ tạo stacking context.
+      isolation: "isolate",
       opacity,
       transform: `translateY(${translateY}px)`,
       textAlign: "center",
       textShadow: SOFT_GLOW,
     }}
   >
+    <div
+      style={{
+        position: "absolute",
+        inset: `-${SCRIM_BLEED.y}px -${SCRIM_BLEED.x}px`,
+        zIndex: -1,
+        background: CAPTION_SCRIM,
+      }}
+    />
+
     {/* Câu tiếng Nhật — chữ chính, to nhất */}
     <div
       style={{
@@ -133,12 +166,16 @@ const Block: React.FC<{
       {piece.ja}
     </div>
 
-    {/* Cách đọc — chữ nhỏ, mờ, để người mới đọc theo được */}
+    {/*
+      Cách đọc — chữ nhỏ, nhạt hơn dòng chính, để người mới đọc theo được.
+      0,82 chứ không 0,62 như trước: chữ nghiêng 30px mà trong suốt quá thì chìm
+      hẳn trên nền sáng, từ khi lớp phủ không còn tối sẵn bên dưới.
+    */}
     {piece.romaji ? (
       <div
         style={{
           fontFamily: sansLatin,
-          color: "rgba(255,255,255,0.62)",
+          color: "rgba(255,255,255,0.82)",
           fontSize: 30,
           fontWeight: 400,
           fontStyle: "italic",
@@ -184,7 +221,7 @@ const Block: React.FC<{
       style={{
         width: 120,
         height: 1,
-        background: "rgba(255,255,255,0.35)",
+        background: "rgba(255,255,255,0.55)",
         margin: "34px auto",
       }}
     />

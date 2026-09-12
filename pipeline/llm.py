@@ -96,11 +96,11 @@ Tiếng Việt:
 
 Chủ đề (theme): 2–8 chữ tiếng Nhật, viết bút lông dưới ngày tháng ở đầu video.
 
-Caption: MỘT dòng tiếng Việt để đăng kèm video, mở đầu bằng một emoji hợp chủ
-đề. Nó không hiện trong video — nó là câu người lướt đọc trước khi bấm vào, nên
-phải gợi chứ đừng tóm tắt, và đừng lặp y nguyên câu nào trong bài. Dưới 20 chữ.
-Đừng viết ngày tháng vào đây, máy tự ghép ngày vào đầu.
-Ví dụ: "🌿 Có nhiều thứ không thể nắm giữ, không phải chuyện gì cũng có kết quả"
+Caption: MỘT dòng tiếng Việt để đăng kèm video. Nó không hiện trong video — nó
+là câu người lướt đọc trước khi bấm vào, nên phải gợi chứ đừng tóm tắt, và đừng
+lặp y nguyên câu nào trong bài. Dưới 20 chữ. KHÔNG emoji, KHÔNG ngày tháng: máy
+tự ghép ngày và emoji của kênh vào đầu.
+Ví dụ: "Có nhiều thứ không thể nắm giữ, không phải chuyện gì cũng có kết quả"
 """
 
 

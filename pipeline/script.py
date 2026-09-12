@@ -201,8 +201,8 @@ def _caption(raw: object, where: str) -> str | None:
     if not isinstance(raw, str):
         raise ScriptError(
             f"{where} có \"caption\" phải là chuỗi, ví dụ "
-            f"\"🌿 Có nhiều thứ không thể nắm giữ\". Đừng gõ ngày vào đây — "
-            f"máy ghép ngày từ tên kịch bản."
+            f"\"Có nhiều thứ không thể nắm giữ\". Đừng gõ ngày hay emoji vào đây — "
+            f"máy tự ghép ngày (từ tên kịch bản) và emoji của kênh vào đầu."
         )
     return raw.strip() or None
 

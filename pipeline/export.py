@@ -1,22 +1,29 @@
 """
-Gói một ngày thành thư mục đăng được: `out/<slug>/`.
+Gói ngày thành thư mục đăng được: `out/<ngày>/`.
 
-    python3 -m pipeline.export 2026-08-20        gói một ngày
-    python3 -m pipeline.export --all             gói mọi ngày đã có build.json
+    python3 -m pipeline.export 2026-09-12               gói một ngày
+    python3 -m pipeline.export 2026-09-12..2026-09-30   gói một khoảng, tính cả hai đầu
+    python3 -m pipeline.export 2026-09-12..             từ ngày đó tới ngày cuối cùng đã dựng
+    python3 -m pipeline.export 2026-09                  gói cả tháng
+    python3 -m pipeline.export --all                    gói mọi ngày đã có build.json
 
 Video dựng xong rồi vẫn chưa đăng được: còn thiếu dòng caption, còn thiếu bản
 chữ để soát lại, còn thiếu chỗ ghi công tác giả clip. Trước BƯỚC 7 những thứ đó
-nằm rải trong đầu người đăng. Giờ chúng nằm trong một thư mục:
+nằm rải trong đầu người đăng. Giờ mọi thứ của một ngày nằm trong MỘT thư mục:
 
-    out/2026-08-20/
-      caption.txt        dòng caption + hashtag — dán TikTok/Reels
-      description.txt    caption + toàn bộ lời Nhật–Việt + ghi công — dán YouTube
-      script.txt         bảng đọc: Nhật / romaji / hiragana / Việt, từng câu
-      metadata.json      mọi số đo và mọi trường máy đọc được
-      credits.txt        nguồn, tác giả, giấy phép của từng clip và bản nhạc
-      audio/line-XX.mp3  giọng đọc từng câu
-      2026-08-20.mp4     video (nếu đã dựng)
-      2026-08-20-thumbnail.png
+    out/2026-09-12/
+      2026-09-12.mp4            video để đăng        ┐ Remotion dựng thẳng
+      2026-09-12-thumbnail.png  ảnh bìa              ┘ vào đây (render.py)
+      caption.txt               dòng caption + hashtag — dán TikTok/Reels
+      description.txt           caption + toàn bộ lời Nhật–Việt + ghi công — dán YouTube
+      script.txt                bảng đọc: Nhật / romaji / hiragana / Việt, từng câu
+      credits.txt               nguồn, tác giả, giấy phép của từng clip và bản nhạc
+      metadata.json             mọi số đo và mọi trường máy đọc được
+      audio/line-XX.mp3         giọng đọc từng câu
+
+Video và ảnh bìa KHÔNG do module này viết, và cũng không được chép: trước đây
+chúng nằm lẻ ở `out/<ngày>.mp4` rồi được chép vào gói, nên mỗi video nằm hai
+chỗ. Gặp bố cục cũ đó thì module này DỜI file vào thư mục ngày, một lần là xong.
 
 Module này KHÔNG tính gì cả. Nó đọc `content/<slug>/build.json` — hợp đồng đã
 chốt — cộng thêm số đo thật của MP4 nếu có. Nó là người đóng gói, không phải
@@ -28,6 +35,9 @@ không phải cả video. Ngoại lệ này không phá nguyên tắc ở trên,
 frame nào cả: frame chụp là `thumbnailFrame` đã ghi sẵn trong hợp đồng, do
 `timeline.py` chọn (P-2). Ngày nào đã có ảnh bìa thì không dựng lại, nên lần gói
 thứ hai vẫn nhanh và vẫn ra thư mục giống hệt.
+
+Gói lại thì xoá và viết lại ĐÚNG những thứ module này sinh ra (`GENERATED`),
+không xoá cả thư mục: video nằm ngay cạnh, xoá theo là mất nửa tiếng render.
 
 Phép cộng frame duy nhất ở đây mượn nguyên của `check.py` (`total_frames`,
 `moments`), chứ không viết lại — P-2: đếm frame sai thì chỉ có thể sai ở một chỗ.
@@ -48,7 +58,6 @@ from pathlib import Path
 from . import library as library_mod, paths, render as render_mod
 from .check import total_frames
 from .probe import ProbeError, count_frames, media_info
-from .render import OUT_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = ROOT / "content"
@@ -56,6 +65,13 @@ PUBLIC_DIR = ROOT / "studio" / "public"
 
 #: Bề ngang khung chữ trong script.txt và description.txt.
 RULE = "─" * 64
+
+#: Thứ module này viết ra trong `out/<ngày>/` — gói lại thì CHỈ những thứ này bị
+#: xoá. Phải xoá: bớt một câu rồi gói lại mà còn `line-09.mp3` nằm lại thì người
+#: đăng sẽ tưởng video có chín câu. Nhưng video và ảnh bìa nằm cùng thư mục là
+#: của Remotion — không có tên trong đây thì không bao giờ bị đụng tới.
+GENERATED = ("caption.txt", "description.txt", "script.txt", "credits.txt",
+             "metadata.json", "audio")
 
 
 class ExportError(RuntimeError):
@@ -71,6 +87,7 @@ class Package:
     files: list[str]
     #: Chỗ chưa ổn, in ra cuối lệnh. Không chặn — gói vẫn dùng được.
     notes: list[str]
+    has_video: bool = False
 
 
 # --------------------------------------------------------------------------
@@ -87,7 +104,7 @@ def _build(slug: str) -> dict:
     if not path.exists():
         raise ExportError(
             f"Chưa có {path.relative_to(ROOT)} — chạy `make content DAY={slug}` trước.\n"
-            f"    Ngày đã dựng nội dung: " + (", ".join(days()) or "(chưa có ngày nào)")
+            f"    Ngày đã dựng nội dung: " + (paths.span(days()) or "(chưa có ngày nào)")
         )
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -284,10 +301,34 @@ def _copy_audio(build: dict, dest_dir: Path) -> tuple[int, list[str]]:
     return copied, notes
 
 
-def _copy_if_exists(src: Path, dest_dir: Path, out: list[str]) -> None:
-    if src.exists():
-        shutil.copy2(src, dest_dir / src.name)
-        out.append(src.name)
+def _clear_generated(dest_dir: Path) -> None:
+    """Xoá đúng những thứ trong GENERATED — video và ảnh bìa nằm yên."""
+    for name in GENERATED:
+        target = dest_dir / name
+        if target.is_dir():
+            shutil.rmtree(target)
+        elif target.exists():
+            target.unlink()
+
+
+def _adopt_legacy(slug: str, log) -> list[str]:
+    """Dời video/ảnh bìa bố cục CŨ (`out/<ngày>.mp4` nằm lẻ) vào thư mục ngày.
+
+    DỜI chứ không chép: chép thì mỗi video nằm hai chỗ, đúng cái lộn xộn mà bố
+    cục mới sinh ra để bỏ. Thư mục ngày đã có bản của nó thì bản cũ không bị
+    đụng tới — chỉ nhắc, vì không biết bản nào là bản người đăng muốn giữ.
+    """
+    notes: list[str] = []
+    for old, new in paths.legacy_outputs(slug):
+        if not old.exists():
+            continue
+        if new.exists():
+            notes.append(f"còn bản cũ {old.relative_to(ROOT)} nằm lẻ ngoài — gói dùng "
+                         f"{new.relative_to(ROOT)}, bản cũ xoá được")
+            continue
+        shutil.move(old, new)
+        log(f"  dời {old.relative_to(ROOT)} → {new.relative_to(ROOT)} (bố cục cũ)")
+    return notes
 
 
 def _thumbnail_stale(thumb: Path, slug: str) -> bool:
@@ -312,7 +353,7 @@ def _ensure_thumbnail(thumb: Path, slug: str, log) -> list[str]:
     if not _thumbnail_stale(thumb, slug):
         return []
 
-    log(f"  dựng ảnh bìa out/{thumb.name} (chưa có hoặc đã cũ)…")
+    log(f"  dựng ảnh bìa {thumb.relative_to(ROOT)} (chưa có hoặc đã cũ)…")
     try:
         render_mod.thumbnail(slug)
         return []
@@ -329,18 +370,17 @@ def _ensure_thumbnail(thumb: Path, slug: str, log) -> list[str]:
 def package(slug: str, log=print) -> Package:
     """Gói một ngày. Trả về Package; ném ExportError khi chưa có build.json."""
     build = _build(slug)
-    dest_dir = OUT_DIR / slug
-    # Xoá thư mục cũ trước: gói lại sau khi bớt một câu mà còn line-09.mp3 nằm
-    # lại thì người đăng sẽ tưởng video có chín câu.
-    if dest_dir.exists():
-        shutil.rmtree(dest_dir)
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
+    # Đọc sổ tài sản TRƯỚC khi xoá gì: sổ hỏng thì gói cũ vẫn còn nguyên.
     library = library_mod.load()
-    credits, notes = credit_rows(build, library)
+    credits, credit_notes = credit_rows(build, library)
 
-    mp4 = OUT_DIR / f"{slug}.mp4"
-    thumb = OUT_DIR / f"{slug}-thumbnail.png"
+    dest_dir = paths.out_dir(slug)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    notes = _adopt_legacy(slug, log) + credit_notes
+    _clear_generated(dest_dir)
+
+    mp4 = paths.video_path(slug)
+    thumb = paths.thumbnail_path(slug)
     notes += _ensure_thumbnail(thumb, slug, log)
     written = []
 
@@ -365,8 +405,8 @@ def package(slug: str, log=print) -> Package:
     notes += audio_notes
     written.append(f"audio/ ({copied} file)")
 
-    _copy_if_exists(mp4, dest_dir, written)
-    _copy_if_exists(thumb, dest_dir, written)
+    # Video và ảnh bìa đã nằm sẵn trong thư mục — không chép, chỉ điểm danh.
+    written += [media.name for media in (mp4, thumb) if media.exists()]
 
     if not mp4.exists():
         notes.append(f"chưa có {mp4.relative_to(ROOT)} — gói thiếu video, "
@@ -385,44 +425,73 @@ def package(slug: str, log=print) -> Package:
         log(f"  caption: {post['caption']}")
     for note in notes:
         log(f"  [!] {note}")
-    return Package(slug=slug, dest=dest_dir, files=written, notes=notes)
+    return Package(slug=slug, dest=dest_dir, files=written, notes=notes,
+                   has_video=mp4.exists())
+
+
+def package_many(slugs: list[str], log=print) -> list[Package]:
+    """Gói lần lượt từng ngày, rồi tóm tắt một dòng."""
+    log(f"Gói {len(slugs)} ngày: {paths.span(slugs)}\n")
+    out = []
+    for slug in slugs:
+        out.append(package(slug, log=log))
+        log("")
+    flagged = sum(1 for p in out if p.notes)
+    videos = sum(1 for p in out if p.has_video)
+    log(f"Xong {len(out)} gói trong {paths.OUT_DIR.relative_to(ROOT)}/ — "
+        f"{videos}/{len(out)} gói có video"
+        + (f", {flagged} gói có chỗ cần xem lại." if flagged else ", không có cảnh báo nào."))
+    return out
 
 
 def package_all(log=print) -> list[Package]:
     todo = days()
     if not todo:
         raise ExportError(
-            "Chưa ngày nào có content/<ngày>.build.json. "
+            "Chưa ngày nào có content/<ngày>/build.json. "
             "Chạy `make content DAY=...` hoặc `make video DAY=...` trước."
         )
-    log(f"Gói {len(todo)} ngày: {', '.join(todo)}\n")
-    out = []
-    for slug in todo:
-        out.append(package(slug, log=log))
-        log("")
-    flagged = sum(1 for p in out if p.notes)
-    log(f"Xong {len(out)} gói trong {OUT_DIR.relative_to(ROOT)}/"
-        + (f" — {flagged} gói có chỗ cần xem lại." if flagged else " — không có cảnh báo nào."))
-    return out
+    return package_many(todo, log=log)
 
 
-USAGE = """Cách dùng:
-    python3 -m pipeline.export <ngày>     gói một ngày
-    python3 -m pipeline.export --all      gói mọi ngày đã có build.json
+USAGE = f"""Cách dùng:
+    python3 -m pipeline.export <ngày>          gói một ngày
+    python3 -m pipeline.export <từ>..<đến>     gói một khoảng, tính cả hai đầu
+    python3 -m pipeline.export <từ>..          từ ngày đó tới ngày cuối cùng đã dựng
+    python3 -m pipeline.export 2026-09         gói cả tháng
+    python3 -m pipeline.export --all           gói mọi ngày đã có build.json
 
-Thường thì gọi qua Makefile: make export DAY=... / make export-all."""
+{paths.SPEC_HELP}
+
+Thường thì gọi qua Makefile:
+    make export DAY=2026-09-12
+    make export FROM=2026-09-12 TO=2026-09-30    (bỏ TO = tới ngày cuối cùng)
+    make export MONTH=2026-09
+    make export-all"""
 
 
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
-    if not args:
+    if len(args) != 1:
         print(USAGE, file=sys.stderr)
         return 2
+    spec = args[0]
     try:
-        if args[0] == "--all":
+        if spec == "--all":
             package_all()
+        elif paths.is_range(spec):
+            chosen = paths.select(spec, days())
+            if not chosen:
+                raise ExportError(
+                    f"Không ngày nào khớp '{spec}' mà đã dựng nội dung.\n"
+                    f"    Ngày đã dựng: " + (paths.span(days()) or "(chưa có ngày nào)")
+                )
+            package_many(chosen)
         else:
-            package(args[0])
+            package(spec)
+    except paths.SpecError as exc:
+        print(f"\n[lỗi] {exc}", file=sys.stderr)
+        return 2
     except (ExportError, library_mod.LibraryError, ProbeError) as exc:
         print(f"\n[lỗi] {exc}", file=sys.stderr)
         return 1

@@ -24,7 +24,7 @@ content/<slug>/build.json    ★ HỢP ĐỒNG — ranh giới Python ↔ React
       │
       │  studio/  — Remotion đọc file này qua --props
       ▼
-out/<slug>.mp4  +  out/<slug>/  (gói đăng: caption, lời, audio, metadata)
+out/<slug>/   gói đăng: <slug>.mp4, ảnh bìa, caption, lời, audio, metadata
 ```
 
 ## Bốn nguyên tắc bất di bất dịch
@@ -71,8 +71,14 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   phải ghép hai họ font, một cho dòng Nhật, một cho dòng Việt.
 - **Vùng an toàn:** TikTok/Reels che khoảng 350 px dưới cùng và dải bên phải.
   Caption đặt ở 2/3 dưới nhưng phải chừa đáy tối thiểu 380 px.
-- **Lớp phủ tối phải đậm nhất ở dải có caption**, không phủ đều. Clip thật rất
-  sáng; phủ đều là chữ chìm. Xem `Background.tsx`.
+- **Chữ đọc được nhờ quầng tối ĐI THEO CHỮ, không nhờ phủ tối cả khung.** Bản
+  cũ phủ 34–88% toàn khung, đậm nhất ở dải caption: chữ rõ nhưng video xỉn như
+  trời sắp tối, kể cả lúc không có chữ nào. Giờ lớp phủ của `Background.tsx`
+  rất nhẹ (4–42%, chỉ đậm ở đỉnh cho thanh trạng thái và ở đáy cho chữ của
+  TikTok). Caption tự mang quầng tối `CAPTION_SCRIM`, hiện và tắt cùng chữ;
+  tiêu đề cũng vậy; và chữ có viền tối 3px sát nét. Clip thật rất sáng (tuyết,
+  giấy, hoa anh đào) — muốn chữ rõ hơn thì đậm quầng hoặc viền, ĐỪNG đậm lại
+  lớp phủ toàn khung.
 - **Hiệu ứng đi chậm.** Chữ hiện trong 26 frame, tắt trong 20, nền mờ chồng 24.
   Ba số này phải đổi cùng nhau, lệch nhau là mất cảm giác thong thả. Tiêu đề ngày
   cố tình chậm hơn nữa (34 frame): nó không phải nhường chỗ cho câu nào.
@@ -90,15 +96,18 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   frame ảnh bìa, không tham gia phép cộng nào. Chủ đề vẫn phải vào xong ở frame
   44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong `TitleCard.tsx`) để không hiện
   cùng nhịp với caption. `make video` dựng ảnh bìa ngay sau MP4, `make export`
-  dựng nốt cho ngày nào còn thiếu; `make release` thêm `make check` sau cùng —
-  đó là lệnh trọn gói của một ngày.
+  dựng nốt cho ngày nào còn thiếu; `make release` là video → check → gói, cho
+  một ngày hoặc cả khoảng ngày — đó là lệnh trọn gói.
 - **Caption bài đăng là chữ ĐỂ ĐĂNG, không phải chữ để vẽ.** Trường `caption`
   trong kịch bản không hiện trong video; nó đi ra `out/<ngày>/caption.txt`. Ngày
   tháng KHÔNG gõ vào đó — `pipeline/post.py` ghép từ tên kịch bản (`2026-09-11`
-  ra `11.09.26`), đúng tinh thần P-1. Emoji nằm trong chính chuỗi caption, không
-  tách thành trường riêng: tách ra là phải nhớ thứ tự ghép, mà người viết thì
-  muốn nhìn thấy nguyên câu mình sắp đăng. Bỏ trống thì máy mượn câu tiếng Việt
-  cuối cùng và kêu một dòng — chạy được nhưng nhạt.
+  ra `11.09.26`), đúng tinh thần P-1. Emoji cũng KHÔNG gõ: `EMOJI = "🌿"` ở
+  `post.py`, một cái cho MỌI ngày — nó là dấu nhận diện kênh, không phải minh
+  hoạ chủ đề. Bản trước để mỗi kịch bản tự chọn emoji (🍵, 🌅, 🪵…) nên lướt
+  trang kênh thì mỗi bài một kiểu. Kịch bản còn để emoji ở đầu `caption` thì
+  máy bỏ đi và `make content` kêu một dòng, không in hai emoji liền nhau. Bỏ
+  trống `caption` thì máy mượn câu tiếng Việt cuối cùng và kêu một dòng — chạy
+  được nhưng nhạt.
 - **`caption` là NỘI DUNG, `hashtags` là CÀI ĐẶT.** `caption` nằm trong
   `CONTENT_KEYS` của `new.py` nên không kế thừa (mỗi ngày một câu khác);
   `hashtags` nằm trong `DEFAULT_SETTINGS` nên kế thừa như giọng đọc và nhạc nền
@@ -107,15 +116,29 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `content/<ngày>/build.json` và MP4 đã có ra `out/<ngày>/`, không gọi TTS,
   không chọn clip, không tính frame —
   phép cộng frame duy nhất nó dùng là mượn `check.py` (P-2). Nhờ vậy sửa
-  `export.py` không bao giờ làm lệch một frame nào. Nó xoá thư mục cũ trước khi
-  gói lại: bớt một câu mà còn `line-09.mp3` nằm lại là người đăng tưởng video có
-  chín câu. Và nó KHÔNG ghi dấu thời gian vào `metadata.json` — gói hai lần phải
-  ra hai thư mục giống hệt nhau, y như bộ chọn clip phải tất định. Ngoại lệ ảnh
-  bìa: thiếu `out/<ngày>-thumbnail.png` hoặc file đó cũ hơn `build.json` thì nó
-  gọi Remotion chụp lại, vì gói không có ảnh bìa là gói chưa đăng được mà ảnh
-  bìa chỉ tốn MỘT frame. Ngoại lệ này không phá câu trên: frame chụp là
-  `thumbnailFrame` đã ghi sẵn trong hợp đồng, `export.py` không tự tính. Dựng
-  không được thì kêu một dòng rồi gói tiếp, không chặn.
+  `export.py` không bao giờ làm lệch một frame nào. Gói lại thì nó xoá rồi viết
+  lại ĐÚNG phần nó sinh ra (`GENERATED`: năm file chữ và `audio/`): bớt một câu
+  mà còn `line-09.mp3` nằm lại là người đăng tưởng video có chín câu — nhưng
+  video và ảnh bìa nằm cùng thư mục thì không đụng tới, xoá theo là mất nửa
+  tiếng render. Và nó KHÔNG ghi dấu thời gian vào `metadata.json` — gói hai lần
+  phải ra hai thư mục giống hệt nhau, y như bộ chọn clip phải tất định. Ngoại lệ
+  ảnh bìa: thiếu `out/<ngày>/<ngày>-thumbnail.png` hoặc file đó cũ hơn
+  `build.json` thì nó gọi Remotion chụp lại, vì gói không có ảnh bìa là gói chưa
+  đăng được mà ảnh bìa chỉ tốn MỘT frame. Ngoại lệ này không phá câu trên: frame
+  chụp là `thumbnailFrame` đã ghi sẵn trong hợp đồng, `export.py` không tự tính.
+  Dựng không được thì kêu một dòng rồi gói tiếp, không chặn.
+- **Một ngày là một thư mục `out/<ngày>/`, đủ thứ để ĐĂNG.** `render.py` dựng
+  MP4 và ảnh bìa thẳng vào đó; `export.py` viết caption, lời, metadata và chép
+  giọng đọc vào cạnh. Không chép video qua lại: bản trước dựng ra
+  `out/<ngày>.mp4` rồi chép vào gói, mỗi video nằm hai chỗ. Gặp file lẻ kiểu cũ
+  thì `make export` DỜI vào. Đồ để SOÁT thì nằm ngoài thư mục ngày:
+  `out/<ngày>-check/` và `out/<ngày>-f<N>.png`. Mọi đường dẫn này khai ở
+  `paths.py`, cùng chỗ với `content/`.
+- **Nhiều ngày một lệnh: `FROM=… [TO=…]` hoặc `MONTH=…`**, cho `make export` và
+  `make release`. Makefile chỉ ghép thành một chuỗi (`2026-09-12..2026-09-30`);
+  đọc chuỗi đó là việc của `paths.select`, so theo tiền tố của tên ngày ISO nên
+  không phải tính tháng có bao nhiêu ngày. `make release` nhiều ngày thì một ngày
+  hỏng KHÔNG chặn các ngày sau, cuối lệnh in ra ngày nào hỏng.
 - **Sóng giọng đọc (`VoiceWave.tsx`) đọc từ file giọng của từng câu, không phải
   nhạc nền.** Nằm ngay trên tiêu đề, chạy suốt các cảnh, lặng thì phẳng thành
   hàng chấm. Chỉ là lớp vẽ: không có trường nào trong hợp đồng, vì `audio` và
@@ -261,7 +284,7 @@ pipeline/     Lớp A + B (Python)
   intro.py      chữ cho tiêu đề ngày và màn kết; ngày suy từ tên kịch bản
   post.py       chữ cho BÀI ĐĂNG: dòng caption + hashtag (không vẽ lên video)
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
-  paths.py      chỗ DUY NHẤT biết content/ bày ra sao (một ngày một thư mục)
+  paths.py      chỗ DUY NHẤT biết content/ và out/ bày ra sao; đọc khoảng ngày FROM/TO/MONTH
   phrase.py     chỗ DUY NHẤT biết cắt câu dài thành mấy mảnh caption
   script.py     đọc và kiểm content/<ngày>/script.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
@@ -277,7 +300,7 @@ pipeline/     Lớp A + B (Python)
   new.py        make new — kịch bản mới: nội dung từ ngân hàng/Claude, cài đặt kế thừa
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
   check.py      make check — số đo MP4 + trang duyệt từng MÀN CHỮ
-  export.py     make export — gói out/<ngày>/: caption, lời, audio, metadata
+  export.py     make export — gói out/<ngày>/: caption, lời, audio, metadata (video + ảnh bìa đã nằm sẵn)
 studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, TitleCard, VoiceWave, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
@@ -292,8 +315,10 @@ content/      <ngày>/       MỘT NGÀY LÀ MỘT THƯ MỤC
 library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
               shots.json — nguồn, tác giả, giấy phép và tag của mọi clip/nhạc
               bank.json — ngân hàng kịch bản viết sẵn cho `make new` khi không có khoá
-out/          MP4 và PNG (không commit); <ngày>-check/ là trang duyệt của make check
-              <ngày>/ là gói đăng của make export (caption, lời, audio, metadata)
+out/          máy sinh, không commit. <ngày>/ là MỘT ngày đủ để đăng: <ngày>.mp4,
+              <ngày>-thumbnail.png, caption.txt, description.txt, script.txt,
+              credits.txt, metadata.json, audio/. Nằm ngoài là đồ soát:
+              <ngày>-check/ (make check) và <ngày>-f<N>.png (make still)
 .env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
 docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md,
               kich-ban-va-kiem-tra.md, dang-bai.md, caption-va-cau-dai.md
@@ -468,13 +493,25 @@ ngày nào còn thiếu hoặc đang mang bản cũ. Cả 31 ngày dựng lại:
 nguyên** từng ngày (`2026-08-20` vẫn 1562) — `thumbnailFrame` không tham gia
 phép cộng nào.
 
-Một chỗ chưa kiểm được ở BƯỚC 9: **chưa nhìn thấy khung hình thật.**
-`node_modules/.bin/remotion` trên máy này là symlink do WSL tạo, Python bên
-Windows không stat nổi (WinError 1920), nên `make still` và `make check` không
-chạy. Phần frame và phần chữ đã kiểm bằng số; phần BỐ CỤC — khối chữ có nở quá
-lên vùng tiêu đề không — phải chạy `make still DAY=2026-08-20 FRAME=614` và
-`FRAME=756` ở môi trường dựng được mới biết chắc. Ảnh bìa mới (frame 77) cũng
-chưa ai nhìn thấy — `make thumbnail DAY=2026-08-20` là xong.
+**Video sáng hơn, gói đăng một thư mục, emoji 🌿 cố định.** Lớp phủ toàn khung
+nhẹ đi (34–88% → 4–42%); chữ đọc được nhờ quầng tối đi theo chữ và viền tối
+sát nét — so trước/sau trên sáu clip sáng nhất (tuyết, mưa, hoa anh đào, rèm
+trắng) trước khi sửa code. Video và ảnh bìa dựng thẳng vào `out/<ngày>/`;
+`make export` và `make release` nhận `FROM`/`TO`/`MONTH`; caption mọi ngày dùng
+🌿 (bỏ emoji ở đầu caption của cả 31 kịch bản). Dựng lại nội dung 20 ngày: tổng
+frame và `thumbnailFrame` y nguyên từng ngày, `2026-08-20` vẫn **1562**. Render
+thật trên máy Windows (bản Remotion riêng ngoài repo, vì `studio/node_modules`
+chỉ có nhị phân Linux): `2026-09-12` qua `make check` PASS cả sáu mục (1564
+frame đếm trên MP4), trang duyệt 11 màn chữ không tofu, không chữ nào lấn vùng
+che; ảnh bìa frame 77 có đủ ngày, chủ đề và câu chào. Thời gian đo thật:
+**~296 giây một video** (5,9 giây render cho mỗi giây video, Ryzen 5 5500U,
+concurrency 6) — bảng từng ngày ở `docs/dang-bai.md`. Đợt dựng này **tạm dừng
+theo yêu cầu sau 10 ngày (12–21/9)**; 22–30/9 chưa có video mới, và cả 19 ngày
+chưa `make export` lại (caption trong `out/<ngày>/` còn là bản cũ có emoji cũ).
+
+Một chỗ còn chưa kiểm của BƯỚC 9: bố cục câu CẮT MẢNH trên khung hình thật (khối
+chữ có nở quá lên vùng tiêu đề không) — `make still DAY=2026-08-20 FRAME=614` và
+`FRAME=756`.
 
 Một khiếm khuyết BƯỚC 7 lộ ra khi dựng tháng 9, đã sửa ở phía kịch bản:
 

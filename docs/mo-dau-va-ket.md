@@ -66,7 +66,7 @@ chừng 2/3 chiều cao, chừa chỗ cho chỗ nhấn giọng.
 ### Ảnh bìa
 
 ```bash
-make thumbnail DAY=2026-08-20    # out/2026-08-20-thumbnail.png
+make thumbnail DAY=2026-08-20    # out/2026-08-20/2026-08-20-thumbnail.png
 ```
 
 Chụp đúng frame **caption câu 1 vừa vào xong** — `thumbnailFrame` trong
@@ -92,8 +92,9 @@ Font **Yuji Syuku** — nét bút lông. Nó chỉ dùng cho tiêu đề và mà
 dùng cho caption: nét mảnh và không đều, đọc lâu thì mỏi mắt, mà caption thì
 người xem phải đọc kịp trong vài giây.
 
-Lớp phủ tối của `Background.tsx` cố tình nhạt ở dải trên để khán giả xem hình,
-nên tiêu đề tự mang một quầng tối nhỏ sau chữ, hiện và tắt cùng chữ. Cỡ chữ tính
+Lớp phủ tối của `Background.tsx` rất nhẹ — video phải tươi, việc giữ chữ đọc
+được giao cho quầng tối đi theo chữ — nên tiêu đề tự mang một quầng tối nhỏ sau
+chữ, hiện và tắt cùng chữ, y như caption. Cỡ chữ tính
 theo bề ngang ước lượng (chữ số chỉ chiếm nửa ô), nên mọi ngày trong năm — từ
 `1月1日` tới `12月31日` — đều cùng một cỡ.
 

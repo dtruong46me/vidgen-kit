@@ -35,7 +35,6 @@ from pathlib import Path
 
 from . import paths, script as script_mod
 from .probe import ProbeError, count_frames, media_info
-from .render import OUT_DIR
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = ROOT / "content"
@@ -124,7 +123,7 @@ def _load(slug: str) -> tuple[dict, Path, Path]:
         raise CheckError(
             f"Chưa có {build_path.relative_to(ROOT)} — chạy 'make video DAY={slug}' trước."
         )
-    mp4 = OUT_DIR / f"{slug}.mp4"
+    mp4 = paths.video_path(slug)
     if not mp4.exists():
         raise CheckError(
             f"Chưa có {mp4.relative_to(ROOT)} — chạy 'make video DAY={slug}' trước."
@@ -327,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
         for f in findings:
             print(f"  {f.status:<4}  {f.label:<{width}}  {f.detail}")
 
-        dest_dir = OUT_DIR / f"{slug}-check"
+        dest_dir = paths.check_dir(slug)
         picked = extract(build, mp4, dest_dir)
         page = write_page(slug, build, findings, picked, dest_dir)
     except (CheckError, ProbeError, script_mod.ScriptError) as exc:

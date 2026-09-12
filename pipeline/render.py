@@ -8,12 +8,17 @@ target của Makefile; gom về một hàm thì sai một lần là sai ở mộ
 
 Nó KHÔNG tính frame và KHÔNG đọc kịch bản — nó chỉ nhận một build.json đã có
 sẵn rồi bảo Remotion vẽ ra.
+
+Nó cũng không tự đặt tên file ra: nằm ở đâu là chuyện của `paths.py`. Video và
+ảnh bìa đi thẳng vào thư mục ngày `out/<ngày>/`, cạnh caption và giọng đọc mà
+`export.py` gói — một ngày một thư mục, không chép qua chép lại.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -24,7 +29,7 @@ COMPOSITION = "Daily"
 ROOT = Path(__file__).resolve().parent.parent
 STUDIO_DIR = ROOT / "studio"
 CONTENT_DIR = ROOT / "content"
-OUT_DIR = ROOT / "out"
+OUT_DIR = paths.OUT_DIR
 
 
 class RenderError(RuntimeError):
@@ -45,6 +50,18 @@ def _props_path(slug: str) -> Path:
     return props
 
 
+def _npx() -> str:
+    """Đường dẫn tới npx, hỏi y như shell hỏi.
+
+    Trên Windows npx là `npx.cmd`, mà subprocess không tự thêm đuôi như shell:
+    gọi trần "npx" ra WinError 2 "không tìm thấy file" dù Node đã cài đủ.
+    """
+    found = shutil.which("npx")
+    if not found:
+        raise RenderError("Không thấy npx trên PATH — cài Node 18 trở lên (xem docs/cai-dat.md).")
+    return found
+
+
 def _run(args: list[str]) -> None:
     # Thiếu node_modules thì npx chỉ báo "could not determine executable to run",
     # không nói thiếu gì — chặn trước bằng một câu dễ hiểu.
@@ -59,7 +76,7 @@ def _run(args: list[str]) -> None:
     # Không nuốt stdout/stderr: thanh tiến trình của Remotion và thông báo lỗi
     # của nó là thứ đáng xem nhất khi render hỏng.
     try:
-        proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)
+        proc = subprocess.run([_npx(), "remotion", *args], cwd=STUDIO_DIR)
     except OSError as exc:
         raise RenderError(f"Không gọi được npx: {exc}") from exc
     if proc.returncode != 0:
@@ -67,10 +84,10 @@ def _run(args: list[str]) -> None:
 
 
 def video(slug: str) -> Path:
-    """build.json -> out/<slug>.mp4"""
+    """build.json -> out/<slug>/<slug>.mp4"""
     props = _props_path(slug)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    dest = OUT_DIR / f"{slug}.mp4"
+    dest = paths.video_path(slug)
+    dest.parent.mkdir(parents=True, exist_ok=True)
     _run([
         "render", COMPOSITION, _from_studio(dest),
         f"--props={_from_studio(props)}",
@@ -80,7 +97,7 @@ def video(slug: str) -> Path:
 
 def _still(slug: str, frame: int, dest: Path) -> Path:
     props = _props_path(slug)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    dest.parent.mkdir(parents=True, exist_ok=True)
     _run([
         "still", COMPOSITION, _from_studio(dest),
         f"--frame={frame}",
@@ -91,11 +108,11 @@ def _still(slug: str, frame: int, dest: Path) -> Path:
 
 def still(slug: str, frame: int) -> Path:
     """build.json -> out/<slug>-f<frame>.png — cách nhanh nhất bắt lỗi font và bố cục."""
-    return _still(slug, frame, OUT_DIR / f"{slug}-f{frame}.png")
+    return _still(slug, frame, paths.still_path(slug, frame))
 
 
 def thumbnail(slug: str) -> Path:
-    """build.json -> out/<slug>-thumbnail.png — ảnh bìa: ngày tháng và câu chào cùng trên hình.
+    """build.json -> out/<slug>/<slug>-thumbnail.png — ảnh bìa: ngày tháng và câu chào cùng trên hình.
 
     Frame lấy từ `thumbnailFrame` trong build.json, do timeline.py chọn. Module
     này chỉ đọc số đó, không tự đoán frame nào đẹp (P-2).
@@ -107,4 +124,4 @@ def thumbnail(slug: str) -> Path:
             f"{props.relative_to(ROOT)} dựng từ bản cũ, chưa có thumbnailFrame — "
             f"chạy 'make content DAY={slug}' rồi thử lại."
         )
-    return _still(slug, frame, OUT_DIR / slug / f"{slug}-thumbnail.png")
+    return _still(slug, frame, paths.thumbnail_path(slug))

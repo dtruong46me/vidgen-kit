@@ -125,7 +125,10 @@ export const VoiceWave: React.FC<{
           alignItems: "center",
           gap: BAR_GAP,
           opacity,
-          filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.55))",
+          // Viền tối sát vạch trước, bóng tán sau — vạch 4px trắng trên nền
+          // sáng (lớp phủ giờ rất nhẹ) mà chỉ có bóng tán thì nhoè mất.
+          filter:
+            "drop-shadow(0 0 2px rgba(0,0,0,0.5)) drop-shadow(0 2px 10px rgba(0,0,0,0.55))",
         }}
       >
         {bars.map((h, i) => (
