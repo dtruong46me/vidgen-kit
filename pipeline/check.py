@@ -69,6 +69,10 @@ class Moment:
     label: str
     frame: int
     line: dict | None
+    #: Cảnh 1 còn có tiêu đề ngày đè lên — trang duyệt phải in cả nó. Là cờ
+    #: riêng chứ không dò theo nhãn: câu dài chia mảnh thì nhãn không còn là
+    #: "Cảnh 1" nữa, mà "Cảnh 10" thì lại khớp nhầm nếu so bằng tiền tố.
+    with_title_card: bool = False
 
 
 def total_frames(build: dict) -> int:
@@ -83,12 +87,26 @@ def moments(build: dict) -> list[Moment]:
     - Mỗi cảnh: giữa cảnh. Chữ vào trong 26 frame, tắt trong 20, cảnh sau chồng
       vào 24 frame cuối — giữa cảnh luôn an toàn với cảnh dài hơn 2 giây. Ở cảnh
       1, giữa cảnh là lúc tiêu đề ngày và caption câu 1 cùng đang hiện đủ.
+    - Câu dài chia mảnh: MỘT khung cho MỖI mảnh. Mảnh là một màn chữ riêng, mà
+      trang này sinh ra để soi chữ — lấy giữa cảnh thì mảnh đầu không ai nhìn.
     - Kết: 40% màn. Chữ vào xong ở frame 30, bắt đầu nhạt ở 55%.
     """
     out: list[Moment] = []
     cursor = 0
     for i, line in enumerate(build["lines"], start=1):
-        out.append(Moment(f"Cảnh {i}", cursor + line["durationInFrames"] // 2, line))
+        segments = line.get("segments") or []
+        if len(segments) > 1:
+            for k, seg in enumerate(segments):
+                out.append(Moment(
+                    f"Cảnh {i} · mảnh {k + 1}",
+                    cursor + seg["fromInFrames"] + seg["durationInFrames"] // 2,
+                    # Mảnh đè lên câu: chữ in ra phải là chữ ĐANG hiện ở frame đó.
+                    {**line, **seg},
+                    with_title_card=(i == 1 and k == 0),
+                ))
+        else:
+            out.append(Moment(f"Cảnh {i}", cursor + line["durationInFrames"] // 2,
+                              line, with_title_card=(i == 1)))
         cursor += line["durationInFrames"]
     outro = build.get("outro")
     if outro:
@@ -236,7 +254,7 @@ def write_page(slug: str, build: dict, findings: list[Finding],
             text = f'<p class="ja">{esc(build["outro"]["text"])}</p>'
         else:
             # Cảnh 1 còn có tiêu đề ngày đè lên ở 1/4 trên — cũng là chữ phải hiện.
-            card = build.get("titleCard") if moment.label == "Cảnh 1" else None
+            card = build.get("titleCard") if moment.with_title_card else None
             text = ((f'<p class="ja">{esc(card["title"])}　{esc(card.get("subtitle") or "")}</p>'
                      if card else "")
                     + f'<p class="ja">{esc(line.get("ja", ""))}</p>'

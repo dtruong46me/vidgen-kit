@@ -171,3 +171,4 @@ thì xoá `content/<ngày>/build.json` rồi chạy lại, hoặc gọi thẳng
 - Trường nào là nội dung, trường nào là cài đặt: `docs/kich-ban-va-kiem-tra.md`
 - Nguồn và giấy phép clip: `docs/tai-san-can-tai.md`
 - Tiêu đề ngày và màn kết: `docs/mo-dau-va-ket.md`
+- Caption TRÊN MÀN HÌNH, cỡ chữ và câu dài: `docs/caption-va-cau-dai.md`

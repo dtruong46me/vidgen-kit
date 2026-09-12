@@ -220,6 +220,8 @@ def metadata(build: dict, mp4: Path | None) -> dict:
             "audio": line.get("audio"),
             "clip": line.get("clip"),
             "clipStartInSeconds": line.get("clipStartInSeconds"),
+            # Câu dài hiện làm mấy màn chữ. null = hiện nguyên một màn.
+            "segments": line.get("segments"),
         })
         cursor += line["durationInFrames"]
 

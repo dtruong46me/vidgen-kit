@@ -61,11 +61,19 @@ class OutroSpec:
 class ScriptLine:
     """Một câu do người viết. Chưa có giọng đọc, chưa có frame."""
 
+    #: Nguyên câu, đã ghép lại nếu người viết chia sẵn thành nhiều mảnh. Đây là
+    #: thứ đem đi ĐỌC và đem đi XUẤT BẢN — giọng đọc phải liền hơi, nên TTS luôn
+    #: nhận cả câu chứ không nhận từng mảnh.
     ja: str
     vi: str
+    #: Người viết TỰ chia caption thành mấy mảnh, bằng cách viết "ja"/"vi" thành
+    #: danh sách. Rỗng = để `phrase.py` tự quyết. Cùng quy ước với `clip`: bỏ
+    #: trống thì máy làm hộ, ghi vào thì người viết thắng.
+    ja_parts: tuple[str, ...] = ()
+    vi_parts: tuple[str, ...] = ()
     #: Clip nền. Bỏ trống thì `shots.py` tự chọn từ library/shots.json.
-    clip: str | None
-    clip_start_seconds: float
+    clip: str | None = None
+    clip_start_seconds: float = 0.0
     #: Gợi ý cho bộ chọn clip: chỉ lấy clip có ít nhất một tag trùng. Bỏ trống
     #: thì dùng `tags` của cả kịch bản; bỏ trống nốt thì clip nào cũng được.
     tags: tuple[str, ...] = ()
@@ -205,6 +213,26 @@ def _text(value: object, key: str, where: str) -> str:
     return value
 
 
+def _parts(value: object, key: str, where: str, joiner: str) -> tuple[str, tuple[str, ...]]:
+    """Đọc "ja"/"vi" — một chuỗi, hoặc một danh sách mảnh caption.
+
+    Trả về `(nguyên câu, các mảnh)`. Chuỗi thì mảnh rỗng, tức để `phrase.py` tự
+    quyết cắt hay không. Danh sách là người viết đã tự chia, và người viết thắng.
+
+    Nguyên câu luôn được ghép lại từ các mảnh, vì TTS đọc CẢ CÂU: chia caption
+    không được làm giọng đọc đứt hơi giữa chừng.
+    """
+    if isinstance(value, list):
+        if not value or any(not isinstance(x, str) or not x.strip() for x in value):
+            raise ScriptError(
+                f"{where} có \"{key}\" là danh sách rỗng hoặc có mảnh rỗng. "
+                f"Viết chuỗi để máy tự cắt, hoặc danh sách các mảnh caption."
+            )
+        parts = tuple(x.strip() for x in value)
+        return joiner.join(parts), parts
+    return _text(value, key, where), ()
+
+
 def load(content_dir: Path, slug: str) -> Script:
     """Đọc content/<slug>.json thành một Script đã kiểm."""
     src = paths.script_path(slug, content_dir)
@@ -239,9 +267,24 @@ def load(content_dir: Path, slug: str) -> Script:
         start = raw.get("clipStartInSeconds", 0)
         if not isinstance(start, (int, float)) or start < 0:
             raise ScriptError(f"{where} có \"clipStartInSeconds\" âm hoặc không phải số.")
+        ja, ja_parts = _parts(_require(raw, "ja", where), "ja", where, "")
+        raw_vi = raw.get("vi", "")
+        vi, vi_parts = (
+            _parts(raw_vi, "vi", where, " ") if raw_vi else ("", ())
+        )
+        if ja_parts and len(vi_parts) != len(ja_parts) and vi:
+            # Hai bên hiện cùng lúc trên một khung caption. Lệch số mảnh thì
+            # không có cách nào ghép đúng, và đoán bừa là dịch sai chỗ.
+            raise ScriptError(
+                f"{where} chia \"ja\" làm {len(ja_parts)} mảnh nhưng \"vi\" "
+                f"làm {len(vi_parts) or 1} mảnh. Chia \"vi\" thành đúng "
+                f"{len(ja_parts)} mảnh, hoặc để cả hai là chuỗi cho máy tự cắt."
+            )
         lines.append(ScriptLine(
-            ja=_text(_require(raw, "ja", where), "ja", where),
-            vi=raw.get("vi", ""),
+            ja=ja,
+            vi=vi,
+            ja_parts=ja_parts,
+            vi_parts=vi_parts,
             clip=clip or None,
             clip_start_seconds=float(start),
             tags=_tags(raw.get("tags"), where),

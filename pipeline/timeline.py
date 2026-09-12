@@ -19,6 +19,15 @@ câu 1 cũng chờ hết đoạn đó mới vào, để tiêu đề và caption 
 
 Không có cảnh mở đầu riêng nữa, nên tổng frame = các cảnh + màn kết.
 
+Câu dài được `phrase.py` cắt thành mấy MẢNH caption. Mảnh KHÔNG phải cảnh: cùng
+một cảnh, cùng một clip, cùng một file mp3, chỉ có chữ là đổi giữa chừng. Nên
+cắt mảnh không cộng thêm một frame nào vào tổng — mốc hồi quy không nhúc nhích.
+
+Mảnh sau vào ở đâu thì không đoán: `tts.py` ghi lại giọng đọc chạm vào từng chữ
+ở giây thứ mấy (`WordBoundary`), ở đây chỉ việc tra chữ đầu của mảnh rồi lùi
+lại đúng `leadIn` — bằng đúng khoảng chữ đi trước tiếng ở đầu mỗi cảnh. Không có
+mốc từng chữ (cache đời cũ) thì chia theo tỉ lệ số ký tự, và nói ra ở đường lui.
+
 Ba phép làm tròn, mỗi phép có lý do riêng:
 
   ceil  cho độ dài cảnh và độ dài tiếng — thà thừa một frame còn hơn cắt cụt
@@ -41,6 +50,19 @@ from .script import Script
 from .tts import Voiceover
 
 
+#: Mảnh caption ngắn nhất được phép. Ngắn hơn thì chữ vừa hiện xong đã phải tắt,
+#: đọc ra là giật. Dùng để ép các mốc không dồn cục khi giọng đọc lướt nhanh.
+MIN_SEGMENT_FRAMES = 15
+
+
+@dataclass(frozen=True)
+class SceneSegment:
+    """Một mảnh caption trong cảnh. Mốc tính từ ĐẦU CẢNH, như mọi số khác ở đây."""
+
+    from_in_frames: int
+    duration_in_frames: int
+
+
 @dataclass(frozen=True)
 class Scene:
     """Một cảnh đã quy ra frame. Từ đây trở đi không còn đơn vị giây."""
@@ -52,6 +74,9 @@ class Scene:
     #: Caption vào ở frame thứ mấy trong cảnh. 0 ở mọi cảnh trừ cảnh 1 khi có
     #: tiêu đề — ở đó caption chờ tiêu đề hiện xong.
     caption_start_in_frames: int = 0
+    #: Các mảnh caption. RỖNG khi câu đủ ngắn để hiện nguyên — đó là đa số, và
+    #: nó ra đúng hành vi có từ trước.
+    segments: tuple[SceneSegment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -109,22 +134,84 @@ def scene_seconds(script: Script, voices: list[Voiceover]) -> list[float]:
     ]
 
 
+def _word_marks(text: str, words) -> list[tuple[int, float]]:
+    """Mỗi chữ nằm ở ký tự thứ mấy trong câu, và được đọc lên ở giây thứ mấy.
+
+    Danh sách `words` bỏ qua dấu câu, nên không dò được bằng cách cộng dồn độ
+    dài — phải tìm từng chữ trong câu gốc, tiếp nối từ chỗ chữ trước kết thúc.
+    """
+    marks, cursor = [], 0
+    for w in words:
+        idx = text.find(w.text, cursor)
+        if idx < 0:
+            idx = cursor
+        marks.append((idx, w.start_seconds))
+        cursor = idx + len(w.text)
+    return marks
+
+
+def _speech_seconds_at(text: str, words, char_index: int, total_seconds: float) -> float:
+    """Giọng đọc chạm tới ký tự thứ `char_index` ở giây thứ mấy trong file mp3."""
+    for idx, start in _word_marks(text, words):
+        if idx >= char_index:
+            return start
+    # Đường lui: không có mốc từng chữ (cache đời cũ, hoặc máy chủ không trả
+    # về chữ nào) thì chia theo tỉ lệ ký tự. Sai vài phần mười giây, nhưng vẫn
+    # hơn là để cả câu dài chen vào một khung.
+    return total_seconds * char_index / max(len(text), 1)
+
+
+def _segments(
+    ja_parts: tuple[str, ...], voice: Voiceover, fps: int,
+    caption_start: int, audio_start: int, lead_frames: int, scene_frames: int,
+) -> tuple[SceneSegment, ...]:
+    """Chia cảnh thành các mảnh caption. Rỗng khi câu hiện nguyên cả."""
+    if len(ja_parts) <= 1:
+        return ()
+
+    text = "".join(ja_parts)
+    starts = [caption_start]
+    at = 0
+    for part in ja_parts[:-1]:
+        at += len(part)
+        seconds = _speech_seconds_at(text, voice.words, at, voice.seconds)
+        # Chữ đi trước tiếng đúng leadIn — bằng đúng khoảng ở đầu mỗi cảnh, để
+        # mảnh sau cũng kịp hiện xong trước khi giọng đọc tới nó.
+        frame = audio_start + round(seconds * fps) - lead_frames
+        # Ép tăng dần và chừa chỗ cho mảnh cuối: giọng đọc lướt nhanh qua một
+        # vế ngắn cũng không được làm hai mảnh chồng lên nhau.
+        lo = starts[-1] + MIN_SEGMENT_FRAMES
+        hi = scene_frames - MIN_SEGMENT_FRAMES * (len(ja_parts) - len(starts))
+        starts.append(max(lo, min(frame, max(lo, hi))))
+
+    edges = (*starts, scene_frames)
+    return tuple(
+        SceneSegment(from_in_frames=a, duration_in_frames=b - a)
+        for a, b in zip(edges, edges[1:])
+    )
+
+
 def _scene(
     fps: int, seconds: float,
     voice: Voiceover, clip: SceneClip,
     caption_start: int, lead_frames: int,
+    ja_parts: tuple[str, ...] = (),
 ) -> Scene:
+    scene_frames = math.ceil(seconds * fps)
+    # Giọng đọc vào sau caption đúng leadIn, ở mọi cảnh như nhau — kể cả cảnh
+    # 1, nơi caption đã lùi lại chờ tiêu đề.
+    audio_start = caption_start + lead_frames
     return Scene(
         audio_duration_in_frames=math.ceil(voice.seconds * fps),
-        duration_in_frames=math.ceil(seconds * fps),
-        # Giọng đọc vào sau caption đúng leadIn, ở mọi cảnh như nhau — kể cả cảnh
-        # 1, nơi caption đã lùi lại chờ tiêu đề.
-        audio_start_in_frames=caption_start + lead_frames,
+        duration_in_frames=scene_frames,
+        audio_start_in_frames=audio_start,
         clip_duration_in_frames=(
             math.floor(clip.remaining_seconds * fps)
             if clip.remaining_seconds is not None else None
         ),
         caption_start_in_frames=caption_start,
+        segments=_segments(ja_parts, voice, fps, caption_start, audio_start,
+                           lead_frames, scene_frames),
     )
 
 
@@ -134,8 +221,13 @@ def build(
     clips: list[SceneClip],
     bgm: Soundtrack,
     outro=None,
+    parts: list[tuple[str, ...]] | None = None,
 ) -> Timeline:
-    """Xếp toàn bộ video ra frame. Mọi đầu vào tính bằng giây, mọi đầu ra tính bằng frame."""
+    """Xếp toàn bộ video ra frame. Mọi đầu vào tính bằng giây, mọi đầu ra tính bằng frame.
+
+    `parts` là câu Nhật của từng MẢNH caption, do `phrase.py` chia. Bỏ trống thì
+    câu nào cũng hiện nguyên — đúng hành vi có từ trước BƯỚC 9.
+    """
     if not (len(voices) == len(clips) == len(script.lines)):
         raise ValueError(
             f"Số câu không khớp: {len(script.lines)} câu kịch bản, "
@@ -149,14 +241,16 @@ def build(
     # giọng đọc, và không ảnh hưởng tổng thời lượng.
     lead_frames = round(script.lead_in * fps)
 
+    splits = parts or [()] * len(script.lines)
+
     return Timeline(
         fps=fps,
         scenes=[
             _scene(fps, seconds, voice, clip,
                    caption_start=pause_frames if i == 0 else 0,
-                   lead_frames=lead_frames)
-            for i, (voice, clip, seconds) in enumerate(
-                zip(voices, clips, scene_seconds(script, voices))
+                   lead_frames=lead_frames, ja_parts=tuple(ja_parts))
+            for i, (voice, clip, seconds, ja_parts) in enumerate(
+                zip(voices, clips, scene_seconds(script, voices), splits)
             )
         ],
         bgm_duration_in_frames=(

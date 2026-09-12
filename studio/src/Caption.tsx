@@ -1,6 +1,6 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { minchoJA, sansLatin } from "./fonts";
-import type { Line } from "./types";
+import type { Line, Segment } from "./types";
 
 /**
  * Nhịp hiện/tắt của chữ — chậm có chủ đích.
@@ -15,6 +15,20 @@ import type { Line } from "./types";
 const IN_FRAMES = 26;
 const OUT_FRAMES = 20;
 const MAX_RATIO = 0.3;
+
+/**
+ * Nhịp đổi giữa hai MẢNH của cùng một câu — nhanh hơn hẳn nhịp vào/ra ở trên.
+ *
+ * 26/20 frame là nhịp của một câu MỚI: nó xứng đáng được chờ. Còn đổi từ nửa
+ * đầu sang nửa sau của cùng một câu thì không — giọng đọc lúc đó vẫn đang chạy
+ * liền hơi, để chữ tắt gần một giây là người xem tưởng câu đã hết.
+ *
+ * Tắt hẳn rồi mới hiện, KHÔNG chồng lên nhau. Chồng lên nhau thì trong quãng
+ * giao có hai câu khác nhau cùng nằm giữa khung, đọc ra chữ nọ xọ chữ kia. Thà
+ * có một nhịp hụt rất ngắn — nó đọc ra như một hơi thở, mà giọng đọc thì vẫn
+ * đang chạy nên tai không thấy hụt.
+ */
+const SWAP_FRAMES = 8;
 
 /**
  * Vùng an toàn — xem CLAUDE.md.
@@ -36,17 +50,34 @@ const SAFE_BOTTOM = 400;
 const SAFE_SIDE = 110;
 
 /**
- * Câu càng dài thì chữ càng nhỏ lại, để khối caption không bao giờ tràn khung
- * hay đẩy nhau lệch bố cục giữa các cảnh. Câu dài/ngắn bao nhiêu cũng an toàn.
+ * CỠ CHỮ CỐ ĐỊNH, không co theo độ dài câu nữa.
  *
- * Các mốc dưới đây tính theo bề ngang dùng được là 1080 - 2*SAFE_SIDE = 860 px.
- * Đổi SAFE_SIDE thì phải tính lại các mốc này.
+ * Bản cũ có một thang năm bậc (62/55/48/42/36 theo số chữ). Nó không bao giờ
+ * làm tràn khung, nhưng nó làm một việc tệ hơn: câu 12 chữ hiện ở cỡ 62 rồi câu
+ * 22 chữ ngay sau đó hiện ở cỡ 55, nên suốt video cỡ chữ nhảy lên nhảy xuống —
+ * mà độ dài câu thì chẳng nói lên điều gì với người xem.
+ *
+ * Giờ câu dài được CẮT ra chứ không bị bóp lại (xem pipeline/phrase.py), nên
+ * mảnh nào cũng nằm dưới ngưỡng và dùng chung một cỡ. Câu dài hơn thì khối chữ
+ * cao thêm một dòng — mà khối neo đáy nên nó nở lên trên, chân chữ không xê dịch.
+ *
+ * Hai bậc nhỏ phía sau CHỈ là lưới an toàn cho câu không cắt được (không có dấu
+ * ngắt nào). Rơi vào đó thì `make content` đã kêu một dòng rồi: cỡ chữ nhỏ bất
+ * thường ở một cảnh là TRIỆU CHỨNG, không phải cách chữa.
+ *
+ * Ngưỡng 30 chữ Nhật / 88 ký tự Việt là chỗ chữ phải xuống DÒNG THỨ BA ở cỡ
+ * chuẩn — nó phải khớp JA_FIT và VI_FIT trong pipeline/phrase.py, vì bên đó lấy
+ * đúng hai số này để quyết định có kêu hay không. Ngưỡng CẮT bên đó (JA_MAX 24 /
+ * VI_MAX 60) chặt hơn hẳn, và chặt hơn là cố ý: nhờ khoảng đệm ấy, câu không cắt
+ * được vẫn hiện nguyên ở đúng cỡ chữ này chứ không phải co lại.
  */
-const fitJa = (len: number) =>
-  len <= 13 ? 62 : len <= 21 ? 55 : len <= 30 ? 48 : len <= 42 ? 42 : 36;
+const JA_SIZE = 56;
+const VI_SIZE = 38;
 
-const fitVi = (len: number) =>
-  len <= 28 ? 42 : len <= 52 ? 38 : len <= 80 ? 34 : 30;
+const fitJa = (len: number) =>
+  len <= 30 ? JA_SIZE : len <= 40 ? 46 : 38;
+
+const fitVi = (len: number) => (len <= 88 ? VI_SIZE : len <= 120 ? 32 : 28);
 
 /**
  * Chia chữ thành các dòng dài gần bằng nhau thay vì nhồi đầy dòng trên rồi bỏ
@@ -72,26 +103,165 @@ const SOFT_GLOW = [
   "0 6px 28px rgba(0,0,0,0.72)",
 ].join(", ");
 
+/** Khối ba dòng chữ. Không biết gì về frame — chỉ nhận độ mờ và độ trôi. */
+const Block: React.FC<{
+  piece: Segment;
+  showHira: boolean;
+  opacity: number;
+  translateY: number;
+}> = ({ piece, showHira, opacity, translateY }) => (
+  <div
+    style={{
+      opacity,
+      transform: `translateY(${translateY}px)`,
+      textAlign: "center",
+      textShadow: SOFT_GLOW,
+    }}
+  >
+    {/* Câu tiếng Nhật — chữ chính, to nhất */}
+    <div
+      style={{
+        ...BALANCED,
+        fontFamily: minchoJA,
+        color: "#ffffff",
+        fontSize: fitJa(piece.ja.length),
+        fontWeight: 600,
+        lineHeight: 1.55,
+        letterSpacing: 1,
+      }}
+    >
+      {piece.ja}
+    </div>
+
+    {/* Cách đọc — chữ nhỏ, mờ, để người mới đọc theo được */}
+    {piece.romaji ? (
+      <div
+        style={{
+          fontFamily: sansLatin,
+          color: "rgba(255,255,255,0.62)",
+          fontSize: 30,
+          fontWeight: 400,
+          fontStyle: "italic",
+          lineHeight: 1.5,
+          marginTop: 22,
+          letterSpacing: 0.5,
+        }}
+      >
+        {piece.romaji}
+      </div>
+    ) : null}
+
+    {/*
+      Dòng hiragana — mặc định TẮT.
+
+      Nó hữu ích hơn romaji với người đang học thật sự, nhưng bật lên là
+      caption thành bốn dòng, và bốn dòng thì khối chữ cao thêm khoảng 60px,
+      lấn dần vào vùng an toàn 380px dưới đáy. Bật `showHira` trong kịch bản
+      để xem thử rồi tự quyết — đừng quyết bằng cách tưởng tượng.
+
+      Câu nào vốn đã toàn kana (vd. おはようございます。) thì `hira` giống hệt
+      `ja`, in ra là lặp nguyên một dòng. Bỏ qua đúng những câu đó: dòng
+      hiragana chỉ có nghĩa khi nó đọc hộ được chữ kanji.
+    */}
+    {showHira && piece.hira && piece.hira !== piece.ja ? (
+      <div
+        style={{
+          fontFamily: minchoJA,
+          color: "rgba(255,255,255,0.5)",
+          fontSize: 26,
+          fontWeight: 600,
+          lineHeight: 1.5,
+          marginTop: 14,
+          letterSpacing: 1,
+        }}
+      >
+        {piece.hira}
+      </div>
+    ) : null}
+
+    {/* Gạch ngăn giữa phần tiếng Nhật và phần tiếng Việt */}
+    <div
+      style={{
+        width: 120,
+        height: 1,
+        background: "rgba(255,255,255,0.35)",
+        margin: "34px auto",
+      }}
+    />
+
+    {/* Nghĩa tiếng Việt */}
+    <div
+      style={{
+        ...BALANCED,
+        fontFamily: sansLatin,
+        color: "#f2e9dc",
+        fontSize: fitVi(piece.vi.length),
+        fontWeight: 400,
+        lineHeight: 1.55,
+      }}
+    >
+      {piece.vi}
+    </div>
+  </div>
+);
+
+/**
+ * Câu chưa cắt cũng được coi là "một mảnh duy nhất" — nhờ vậy bên dưới chỉ có
+ * MỘT đường chạy, không phải một nhánh cho câu thường và một nhánh cho câu dài.
+ */
+const pieces = (line: Line): Segment[] => {
+  const start = line.captionStartInFrames ?? 0;
+  if (line.segments && line.segments.length > 1) {
+    return line.segments;
+  }
+  return [
+    {
+      ja: line.ja,
+      romaji: line.romaji,
+      hira: line.hira,
+      vi: line.vi,
+      fromInFrames: start,
+      durationInFrames: line.durationInFrames - start,
+    },
+  ];
+};
+
 export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
   line,
   showHira = false,
 }) => {
-  // Caption vào ở captionStartInFrames thay vì đầu cảnh. Chỉ cảnh 1 có số này
-  // khác 0: ở đó caption chờ tiêu đề ngày hiện xong (xem timeline.py). Mọi phép
-  // tính bên dưới đo từ lúc caption vào, nên nhịp 26/20 frame giữ nguyên.
-  const start = line.captionStartInFrames ?? 0;
-  const frame = useCurrentFrame() - start;
-  const d = line.durationInFrames - start;
+  const frame = useCurrentFrame();
+  const all = pieces(line);
 
-  const inF = Math.min(IN_FRAMES, Math.round(d * MAX_RATIO));
-  const outF = Math.min(OUT_FRAMES, Math.round(d * MAX_RATIO));
+  // Mảnh đang hiện: mảnh cuối cùng đã tới lượt. Trước mảnh đầu (cảnh 1 còn đang
+  // chờ tiêu đề ngày hiện xong) thì vẫn là mảnh đầu — nó chưa hiện ra vì `local`
+  // còn âm nên opacity bằng 0. Đó đúng là hành vi của bản trước.
+  let i = 0;
+  for (let k = 1; k < all.length; k++) {
+    if (frame >= all[k].fromInFrames) i = k;
+  }
+  const piece = all[i];
+
+  const local = frame - piece.fromInFrames;
+  const d = piece.durationInFrames;
+
+  // Mảnh đầu được nhịp vào thong thả của một câu mới; mảnh cuối được nhịp ra
+  // thong thả trước khi chuyển cảnh. Ranh giới BÊN TRONG một câu thì nhanh.
+  const inF = Math.min(
+    i === 0 ? IN_FRAMES : SWAP_FRAMES,
+    Math.round(d * MAX_RATIO),
+  );
+  const outF = Math.min(
+    i === all.length - 1 ? OUT_FRAMES : SWAP_FRAMES,
+    Math.round(d * MAX_RATIO),
+  );
 
   // Hiện lên: mờ dần vào + trôi lên nhẹ.
   //
   // Dùng inOut chứ không phải out. Easing.out dồn phần lớn độ mờ vào mấy frame
   // đầu — kéo dài bao nhiêu thì mắt vẫn thấy chữ "bật" ra rồi mới đứng yên.
   // inOut giữ chữ mờ lâu hơn ở đầu, nên cả quãng đọc ra là thong thả thật.
-  const enter = interpolate(frame, [0, inF], [0, 1], {
+  const enter = interpolate(local, [0, inF], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
@@ -99,7 +269,7 @@ export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
 
   // Tắt đi ở cuối cảnh để chữ không đè lên câu tiếp theo lúc chuyển cảnh.
   // Easing.inOut cho chữ nhạt đi đều đặn thay vì tắt phụt ở khung cuối.
-  const exit = interpolate(frame, [d - outF, d], [1, 0], {
+  const exit = interpolate(local, [d - outF, d], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.quad),
@@ -107,8 +277,9 @@ export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
 
   const opacity = enter * exit;
   // Trôi xa hơn bản cũ (26 -> 34 px) vì quãng đường dài trên nền thời gian dài
-  // đọc ra là thong thả; trôi ngắn mà chậm lại thành ra ì.
-  const translateY = interpolate(enter, [0, 1], [34, 0]);
+  // đọc ra là thong thả; trôi ngắn mà chậm lại thành ra ì. Mảnh giữa câu trôi
+  // ít hơn: nó chỉ là nửa sau của một câu đang đọc dở, không phải một ý mới.
+  const translateY = interpolate(enter, [0, 1], [i === 0 ? 34 : 14, 0]);
 
   return (
     <AbsoluteFill
@@ -118,99 +289,12 @@ export const Caption: React.FC<{ line: Line; showHira?: boolean }> = ({
         padding: `0 ${SAFE_SIDE}px ${SAFE_BOTTOM}px`,
       }}
     >
-      <div
-        style={{
-          opacity,
-          transform: `translateY(${translateY}px)`,
-          textAlign: "center",
-          textShadow: SOFT_GLOW,
-        }}
-      >
-        {/* Câu tiếng Nhật — chữ chính, to nhất */}
-        <div
-          style={{
-            ...BALANCED,
-            fontFamily: minchoJA,
-            color: "#ffffff",
-            fontSize: fitJa(line.ja.length),
-            fontWeight: 600,
-            lineHeight: 1.55,
-            letterSpacing: 1,
-          }}
-        >
-          {line.ja}
-        </div>
-
-        {/* Cách đọc — chữ nhỏ, mờ, để người mới đọc theo được */}
-        {line.romaji ? (
-          <div
-            style={{
-              fontFamily: sansLatin,
-              color: "rgba(255,255,255,0.62)",
-              fontSize: 30,
-              fontWeight: 400,
-              fontStyle: "italic",
-              lineHeight: 1.5,
-              marginTop: 22,
-              letterSpacing: 0.5,
-            }}
-          >
-            {line.romaji}
-          </div>
-        ) : null}
-
-        {/*
-          Dòng hiragana — mặc định TẮT.
-
-          Nó hữu ích hơn romaji với người đang học thật sự, nhưng bật lên là
-          caption thành bốn dòng, và bốn dòng thì khối chữ cao thêm khoảng 60px,
-          lấn dần vào vùng an toàn 380px dưới đáy. Bật `showHira` trong kịch bản
-          để xem thử rồi tự quyết — đừng quyết bằng cách tưởng tượng.
-
-          Câu nào vốn đã toàn kana (vd. おはようございます。) thì `hira` giống hệt
-          `ja`, in ra là lặp nguyên một dòng. Bỏ qua đúng những câu đó: dòng
-          hiragana chỉ có nghĩa khi nó đọc hộ được chữ kanji.
-        */}
-        {showHira && line.hira && line.hira !== line.ja ? (
-          <div
-            style={{
-              fontFamily: minchoJA,
-              color: "rgba(255,255,255,0.5)",
-              fontSize: 26,
-              fontWeight: 600,
-              lineHeight: 1.5,
-              marginTop: 14,
-              letterSpacing: 1,
-            }}
-          >
-            {line.hira}
-          </div>
-        ) : null}
-
-        {/* Gạch ngăn giữa phần tiếng Nhật và phần tiếng Việt */}
-        <div
-          style={{
-            width: 120,
-            height: 1,
-            background: "rgba(255,255,255,0.35)",
-            margin: "34px auto",
-          }}
-        />
-
-        {/* Nghĩa tiếng Việt */}
-        <div
-          style={{
-            ...BALANCED,
-            fontFamily: sansLatin,
-            color: "#f2e9dc",
-            fontSize: fitVi(line.vi.length),
-            fontWeight: 400,
-            lineHeight: 1.55,
-          }}
-        >
-          {line.vi}
-        </div>
-      </div>
+      <Block
+        piece={piece}
+        showHira={showHira}
+        opacity={opacity}
+        translateY={translateY}
+      />
     </AbsoluteFill>
   );
 };

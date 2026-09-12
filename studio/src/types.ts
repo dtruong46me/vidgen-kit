@@ -6,6 +6,25 @@
  * tính, theo P-3: bản Remotion cũ phải render được build.json bản mới.
  */
 
+/**
+ * Một MẢNH caption bên trong một cảnh.
+ *
+ * Câu dài không được bóp chữ nhỏ lại cho vừa khung nữa; nó được `pipeline/phrase.py`
+ * cắt thành mấy mảnh hiện nối tiếp nhau. Mảnh KHÔNG phải cảnh: vẫn một clip nền,
+ * vẫn một file giọng đọc, frame chạy tiếp — chỉ có chữ là đổi.
+ *
+ * `fromInFrames` tính từ ĐẦU CẢNH, cùng mốc với `captionStartInFrames` và
+ * `audioStartInFrames`. Các mảnh cộng lại đúng bằng `durationInFrames` của cảnh.
+ */
+export type Segment = {
+  ja: string;
+  romaji: string;
+  hira?: string;
+  vi: string;
+  fromInFrames: number;
+  durationInFrames: number;
+};
+
 export type Line = {
   /** Câu tiếng Nhật */
   ja: string;
@@ -31,6 +50,12 @@ export type Line = {
   clipDurationInFrames: number | null;
   /** Cắt clip từ giây thứ mấy */
   clipStartInSeconds: number;
+  /**
+   * Các mảnh caption của câu này. null/thiếu = hiện nguyên `ja`/`vi`, và đó là
+   * đa số câu. `ja`/`vi` bên trên LUÔN là nguyên câu kể cả khi có mảnh — bản
+   * Remotion cũ không biết trường này thì vẫn render đúng, chỉ là chữ nhỏ hơn.
+   */
+  segments?: Segment[] | null;
 };
 
 /**

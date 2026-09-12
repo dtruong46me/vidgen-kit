@@ -26,6 +26,28 @@ from .tts import Voiceover
 VERSION = 1
 
 
+def _segments(parts, readings, scene) -> list[dict] | None:
+    """Các MẢNH caption của một câu. None khi câu hiện nguyên — tức đa số câu.
+
+    Mảnh không phải cảnh: `from` tính từ đầu cảnh, và cộng lại đúng bằng độ dài
+    cảnh. Remotion bản cũ không biết trường này thì hiện nguyên `ja`/`vi` như
+    trước, chỉ là cỡ chữ câu đó nhỏ hơn (P-3).
+    """
+    if len(scene.segments) <= 1:
+        return None
+    return [
+        {
+            "ja": part.ja,
+            "romaji": reading.romaji,
+            "hira": reading.hira,
+            "vi": part.vi,
+            "fromInFrames": seg.from_in_frames,
+            "durationInFrames": seg.duration_in_frames,
+        }
+        for part, reading, seg in zip(parts, readings, scene.segments)
+    ]
+
+
 def compose(
     script: Script,
     voices: list[Voiceover],
@@ -36,8 +58,12 @@ def compose(
     intro=None,
     outro=None,
     post=None,
+    parts=None,
+    part_readings=None,
 ) -> dict:
     """Ghép các nguồn lại thành đúng hình dạng Remotion đang chờ."""
+    parts = parts or [[] for _ in script.lines]
+    part_readings = part_readings or [[] for _ in script.lines]
     return {
         "id": script.slug,
         "title": script.title,
@@ -109,10 +135,15 @@ def compose(
                 "clip": clip.path,
                 "clipDurationInFrames": scene.clip_duration_in_frames,
                 "clipStartInSeconds": clip.start_seconds,
+                # Câu dài được cắt thành mấy mảnh caption nối tiếp nhau TRONG
+                # CÙNG cảnh này. null = hiện nguyên câu, và đó là mặc định.
+                # `ja`/`vi` bên trên vẫn là NGUYÊN câu: `make export` và
+                # `make reading` đọc chúng, không đọc mảnh.
+                "segments": _segments(parts[i], part_readings[i], scene),
             }
-            for line, voice, clip, scene, reading in zip(
+            for i, (line, voice, clip, scene, reading) in enumerate(zip(
                 script.lines, voices, clips, timeline.scenes, readings
-            )
+            ))
         ],
     }
 

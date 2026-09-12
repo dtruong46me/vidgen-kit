@@ -196,3 +196,6 @@ Hai lỗi máy không bắt được mà mắt thấy trong một giây:
 - **Phụ đề bị che** — chữ lấn vào viền đỏ.
 
 Cả lệnh mất khoảng 10 giây.
+
+Câu dài được cắt thành nhiều **màn chữ** trong cùng một cảnh, và trang duyệt
+trích một ảnh cho mỗi màn (`Cảnh 4 · mảnh 1`). Xem `docs/caption-va-cau-dai.md`.

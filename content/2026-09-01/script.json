@@ -55,8 +55,8 @@
       "vi": "Ánh sáng chẳng nói gì, nó chỉ ở đó thôi."
     },
     {
-      "ja": "新しい月だからといって、急に変わらなくていいのです。",
-      "vi": "Tháng mới không có nghĩa là bạn phải đổi khác ngay."
+      "ja": ["新しい月だからといって、", "急に変わらなくていいのです。"],
+      "vi": ["Tháng mới không có nghĩa là", "bạn phải đổi khác ngay."]
     },
     {
       "ja": "昨日の続きを、今日も静かに歩けば十分です。",

@@ -117,6 +117,23 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `crossfade` cho cảnh bắt đầu sớm hơn T frame để chồng lên cảnh trước;
   `dip_to_black` và `cut` để cảnh nằm đúng ô của nó. Vì vậy `DailyVideo.tsx`
   (đặt cảnh) và `Background.tsx` (vẽ opacity) phải đọc cùng nhau.
+- **Câu dài thì CẮT, đừng bóp chữ nhỏ lại.** `pipeline/phrase.py` là chỗ duy
+  nhất biết cắt một câu thành mấy MẢNH caption. Mảnh KHÔNG phải cảnh: cùng một
+  clip, cùng một file mp3 đọc liền hơi, frame chạy tiếp — chỉ chữ là đổi giữa
+  chừng, nên cắt mảnh không cộng thêm frame nào. Mảnh sau vào ở đâu thì hỏi
+  `WordBoundary` của edge-tts (`tts.py` ghi lại giọng đọc chạm từng chữ ở giây
+  thứ mấy), rồi lùi đúng `leadIn` — vẫn P-1, không gõ tay timestamp nào. Bỏ
+  trống thì máy cắt, viết `"ja"`/`"vi"` thành DANH SÁCH thì người viết thắng,
+  cùng quy ước với `clip`. Hai danh sách phải bằng số phần tử.
+- **Cỡ chữ caption CỐ ĐỊNH 56/38, không co theo độ dài câu.** Thang năm bậc cũ
+  (62/55/48/42/36) không bao giờ làm tràn khung, nhưng nó làm chuyện tệ hơn: cỡ
+  chữ nhảy lên nhảy xuống giữa các cảnh trong khi độ dài câu chẳng nói lên điều
+  gì với người xem. Câu dài giờ cao thêm một dòng chứ không nhỏ đi — khối chữ
+  neo đáy nên nó nở lên trên. Bốn ngưỡng ở `phrase.py` là HAI cặp khác nhau:
+  `JA_MAX`/`VI_MAX` (24 chữ / 60 ký tự) quyết CÓ CẮT KHÔNG, `JA_FIT`/`VI_FIT`
+  (30 / 88) quyết CÓ KÊU KHÔNG và phải khớp thang cỡ chữ trong `Caption.tsx`.
+  Cặp đầu chặt hơn là cố ý: nhờ khoảng đệm đó, câu không cắt được vẫn hiện ở
+  đúng cỡ chữ chuẩn. Cảnh nào chữ nhỏ hơn các cảnh khác là TRIỆU CHỨNG.
 - **Dòng hiragana mặc định TẮT.** Caption đã có ba dòng; dòng thứ tư ép cỡ chữ
   nhỏ lại và lấn vào vùng an toàn 380px. Bật bằng `"showHira": true` trong kịch
   bản. Câu nào vốn toàn kana thì dòng đó tự ẩn — in ra là lặp y hệt dòng trên.
@@ -128,8 +145,9 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   đường lui khi chưa dựng ngày nào.
 - **Một ngày là một thư mục `content/<ngày>/`, ba file ba vai trò.**
   `script.json` người viết (commit), `build.json` hợp đồng (máy sinh),
-  `.cache.json` cache TTS (máy sinh, xoá được — nó chỉ giữ vân tay SHA1 của
-  `câu|giọng|tốc độ|cao độ` để biết câu nào không phải đọc lại). Bố cục này
+  `.cache.json` cache TTS (máy sinh, xoá được — nó giữ vân tay SHA1 của
+  `câu|giọng|tốc độ|cao độ` để biết câu nào không phải đọc lại, kèm mốc từng
+  chữ do edge-tts trả về trong chính lượt đọc đó). Bố cục này
   khai ở **`pipeline/paths.py`, chỗ duy nhất biết `content/` bày ra sao** —
   đừng module nào tự ghép chuỗi đường dẫn, cùng lý do với `probe.py` và
   `timeline.py`.
@@ -215,6 +233,9 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   cắt thành くが / つと / おか, mẩu vắt qua ranh giới bị sót thành
   `kugatsu tsuto tōka`. `8月20日` chỉ tình cờ cắt khớp — nên đổi gì trong
   `reading.py` thì quét đủ 12 tháng × 31 ngày, đừng chỉ thử một ngày.
+- **`make check` trích một ảnh cho mỗi MÀN CHỮ, không phải mỗi cảnh.** Câu dài
+  chia mảnh thì lấy giữa cảnh là mảnh đầu không ai nhìn thấy — mà trang này sinh
+  ra chính để soi chữ. Nhãn ghi `Cảnh 4 · mảnh 1`.
 - **`make check` đếm frame trên chính MP4, không tin `duration × fps`.** Độ dài
   container tính cả luồng tiếng. Đếm gói (`-count_packets`) ra cùng số với giải
   mã từng frame mà gần như không tốn CPU.
@@ -230,6 +251,7 @@ pipeline/     Lớp A + B (Python)
   post.py       chữ cho BÀI ĐĂNG: dòng caption + hashtag (không vẽ lên video)
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
   paths.py      chỗ DUY NHẤT biết content/ bày ra sao (một ngày một thư mục)
+  phrase.py     chỗ DUY NHẤT biết cắt câu dài thành mấy mảnh caption
   script.py     đọc và kiểm content/<ngày>/script.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
   reading.py    sinh romaji + hiragana từ câu Nhật (cutlet, có đường lui)
@@ -243,7 +265,7 @@ pipeline/     Lớp A + B (Python)
   run.py        cửa vào: python3 -m pipeline.run <ngày> [--render|--still N|--thumbnail]
   new.py        make new — kịch bản mới: nội dung từ ngân hàng/Claude, cài đặt kế thừa
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
-  check.py      make check — số đo MP4 + trang duyệt từng cảnh
+  check.py      make check — số đo MP4 + trang duyệt từng MÀN CHỮ
   export.py     make export — gói out/<ngày>/: caption, lời, audio, metadata
 studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, TitleCard, VoiceWave, Outro, fonts
@@ -252,7 +274,8 @@ studio/       Lớp C (Remotion)
 content/      <ngày>/       MỘT NGÀY LÀ MỘT THƯ MỤC
                 script.json   người viết, commit. KHÔNG còn trường romaji;
                               `clip` CÓ THỂ bỏ trống (máy tự chọn); có thêm
-                              `caption` (nội dung) và `hashtags` (cài đặt)
+                              `caption` (nội dung) và `hashtags` (cài đặt);
+                              `ja`/`vi` CÓ THỂ là danh sách mảnh caption
                 build.json    ★ hợp đồng, máy sinh, không commit
                 .cache.json   cache TTS, máy sinh, không commit, xoá được
 library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
@@ -262,7 +285,7 @@ out/          MP4 và PNG (không commit); <ngày>-check/ là trang duyệt củ
               <ngày>/ là gói đăng của make export (caption, lời, audio, metadata)
 .env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
 docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md,
-              kich-ban-va-kiem-tra.md, dang-bai.md
+              kich-ban-va-kiem-tra.md, dang-bai.md, caption-va-cau-dai.md
 ```
 
 ## Việc đang treo, chờ người làm
@@ -283,7 +306,7 @@ xem `docs/cai-dat.md`. Khoá chỉ tiết kiệm công tìm clip.
 
 ## Trạng thái
 
-**BƯỚC 0 tới 8 đã xong trọn vẹn.** `make content` gọi `python3 -m
+**BƯỚC 0 tới 9 đã xong trọn vẹn.** `make content` gọi `python3 -m
 pipeline.run`; `scripts/legacy_build.py` và `scripts/check_assets.py` đã bị xoá
 (thư mục `scripts/` không còn).
 
@@ -310,6 +333,12 @@ không đổi, vì romaji không dính gì tới thời lượng.
 > Rồi thành 1472 (tổng 1562) khi bỏ màn mở đầu nền gradient 135 frame: tiêu đề
 > ngày đè lên cảnh 1, và cảnh 1 lặng thêm đúng 45 frame (1,5 giây) trước câu 1.
 > Các con số 1462/1687 trong phần nghiệm thu bên dưới là số đo của thời đó.
+
+> **BƯỚC 9 đổi đường gọi TTS mà KHÔNG đổi con số.** `tts.py` giờ gọi thư viện
+> `edge_tts` trực tiếp thay vì chạy `python3 -m edge_tts`, để lấy được mốc từng
+> chữ. Đã đối chiếu cả 8 câu của 2026-08-20: độ dài mp3 giống hệt tới từng mili
+> giây (5.256 / 3.720 / 4.512 / 8.352 / 6.000 / 4.440 / 3.600 / 3.144). Byte thì
+> khác — mp3 chèn đệm ở hai đầu khác nhau — nhưng P-1 chỉ quan tâm độ dài.
 
 Nghiệm thu BƯỚC 4 đạt trên ba mặt:
 
@@ -400,6 +429,34 @@ Nghiệm thu BƯỚC 7 đạt:
    cả ba đều thật: 30 ngày chưa render MP4, 31 lần nhắc `lonely-self` thiếu giấy
    phép, và 1 lần bắt được `build.json` cũ chưa có trường `post` (2026-09-10,
    dựng trước BƯỚC 7) — dựng lại là hết.
+
+Nghiệm thu BƯỚC 9 đạt:
+
+1. **Cắt mảnh không tốn một frame nào.** `2026-08-20` vẫn **1472 frame thoại +
+   90 frame kết = 1562**, đúng mốc hồi quy, dù ba trong tám câu của nó giờ hiện
+   làm hai màn chữ. Cả 31 ngày dựng lại đều ra đúng số cũ (46,6–52,8 giây).
+   Kiểm bằng máy trên cả 31 build.json: các mảnh nối khít nhau, cộng lại đúng
+   bằng `durationInFrames` của cảnh, ghép chữ lại ra đúng nguyên câu, và mốc
+   đổi chữ luôn nằm trong quãng đang có tiếng.
+2. **Cỡ chữ đứng yên ở mọi cảnh.** 286 câu ra **292 màn chữ**, màn dài nhất là
+   24 chữ Nhật (ngưỡng co chữ 30) và 73 ký tự Việt (ngưỡng 88) — tức **không
+   màn nào phải co chữ**, cỡ 56/38 ở khắp 31 ngày.
+3. **Mốc đổi chữ là số đo, không phải ước lượng.** Câu 4 của 2026-08-20: giọng
+   đọc chạm 「小さな」 ở giây 4,562, mốc tính ra frame 137 — đúng bằng
+   `audioStart 10 + round(4,562 × 30) − leadIn 10`.
+4. **Máy cắt được gần hết, và chỗ không cắt được thì nói ra.** 6 câu được cắt
+   tự động trên 286; một câu (`2026-09-01` câu 5) bản dịch không có dấu ngắt nào
+   nên `make content` kêu đúng câu đó, và nó được chia tay bằng dạng danh sách —
+   ca đầu tiên dùng đường "người viết thắng máy".
+5. **Remotion đọc hợp đồng mới không sai kiểu.** `tsc --noEmit` sạch. Trường
+   `segments` là tuỳ chọn, bản cũ bỏ qua thì vẫn hiện nguyên `ja`/`vi` (P-3).
+
+Một chỗ chưa kiểm được ở BƯỚC 9: **chưa nhìn thấy khung hình thật.**
+`node_modules/.bin/remotion` trên máy này là symlink do WSL tạo, Python bên
+Windows không stat nổi (WinError 1920), nên `make still` và `make check` không
+chạy. Phần frame và phần chữ đã kiểm bằng số; phần BỐ CỤC — khối chữ có nở quá
+lên vùng tiêu đề không — phải chạy `make still DAY=2026-08-20 FRAME=614` và
+`FRAME=756` ở môi trường dựng được mới biết chắc.
 
 Một khiếm khuyết BƯỚC 7 lộ ra khi dựng tháng 9, đã sửa ở phía kịch bản:
 

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from . import (
     assets, contract, intro as intro_mod, library as library_mod,
-    paths, post as post_mod, reading as reading_mod, render,
+    paths, phrase, post as post_mod, reading as reading_mod, render,
     script as script_mod, shots as shots_mod, timeline as timeline_mod, tts,
 )
 from .library import LibraryError
@@ -47,6 +47,8 @@ def build_day(slug: str, log=print) -> Path:
             log(f"  [!] câu {i}: chưa đọc được số {', '.join(reader.unread)} "
                 f"— romaji sẽ giữ nguyên chữ số")
 
+    parts, part_readings = _split_lines(doc, reader, log)
+
     voices = tts.synthesize(doc, PUBLIC_DIR, paths.cache_path(slug), log=log)
 
     # Chọn clip PHẢI đứng sau TTS: muốn biết clip có đủ dài không thì trước hết
@@ -65,10 +67,14 @@ def build_day(slug: str, log=print) -> Path:
         fallback=doc.lines[-1].vi,
     )
 
-    timeline = timeline_mod.build(doc, voices, clips, bgm, outro)
+    timeline = timeline_mod.build(
+        doc, voices, clips, bgm, outro,
+        parts=[tuple(part.ja for part in line_parts) for line_parts in parts],
+    )
     dest = contract.write(
         contract.compose(doc, voices, clips, bgm, timeline, readings,
-                         intro, outro, post),
+                         intro, outro, post,
+                         parts=parts, part_readings=part_readings),
         paths.build_path(slug),
     )
 
@@ -89,6 +95,35 @@ def build_day(slug: str, log=print) -> Path:
     _warn_if_off_target(doc, timeline.seconds, log)
     _warn_if_clip_loops(doc, clips, timeline, log)
     return dest
+
+
+def _split_lines(doc, reader, log):
+    """Cắt câu dài thành mấy mảnh caption, và sinh romaji cho từng mảnh.
+
+    Chạy TRƯỚC tts vì nó chỉ làm việc với chữ — và cũng để lời kêu "câu này dài
+    quá" hiện ra trước khi tốn công gọi mạng. Không mảnh nào đi vào TTS: giọng
+    đọc vẫn đọc nguyên câu, liền hơi (xem phrase.py).
+    """
+    parts, part_readings, cut = [], [], []
+    for i, line in enumerate(doc.lines, start=1):
+        if line.ja_parts:
+            pieces, warn = phrase.from_lists(line.ja_parts, line.vi_parts)
+        else:
+            pieces, warn = phrase.split(line.ja, line.vi)
+        if warn:
+            log(f"  [!] câu {i}: {warn}")
+        parts.append(pieces)
+        # Romaji của từng mảnh, chỉ sinh khi thật sự có nhiều mảnh. Câu hiện
+        # nguyên thì `readings` ở trên đã lo rồi.
+        part_readings.append(
+            [reader.read(piece.ja) for piece in pieces] if len(pieces) > 1 else []
+        )
+        if len(pieces) > 1:
+            cut.append(f"câu {i} ({len(pieces)} mảnh)")
+
+    if cut:
+        log("  Cắt caption làm nhiều mảnh: " + ", ".join(cut))
+    return parts, part_readings
 
 
 def _pick_clips(doc, voices, log):

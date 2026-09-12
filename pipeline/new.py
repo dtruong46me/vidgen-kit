@@ -32,7 +32,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from . import (env, library as library_mod, paths, post as post_mod,
+from . import (env, library as library_mod, paths, phrase, post as post_mod,
                script as script_mod)
 from .intro import date_from_slug
 
@@ -51,8 +51,10 @@ CHARS_PER_SECOND = 4.23
 #: nhiều hơn 10 thì cảnh đổi quá dồn.
 LINES_RANGE = (8, 10)
 
-#: Câu dài hơn thế này thì phụ đề tiếng Nhật xuống ba dòng và đè lên romaji.
-#: Câu dài nhất từng dựng ổn là 39 chữ (câu 5 của 2026-08-20).
+#: Câu dài hơn thế này thì một hơi đọc quá dài — người nghe mất mạch trước khi
+#: tới hết câu. KHÔNG còn là chuyện phụ đề tràn khung nữa: câu dài giờ được
+#: `phrase.py` cắt thành mấy mảnh caption, cỡ chữ không phải co lại (BƯỚC 9).
+#: Câu dài nhất từng dựng ổn là 43 chữ (câu 4 của 2026-08-20, cắt làm 2 mảnh).
 MAX_LINE_CHARS = 40
 
 #: Câu mở đầu CỐ ĐỊNH của mọi ngày: nói ngày trước, chào sau, gộp chung một dòng
@@ -376,7 +378,13 @@ def _review(draft: Draft, settings: dict, day: date) -> list[str]:
     for i, line in enumerate(draft.lines, start=1):
         n = spoken_chars(line["ja"])
         if n > MAX_LINE_CHARS:
-            notes.append(f"câu {i} dài {n} chữ (quá {MAX_LINE_CHARS}), phụ đề dễ tràn")
+            notes.append(f"câu {i} dài {n} chữ (quá {MAX_LINE_CHARS}), đọc một hơi thì hụt")
+        # Dài quá khung caption thì `phrase.py` cắt làm nhiều mảnh — chuyện
+        # thường, không cần kêu. Chỉ kêu khi nó KHÔNG cắt được: lúc đó cỡ chữ
+        # cảnh ấy phải co lại, và sửa lúc này rẻ hơn sửa sau khi đã render.
+        _, warn = phrase.split(line["ja"], line["vi"])
+        if warn:
+            notes.append(f"câu {i} {warn}")
         if not line["vi"].strip():
             notes.append(f"câu {i} chưa có bản dịch")
     if not draft.caption:
