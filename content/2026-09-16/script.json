@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-16",
+  "title": "9月16日 - 湯気の向こう",
+  "caption": "🍵 Chờ trà nguội bớt cũng là một cách tập kiên nhẫn",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "湯気の向こう",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "tea",
+    "ritual",
+    "closeup"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月16日です。おはようございます。",
+      "vi": "Hôm nay là ngày 16 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "お茶をいれて、湯気を見ていました。",
+      "vi": "Tôi pha trà rồi ngồi nhìn làn hơi bốc lên."
+    },
+    {
+      "ja": "熱いうちは、飲めません。",
+      "vi": "Còn nóng thì chưa uống được."
+    },
+    {
+      "ja": "少し待つ時間が、必ずいります。",
+      "vi": "Nhất định phải có một quãng đợi ngắn."
+    },
+    {
+      "ja": "その間、何もしなくていいのです。",
+      "vi": "Trong quãng đó, không cần làm gì cả."
+    },
+    {
+      "ja": "待つことも、お茶の一部です。",
+      "vi": "Chờ đợi cũng là một phần của chén trà."
+    },
+    {
+      "ja": "急いで飲めば、味も分かりません。",
+      "vi": "Uống vội thì cũng chẳng biết vị ra sao."
+    },
+    {
+      "ja": "今日は、湯気が消えるまで待ってみましょう。",
+      "vi": "Hôm nay, hãy thử đợi đến khi hơi nước tan hết."
+    },
+    {
+      "ja": "急がない時間が、味を深くします。",
+      "vi": "Quãng thời gian không vội làm vị trà đậm hơn."
+    },
+    {
+      "ja": "素敵な一日になりますように。",
+      "vi": "Chúc bạn một ngày thật tuyệt."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "湯気の向こう"
+  }
+}

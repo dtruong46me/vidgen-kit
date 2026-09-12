@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-22",
+  "title": "9月22日 - 忘れること",
+  "caption": "🌧️ Quên được cũng là một khả năng, không phải khiếm khuyết",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "忘れること",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "rain",
+    "water"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月22日です。おはようございます。",
+      "vi": "Hôm nay là ngày 22 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "昔のことを、よく覚えている人がいます。",
+      "vi": "Có người nhớ rất rõ chuyện ngày xưa."
+    },
+    {
+      "ja": "全部覚えていたら、心が重くなります。",
+      "vi": "Nhớ hết mọi thứ thì lòng sẽ nặng lắm."
+    },
+    {
+      "ja": "忘れるのは、悪いことではありません。",
+      "vi": "Quên không phải là điều xấu."
+    },
+    {
+      "ja": "雨が土のほこりを流すのと同じです。",
+      "vi": "Cũng như mưa rửa trôi bụi trên đất vậy."
+    },
+    {
+      "ja": "忘れられない日は、まだ早いだけです。",
+      "vi": "Ngày nào chưa quên được thì chỉ là chưa tới lúc."
+    },
+    {
+      "ja": "時間は、ゆっくり働いてくれます。",
+      "vi": "Thời gian làm việc của nó thật chậm rãi."
+    },
+    {
+      "ja": "今日は、少し肩の力を抜いて。",
+      "vi": "Hôm nay, hãy buông lỏng vai một chút."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "忘れること"
+  }
+}

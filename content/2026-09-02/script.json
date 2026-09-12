@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-02",
+  "title": "9月2日 - 水の流れ",
+  "caption": "💧 Nước gặp đá thì lách qua, nó không dừng lại mà cũng chẳng cần thắng",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "水の流れ",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "garden",
+    "water"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月2日です。おはようございます。",
+      "vi": "Hôm nay là ngày 2 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "庭の水が、静かに流れています。",
+      "vi": "Nước trong vườn đang chảy thật khẽ."
+    },
+    {
+      "ja": "水は、石にぶつかっても止まりません。",
+      "vi": "Nước va vào đá nhưng không dừng lại."
+    },
+    {
+      "ja": "よけて、また先へ進んでいきます。",
+      "vi": "Nó lách qua, rồi lại đi tiếp về phía trước."
+    },
+    {
+      "ja": "無理に押し通そうとしないのです。",
+      "vi": "Nó không cố ép mình phải xuyên qua."
+    },
+    {
+      "ja": "私たちも、時々そうしていいのかもしれません。",
+      "vi": "Có lẽ đôi khi chúng ta cũng được phép làm vậy."
+    },
+    {
+      "ja": "進めない日は、少し回り道を。",
+      "vi": "Ngày nào không đi thẳng được thì vòng một chút."
+    },
+    {
+      "ja": "流れていれば、いつか海に着きます。",
+      "vi": "Cứ chảy thì rồi cũng có ngày ra tới biển."
+    },
+    {
+      "ja": "今日も、ゆっくりでいいのです。",
+      "vi": "Hôm nay cũng vậy, chậm thôi cũng được."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "水の流れ"
+  }
+}

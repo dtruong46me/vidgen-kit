@@ -422,7 +422,7 @@ def make_provider(name: str = "cutlet", overrides: dict[str, str] | None = None)
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if not args:
-        print("Ví dụ: python3 -m pipeline.reading content/2026-08-20.json",
+        print("Ví dụ: python3 -m pipeline.reading content/2026-08-20/script.json",
               file=sys.stderr)
         return 2
 
@@ -438,7 +438,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     doc = json.loads(src.read_text(encoding="utf-8"))
 
-    print(f"{src.name}  —  provider: {provider.name}\n")
+    # Tên file giờ là script.json ở mọi ngày, nên nhãn lấy từ `id` của kịch
+    # bản (hoặc tên thư mục) — đó mới là thứ phân biệt ngày này với ngày khác.
+    label = doc.get("id") or src.parent.name
+    print(f"{label}  —  provider: {provider.name}\n")
     differ = 0
     for i, line in enumerate(doc["lines"], start=1):
         reading = provider.read(line["ja"])

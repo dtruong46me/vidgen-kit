@@ -223,8 +223,12 @@ __marimo__/
 # Sản phẩm và file trung gian do máy sinh: chạy lại `make video` là có.
 out/
 studio/public/audio/20*/
-content/*.build.json
-content/.*.cache.json
+
+# Một ngày là một thư mục content/<ngày>/ với ba file. Chỉ script.json là của
+# người viết; build.json (hợp đồng) và .cache.json (cache TTS) do máy sinh,
+# `make content` dựng lại trong vài giây.
+content/*/build.json
+content/*/.cache.json
 
 # Giọng đọc do edge-tts sinh. Nhạc nền thì KHÔNG khớp mẫu này nên vẫn được
 # commit — nó là tài sản thật, tải một lần dùng mãi.

@@ -13,18 +13,18 @@ Ba lớp dưới đây **không được biết gì về nhau**. Chúng chỉ g�
 | B. Tài sản | Lấy hình ảnh ở đâu? | `pipeline/` + `library/` | Không |
 | C. Dựng hình | Trông như thế nào? | `studio/` | Không |
 
-Điểm gặp duy nhất: **`content/<slug>.build.json`**.
+Điểm gặp duy nhất: **`content/<slug>/build.json`**.
 
 ```
-content/<slug>.json          bạn (hoặc LLM) viết: câu tiếng Nhật + bản dịch
+content/<slug>/script.json   bạn (hoặc LLM) viết: câu tiếng Nhật + bản dịch
       │
       │  pipeline/  — TTS từng câu, ffprobe đo độ dài, chọn cảnh, tính frame
       ▼
-content/<slug>.build.json    ★ HỢP ĐỒNG — ranh giới Python ↔ React
+content/<slug>/build.json    ★ HỢP ĐỒNG — ranh giới Python ↔ React
       │
       │  studio/  — Remotion đọc file này qua --props
       ▼
-out/<slug>.mp4
+out/<slug>.mp4  +  out/<slug>/  (gói đăng: caption, lời, audio, metadata)
 ```
 
 ## Bốn nguyên tắc bất di bất dịch
@@ -87,6 +87,24 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `TitleCard.tsx`) — nâng hai số đó hoặc hạ `pauseSeconds` dưới 1,5 là ảnh bìa
   bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4; `make release`
   thêm `make check` sau cùng — đó là lệnh trọn gói của một ngày.
+- **Caption bài đăng là chữ ĐỂ ĐĂNG, không phải chữ để vẽ.** Trường `caption`
+  trong kịch bản không hiện trong video; nó đi ra `out/<ngày>/caption.txt`. Ngày
+  tháng KHÔNG gõ vào đó — `pipeline/post.py` ghép từ tên kịch bản (`2026-09-11`
+  ra `11.09.26`), đúng tinh thần P-1. Emoji nằm trong chính chuỗi caption, không
+  tách thành trường riêng: tách ra là phải nhớ thứ tự ghép, mà người viết thì
+  muốn nhìn thấy nguyên câu mình sắp đăng. Bỏ trống thì máy mượn câu tiếng Việt
+  cuối cùng và kêu một dòng — chạy được nhưng nhạt.
+- **`caption` là NỘI DUNG, `hashtags` là CÀI ĐẶT.** `caption` nằm trong
+  `CONTENT_KEYS` của `new.py` nên không kế thừa (mỗi ngày một câu khác);
+  `hashtags` nằm trong `DEFAULT_SETTINGS` nên kế thừa như giọng đọc và nhạc nền
+  (kênh nào cũng một bộ thẻ).
+- **`make export` chỉ ĐỌC, không dựng.** Nó gói `content/<ngày>/build.json` và
+  MP4 đã có ra `out/<ngày>/`, không gọi TTS, không chọn clip, không tính frame —
+  phép cộng frame duy nhất nó dùng là mượn `check.py` (P-2). Nhờ vậy sửa
+  `export.py` không bao giờ làm lệch một frame nào. Nó xoá thư mục cũ trước khi
+  gói lại: bớt một câu mà còn `line-09.mp3` nằm lại là người đăng tưởng video có
+  chín câu. Và nó KHÔNG ghi dấu thời gian vào `metadata.json` — gói hai lần phải
+  ra hai thư mục giống hệt nhau, y như bộ chọn clip phải tất định.
 - **Sóng giọng đọc (`VoiceWave.tsx`) đọc từ file giọng của từng câu, không phải
   nhạc nền.** Nằm ngay trên tiêu đề, chạy suốt các cảnh, lặng thì phẳng thành
   hàng chấm. Chỉ là lớp vẽ: không có trường nào trong hợp đồng, vì `audio` và
@@ -108,8 +126,15 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Studio phải mở bằng dữ liệu thật.** `make studio` truyền `--props` trỏ vào
   build.json của ngày mới nhất. Props mặc định trong `Composition.tsx` chỉ là
   đường lui khi chưa dựng ngày nào.
-- **Không commit file máy sinh:** `out/`, `content/*.build.json`,
-  `content/*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
+- **Một ngày là một thư mục `content/<ngày>/`, ba file ba vai trò.**
+  `script.json` người viết (commit), `build.json` hợp đồng (máy sinh),
+  `.cache.json` cache TTS (máy sinh, xoá được — nó chỉ giữ vân tay SHA1 của
+  `câu|giọng|tốc độ|cao độ` để biết câu nào không phải đọc lại). Bố cục này
+  khai ở **`pipeline/paths.py`, chỗ duy nhất biết `content/` bày ra sao** —
+  đừng module nào tự ghép chuỗi đường dẫn, cùng lý do với `probe.py` và
+  `timeline.py`.
+- **Không commit file máy sinh:** `out/`, `content/*/build.json`,
+  `content/*/.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
   Studio mở bằng props mặc định viết thẳng trong `Composition.tsx`, không đọc file.
 - **Nhạc nền CÓ commit, clip nền thì KHÔNG.** Nhạc nhẹ và không tải lại được
   bằng lệnh, nên nó vào git. Clip nền thì ngược lại: thư viện 52 clip dọc
@@ -143,6 +168,10 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   hộ, và nó chọn tốt hơn tay người: bản xếp tay của `2026-08-20` có cảnh chỉ dư
   5 frame trước khi phải loop, bản máy chọn dư ít nhất 48 frame. Câu nào đã ghi
   `clip` thì máy không đụng vào — người viết luôn thắng máy.
+- **Đừng ghi `calm` cạnh một tag chủ đề trong kịch bản.** `shots.matches()` ghép
+  tag theo kiểu HOẶC, mà `calm` nằm trên 30/52 clip — nên `["rain","window","calm"]`
+  khớp gần hết thư viện và bộ chọn rơi về thứ tự trong sổ, tức toàn clip trà.
+  Chỉ giữ `calm` khi kịch bản thật sự không có chủ đề hình ảnh nào.
 - **Bộ chọn clip phải tất định.** Không random. Cùng kịch bản, cùng thư viện thì
   phải ra cùng kết quả, nếu không thì `make content` chạy hai lần ra hai file
   khác nhau và mốc hồi quy mất nghĩa. Phá hoà bằng thứ tự dòng trong sổ.
@@ -198,8 +227,10 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 pipeline/     Lớp A + B (Python)
   env.py        nạp .env — chỗ duy nhất đọc khoá API
   intro.py      chữ cho tiêu đề ngày và màn kết; ngày suy từ tên kịch bản
+  post.py       chữ cho BÀI ĐĂNG: dòng caption + hashtag (không vẽ lên video)
   probe.py      đo độ dài thật bằng ffprobe — chỗ duy nhất gọi ffprobe
-  script.py     đọc và kiểm content/<ngày>.json trước khi tốn công TTS
+  paths.py      chỗ DUY NHẤT biết content/ bày ra sao (một ngày một thư mục)
+  script.py     đọc và kiểm content/<ngày>/script.json trước khi tốn công TTS
   tts.py        edge-tts từng câu + cache theo vân tay nội dung
   reading.py    sinh romaji + hiragana từ câu Nhật (cutlet, có đường lui)
   library.py    sổ đăng ký tài sản — đọc/ghi library/shots.json, soi bằng `make shots`
@@ -213,19 +244,25 @@ pipeline/     Lớp A + B (Python)
   new.py        make new — kịch bản mới: nội dung từ ngân hàng/Claude, cài đặt kế thừa
   llm.py        gọi Claude (opus/sonnet/haiku), MẶC ĐỊNH TẮT, chỉ new.py nạp muộn
   check.py      make check — số đo MP4 + trang duyệt từng cảnh
+  export.py     make export — gói out/<ngày>/: caption, lời, audio, metadata
 studio/       Lớp C (Remotion)
   src/          Composition, DailyVideo, Background, Caption, TitleCard, VoiceWave, Outro, fonts
   public/       audio/bgm-*.mp3, video/*.mp4  (commit)
                 audio/<ngày>/line-XX.mp3      (máy sinh, không commit)
-content/      <ngày>.json  (người viết, commit — KHÔNG còn trường romaji;
-                            trường `clip` giờ CÓ THỂ bỏ trống, máy tự chọn)
-              <ngày>.build.json + .<ngày>.cache.json  (máy sinh, không commit)
+content/      <ngày>/       MỘT NGÀY LÀ MỘT THƯ MỤC
+                script.json   người viết, commit. KHÔNG còn trường romaji;
+                              `clip` CÓ THỂ bỏ trống (máy tự chọn); có thêm
+                              `caption` (nội dung) và `hashtags` (cài đặt)
+                build.json    ★ hợp đồng, máy sinh, không commit
+                .cache.json   cache TTS, máy sinh, không commit, xoá được
 library/      readings.json — chữ máy đọc sai thì đè cách đọc ở đây
               shots.json — nguồn, tác giả, giấy phép và tag của mọi clip/nhạc
               bank.json — ngân hàng kịch bản viết sẵn cho `make new` khi không có khoá
 out/          MP4 và PNG (không commit); <ngày>-check/ là trang duyệt của make check
+              <ngày>/ là gói đăng của make export (caption, lời, audio, metadata)
 .env          khoá API (KHÔNG commit) — sinh từ .env.example bằng `make setup`
-docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md, kich-ban-va-kiem-tra.md
+docs/         cai-dat.md, tai-san-can-tai.md, mo-dau-va-ket.md,
+              kich-ban-va-kiem-tra.md, dang-bai.md
 ```
 
 ## Việc đang treo, chờ người làm
@@ -237,6 +274,7 @@ Không cái nào chặn dây chuyền — `make video` chạy đủ mà không c
 | T-2 | Lấy `PIXABAY_API_KEY` | Chưa làm. Dễ hơn Pexels nhiều: đăng nhập xong khoá hiện thẳng trên `pixabay.com/api/docs/` | `make shots-find SOURCE=pixabay` chạy được. Code đã đối chiếu với tài liệu API của họ, khớp |
 | T-3 | Bỏ hẳn ba clip 25fps `tea-room`, `matcha-whisk`, `tea-tray` (D-8) | Cần người xem và chọn cái thay. 49 clip mới đều 30fps rồi, nên chỉ còn ba cái cũ vướng — mà `2026-08-20.json` ghim tên cả ba, đổi là mốc hồi quy đổi theo | Hết giật ở cảnh lia chậm |
 | T-5 | Quyết có cắm `ANTHROPIC_API_KEY` (s6f) | Tốn tiền theo lượt gọi; không cắm cũng không chặn gì | `make new` do Claude viết, tránh lặp ý 7 ngày gần nhất. Đường gọi thật CHƯA được kiểm — lần đầu hãy đọc kỹ kịch bản trước khi dựng |
+| T-8 | Bỏ `calm` khỏi 4 mục ngân hàng đang gắn nó cạnh tag chủ đề (D-11) | Ngân hàng là file người viết, và đây là quyết định nội dung chứ không phải lỗi code | `make new` đường ngân hàng chọn clip đúng chủ đề thay vì rơi về clip trà |
 | T-6 | Nới ngân hàng kịch bản | Mới có 7 mục, tức 7 ngày không cần khoá. Phần tag đã xong: cả 12 tag ngân hàng dùng giờ đều có clip mang | Chạy dài ngày không cần khoá |
 | T-7 | Vài chỗ romaji tách chữ chưa chuẩn | Không sai cách đọc, chỉ sai chỗ dấu cách (`sumaseruto`, `shizumuka mo`, `ni do to`, `Da kara koso`, `Itsu mo`) — cần người đọc chốt cách viết | Sửa từng chữ bằng `library/readings.json`: dấu cách trong cách đọc là chỗ tách |
 
@@ -245,7 +283,7 @@ xem `docs/cai-dat.md`. Khoá chỉ tiết kiệm công tìm clip.
 
 ## Trạng thái
 
-**BƯỚC 0 tới 6 đã xong trọn vẹn.** `make content` gọi `python3 -m
+**BƯỚC 0 tới 8 đã xong trọn vẹn.** `make content` gọi `python3 -m
 pipeline.run`; `scripts/legacy_build.py` và `scripts/check_assets.py` đã bị xoá
 (thư mục `scripts/` không còn).
 
@@ -328,6 +366,46 @@ Nghiệm thu BƯỚC 6 đạt:
 3. **Đường Claude chạy tới máy chủ.** Thiếu khoá, khoá sai (401) và tên model
    sai đều ra một dòng hướng dẫn, không để lại file. Chưa gọi thật lần nào vì
    chưa có khoá.
+
+Nghiệm thu BƯỚC 8 đạt:
+
+1. **`content/` gọn lại, không mất một byte nào.** 93 file phẳng thành 31 thư
+   mục ngày, mỗi thư mục ba file ba vai trò. `git mv` giữ lịch sử hai file đã
+   commit; `build.json` và `.cache.json` vào `.gitignore` đúng chỗ mới (62 file
+   bị bỏ qua, không file máy sinh nào lọt vào `git status`).
+2. **Mốc hồi quy không đổi:** `2026-08-20` vẫn **1472 + 90 = 1562 frame** sau
+   khi dời file. `make export-all` vẫn ra đủ 31 gói.
+3. **Đường dẫn gom về một chỗ.** `pipeline/paths.py` là module duy nhất biết bố
+   cục; bảy module khác (`script`, `run`, `check`, `render`, `export`, `new`,
+   `library`) và bốn target Makefile đều hỏi nó thay vì tự ghép chuỗi.
+4. **Bố cục cũ không im lặng hỏng.** Còn sót `content/<ngày>.json` phẳng thì
+   `make content` dừng lại và in đúng câu lệnh `git mv` cần gõ, chứ không báo
+   "không tìm thấy kịch bản".
+
+Nghiệm thu BƯỚC 7 đạt:
+
+1. **Thêm trường không làm lệch frame.** `caption` vào kịch bản, `post` vào hợp
+   đồng, `make export` ra đời — `2026-08-20` vẫn **1472 frame thoại + 90 frame
+   kết = 1562**, đúng mốc hồi quy. Remotion không đọc `post`, nên bản cũ render
+   build.json mới vẫn ra y hệt (P-3).
+2. **Caption ghép đúng, ngày không gõ tay.** `2026-09-11` ra
+   `11.09.26 🌿 Có nhiều thứ không thể nắm giữ…` — ngày suy từ tên kịch bản.
+   Bỏ trống `caption` thì mượn câu chốt và kêu; kiểm trên `2026-08-20` trước khi
+   nó có caption riêng.
+3. **Cả tháng 9 dựng được, không một cảnh báo nào.** 30 ngày, 8–10 câu mỗi ngày,
+   **46,6–52,8 giây** (trung bình 49,8), cả 30 đều trong khoảng `targetSeconds`
+   45–60. Mỗi cảnh một clip riêng, **không ngày nào phải loop** — thư viện 52
+   clip đủ rộng cho một ngày 10 cảnh không dùng lại clip nào.
+4. **`make export-all` gói 31 ngày một lượt.** Cảnh báo còn lại đúng ba loại và
+   cả ba đều thật: 30 ngày chưa render MP4, 31 lần nhắc `lonely-self` thiếu giấy
+   phép, và 1 lần bắt được `build.json` cũ chưa có trường `post` (2026-09-10,
+   dựng trước BƯỚC 7) — dựng lại là hết.
+
+Một khiếm khuyết BƯỚC 7 lộ ra khi dựng tháng 9, đã sửa ở phía kịch bản:
+
+| | Khiếm khuyết | Trạng thái |
+|---|---|---|
+| D-11 | Kịch bản gắn `["rain","window","calm"]` mà bộ chọn ra **toàn clip trà**: `matches()` ghép tag theo kiểu HOẶC, mà `calm` nằm trên 30/52 clip nên khớp gần hết thư viện rồi rơi về thứ tự sổ | Đã sửa 12 kịch bản tháng 9 (bỏ `calm` khi đã có tag chủ đề), `2026-09-11` giờ ra 9 clip mưa/cửa sổ. **`library/bank.json` còn 4 mục dính y hệt** — chưa sửa, xem T-8 |
 
 Hai lỗi của BƯỚC 3 lộ ra khi soi romaji ngân hàng — cả hai đã sửa, và
 `build.json` của 2026-08-20 vẫn giống hệt từng byte:

@@ -35,6 +35,7 @@ def compose(
     readings: list[Reading],
     intro=None,
     outro=None,
+    post=None,
 ) -> dict:
     """Ghép các nguồn lại thành đúng hình dạng Remotion đang chờ."""
     return {
@@ -75,6 +76,21 @@ def compose(
         # Frame làm ảnh bìa, do timeline.py chọn. `make thumbnail` đọc nó;
         # Remotion không dùng, nên bản cũ bỏ qua cũng không sao.
         "thumbnailFrame": timeline.thumbnail_frame,
+        # Chữ để ĐĂNG, không phải chữ để vẽ: dòng caption và bộ hashtag.
+        # Remotion không đụng tới, y như `thumbnailFrame` — nhưng nó nằm đây
+        # chứ không nằm riêng một file, để `make export` chỉ phải đọc MỘT file
+        # và để mở build.json ra là thấy đủ một ngày (P-4).
+        "post": (
+            {
+                "caption": post.caption,
+                "text": post.text,
+                "dateLabel": post.date_label,
+                "hashtags": list(post.hashtags),
+                # True = kịch bản chưa khai caption, máy mượn tạm câu chốt.
+                "borrowed": post.borrowed,
+            }
+            if post is not None else None
+        ),
         "lines": [
             {
                 "ja": line.ja,

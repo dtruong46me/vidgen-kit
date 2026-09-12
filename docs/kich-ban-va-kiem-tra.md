@@ -8,15 +8,18 @@ video đã dựng xong. Không lệnh nào cần khoá API.
 ## Một ngày làm việc
 
 ```bash
-make new     DAY=2026-09-10    # tạo content/2026-09-10.json
+make new     DAY=2026-09-10    # tạo content/2026-09-10/script.json
                                # mở file ra đọc, sửa câu nào muốn sửa
 make reading DAY=2026-09-10    # đọc đối chiếu romaji máy sinh
 make release DAY=2026-09-10    # MP4 + ảnh bìa + check; ~34 phút cho 52 giây video (WSL, concurrency 1)
 ```
 
-`make release` là `make video` (nội dung, MP4, ảnh bìa) rồi `make check` (số đo,
-trang duyệt) trong một lệnh. Render hỏng thì dừng trước check. Muốn làm từng
-bước thì hai lệnh kia vẫn gọi riêng được.
+`make release` là `make video` (nội dung, MP4, ảnh bìa), `make check` (số đo,
+trang duyệt) rồi `make export` (gói thư mục đăng) trong một lệnh. Render hỏng thì
+dừng trước check. Muốn làm từng bước thì ba lệnh kia vẫn gọi riêng được.
+
+Caption bài đăng và thư mục `out/<ngày>/` nằm ở tài liệu riêng:
+**`docs/dang-bai.md`**.
 
 ---
 
@@ -26,8 +29,8 @@ Kịch bản gồm hai phần, lấy từ hai chỗ khác nhau:
 
 | Phần | Gồm | Lấy từ đâu |
 |---|---|---|
-| **Nội dung** | chủ đề, tag, các câu Nhật + Việt | ngân hàng viết sẵn, hoặc Claude |
-| **Cài đặt** | giọng đọc, nhạc nền, nhịp nghỉ, khoảng lặng đầu video, màn kết, `targetSeconds` | **kịch bản của ngày gần nhất** |
+| **Nội dung** | chủ đề, tag, **caption**, các câu Nhật + Việt | ngân hàng viết sẵn, hoặc Claude |
+| **Cài đặt** | giọng đọc, nhạc nền, nhịp nghỉ, khoảng lặng đầu video, màn kết, `targetSeconds`, **hashtags** | **kịch bản của ngày gần nhất** |
 
 Nên muốn đổi nhạc nền hay đọc chậm lại cho mọi ngày sau, chỉ cần sửa ở ngày gần
 nhất một lần. Ngân hàng và prompt không chứa cài đặt nào.
@@ -54,6 +57,8 @@ Chưa từng điền khoá thì **không bao giờ** có lời gọi mạng nào
   bỏ qua trường này; `make new` đọc nó để không lấy lại mục ngân hàng vừa dùng.
 - **In ước lượng thời lượng** và cảnh báo nếu câu quá dài, quá ít/nhiều câu,
   hoặc ước lượng rơi ngoài `targetSeconds`.
+- **Nhắc nếu chưa có `caption`.** Ngân hàng không giữ caption, nên đường ngân
+  hàng luôn nhắc; đường Claude thì model viết luôn một câu. Xem `docs/dang-bai.md`.
 
 ### Ước lượng độ dài tin được đến đâu
 

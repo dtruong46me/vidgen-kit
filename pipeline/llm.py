@@ -95,6 +95,12 @@ Tiếng Việt:
   Không dịch từng chữ. Các tiểu từ ね、よ thường ra "nhỉ", "nhé".
 
 Chủ đề (theme): 2–8 chữ tiếng Nhật, viết bút lông dưới ngày tháng ở đầu video.
+
+Caption: MỘT dòng tiếng Việt để đăng kèm video, mở đầu bằng một emoji hợp chủ
+đề. Nó không hiện trong video — nó là câu người lướt đọc trước khi bấm vào, nên
+phải gợi chứ đừng tóm tắt, và đừng lặp y nguyên câu nào trong bài. Dưới 20 chữ.
+Đừng viết ngày tháng vào đây, máy tự ghép ngày vào đầu.
+Ví dụ: "🌿 Có nhiều thứ không thể nắm giữ, không phải chuyện gì cũng có kết quả"
 """
 
 
@@ -106,6 +112,7 @@ def _schema(tags: tuple[str, ...]) -> dict:
         "type": "object",
         "properties": {
             "theme": {"type": "string"},
+            "caption": {"type": "string"},
             "tags": {"type": "array", "items": tag_items},
             "lines": {
                 "type": "array",
@@ -120,7 +127,7 @@ def _schema(tags: tuple[str, ...]) -> dict:
                 },
             },
         },
-        "required": ["theme", "tags", "lines"],
+        "required": ["theme", "caption", "tags", "lines"],
         "additionalProperties": False,
     }
 
@@ -173,7 +180,7 @@ def _missing_library() -> LLMError:
 
 
 def generate(model: str, brief: Brief, log=print) -> dict:
-    """Gọi Claude, trả về {"theme", "tags", "lines": [{"ja", "vi"}]}.
+    """Gọi Claude, trả về {"theme", "caption", "tags", "lines": [{"ja", "vi"}]}.
 
     `model` là tên ngắn trong MODELS. Mọi lỗi mạng/khoá/giới hạn đều đổi thành
     LLMError có hướng dẫn, để `make new` in một dòng thay vì một traceback.

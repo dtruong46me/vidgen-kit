@@ -1,6 +1,7 @@
 {
   "id": "2026-08-20",
   "title": "8月20日 - 小さな幸せ",
+  "caption": "🍵 Hạnh phúc không đợi dịp lớn, nó nằm trong những chuyện rất nhỏ của hôm nay",
   "voice": "ja-JP-NanamiNeural",
   "rate": "+0%",
   "pitch": "+0Hz",
@@ -73,5 +74,12 @@
     45,
     60
   ],
-  "transition": "crossfade"
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ]
 }

@@ -6,10 +6,10 @@ Xâu cả dây chuyền lại thành một lệnh.
     python3 -m pipeline.run 2026-08-20 --still 300  chỉ render 1 frame ra PNG
     python3 -m pipeline.run 2026-08-20 --thumbnail  chỉ render ảnh bìa ra PNG
 
-Đọc  : content/<slug>.json
+Đọc  : content/<slug>/script.json
 Ghi  : studio/public/audio/<slug>/line-XX.mp3
-       content/<slug>.build.json
-       content/.<slug>.cache.json
+       content/<slug>/build.json      (hợp đồng với Remotion)
+       content/<slug>/.cache.json     (cache TTS, xoá được)
 
 Module này chỉ điều phối và in ra màn hình. Nó không tính toán gì cả — mọi phép
 tính nằm ở module chuyên trách. Đó là cách giữ cho "bug ở đâu" luôn có một câu
@@ -23,8 +23,8 @@ from pathlib import Path
 
 from . import (
     assets, contract, intro as intro_mod, library as library_mod,
-    reading as reading_mod, render, script as script_mod, shots as shots_mod,
-    timeline as timeline_mod, tts,
+    paths, post as post_mod, reading as reading_mod, render,
+    script as script_mod, shots as shots_mod, timeline as timeline_mod, tts,
 )
 from .library import LibraryError
 from .probe import ProbeError, duration_seconds
@@ -47,9 +47,7 @@ def build_day(slug: str, log=print) -> Path:
             log(f"  [!] câu {i}: chưa đọc được số {', '.join(reader.unread)} "
                 f"— romaji sẽ giữ nguyên chữ số")
 
-    voices = tts.synthesize(
-        doc, PUBLIC_DIR, CONTENT_DIR / f".{slug}.cache.json", log=log
-    )
+    voices = tts.synthesize(doc, PUBLIC_DIR, paths.cache_path(slug), log=log)
 
     # Chọn clip PHẢI đứng sau TTS: muốn biết clip có đủ dài không thì trước hết
     # phải biết cảnh dài bao nhiêu, mà cảnh dài bao nhiêu là do giọng đọc quyết
@@ -61,11 +59,17 @@ def build_day(slug: str, log=print) -> Path:
 
     intro = intro_mod.build_intro(doc.intro, slug, doc.title)
     outro = intro_mod.build_outro(doc.outro)
+    # Câu chốt của video là caption tạm được khi kịch bản chưa khai `caption`.
+    post = post_mod.build(
+        doc.caption, doc.hashtags, intro_mod.date_from_slug(slug),
+        fallback=doc.lines[-1].vi,
+    )
 
     timeline = timeline_mod.build(doc, voices, clips, bgm, outro)
     dest = contract.write(
-        contract.compose(doc, voices, clips, bgm, timeline, readings, intro, outro),
-        CONTENT_DIR / f"{slug}.build.json",
+        contract.compose(doc, voices, clips, bgm, timeline, readings,
+                         intro, outro, post),
+        paths.build_path(slug),
     )
 
     log(f"\nĐã ghi {dest.relative_to(ROOT)}")
@@ -77,6 +81,10 @@ def build_day(slug: str, log=print) -> Path:
             f"{timeline.outro_duration_in_frames} frame kết")
     log(f"{len(timeline.scenes)} câu — tổng {timeline.total_frames} frame "
         f"= {timeline.seconds:.1f} giây")
+    log(f"  caption   {post.caption}")
+    if post.borrowed:
+        log("  [!] kịch bản chưa có \"caption\" — đang mượn câu tiếng Việt cuối "
+            "cùng. Đặt một câu riêng thì bài đăng đỡ nhạt.")
 
     _warn_if_off_target(doc, timeline.seconds, log)
     _warn_if_clip_loops(doc, clips, timeline, log)

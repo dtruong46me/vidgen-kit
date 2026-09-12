@@ -1,0 +1,85 @@
+{
+  "id": "2026-09-26",
+  "title": "9月26日 - 昨日の自分",
+  "caption": "🪞 Không cần hơn ai, chỉ cần nhẹ hơn chính mình hôm qua",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "昨日の自分",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "morning"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月26日です。おはようございます。",
+      "vi": "Hôm nay là ngày 26 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "誰かに勝つ必要は、ありません。",
+      "vi": "Bạn không cần phải thắng ai cả."
+    },
+    {
+      "ja": "比べる相手は、昨日の自分で十分です。",
+      "vi": "Người để so sánh, mình của hôm qua là đủ rồi."
+    },
+    {
+      "ja": "昨日より少し優しければ、それでいいのです。",
+      "vi": "Dịu dàng hơn hôm qua một chút là được rồi."
+    },
+    {
+      "ja": "昨日より少し眠れたなら、進んでいます。",
+      "vi": "Ngủ được hơn hôm qua một chút là đang tiến lên."
+    },
+    {
+      "ja": "小さな差は、目に見えません。",
+      "vi": "Khác biệt nhỏ thì mắt không thấy được."
+    },
+    {
+      "ja": "それでも、一年たつと分かります。",
+      "vi": "Vậy mà một năm sau thì sẽ thấy."
+    },
+    {
+      "ja": "今日も、ひとつだけ。",
+      "vi": "Hôm nay cũng vậy, một điều thôi."
+    },
+    {
+      "ja": "今日の一歩は、明日の基準になります。",
+      "vi": "Bước chân hôm nay thành cái mốc của ngày mai."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "昨日の自分"
+  }
+}

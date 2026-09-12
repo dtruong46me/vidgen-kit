@@ -1,6 +1,7 @@
 {
   "id": "2026-09-10",
   "title": "9月10日 - 雨の音",
+  "caption": "🌧️ Ngày mưa không bắt ta phải vui, nó chỉ mời ta ngồi xuống một lát",
   "voice": "ja-JP-NanamiNeural",
   "rate": "+0%",
   "pitch": "+0Hz",
@@ -24,10 +25,16 @@
     60
   ],
   "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
   "tags": [
     "rain",
-    "window",
-    "calm"
+    "window"
   ],
   "lines": [
     {

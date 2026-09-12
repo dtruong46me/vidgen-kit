@@ -12,6 +12,9 @@
 #   make new     DAY=2026-09-10      tạo kịch bản mới (ngân hàng, hoặc Claude nếu có khoá)
 #   make bank                        in ngân hàng kịch bản kèm ước lượng thời lượng
 #   make check   DAY=2026-08-20      kiểm MP4: số đo + trang duyệt từng cảnh
+#   make export  DAY=2026-08-20      gói ra out/<ngày>/: caption, lời, audio, metadata
+#   make export-all                  gói mọi ngày đã dựng nội dung
+#   make content-all                 chuẩn bị nội dung cho MỌI kịch bản chưa có
 #   make all                         dựng mọi kịch bản chưa có MP4
 #   make clean                       xoá file máy sinh
 #
@@ -40,16 +43,15 @@ define need_day
 	@if [ -z "$(DAY)" ]; then \
 		echo "Thiếu DAY. Ví dụ: make $@ DAY=2026-08-20"; \
 		echo "Các kịch bản đang có:"; \
-		ls $(CONTENT)/*.json 2>/dev/null \
-			| grep -v '\.build\.json$$' \
-			| xargs -n1 basename 2>/dev/null | sed 's/\.json$$/  /' | sed 's/^/  /' \
+		ls -d $(CONTENT)/*/ 2>/dev/null \
+			| xargs -n1 basename 2>/dev/null | sed 's/^/  /' \
 			|| echo "  (chưa có kịch bản nào)"; \
 		exit 1; \
 	fi
 endef
 
 .PHONY: help setup studio content video release still thumbnail reading shots assets \
-        shots-find shots-get shots-add all clean check new bank
+        shots-find shots-get shots-add all clean check new bank export export-all \n        content-all
 
 help:
 	@echo "vidgen-kit"
@@ -69,6 +71,9 @@ help:
 	@echo "  make new     DAY=2026-09-10       tạo kịch bản mới [MODEL=bank|opus|sonnet|haiku]"
 	@echo "  make bank                         in ngân hàng kịch bản viết sẵn"
 	@echo "  make check   DAY=2026-08-20       kiểm MP4 + trang duyệt từng cảnh"
+	@echo "  make export  DAY=2026-08-20       gói ra out/<ngày>/ để đăng"
+	@echo "  make export-all                   gói mọi ngày đã dựng nội dung"
+	@echo "  make content-all                  chuẩn bị nội dung mọi kịch bản chưa có"
 	@echo "  make all                          dựng mọi kịch bản chưa có MP4"
 	@echo "  make clean                        xoá file máy sinh"
 
@@ -135,14 +140,14 @@ studio:
 	fi
 	@day="$(DAY)"; \
 	if [ -z "$$day" ]; then \
-		newest=$$(ls -t $(CONTENT)/*.build.json 2>/dev/null | head -1); \
-		[ -n "$$newest" ] && day=$$(basename "$$newest" .build.json); \
+		newest=$$(ls -t $(CONTENT)/*/build.json 2>/dev/null | head -1); \
+		[ -n "$$newest" ] && day=$$(basename $$(dirname "$$newest")); \
 	fi; \
-	if [ -n "$$day" ] && [ -f "$(CONTENT)/$$day.build.json" ]; then \
-		echo "Studio nạp $(CONTENT)/$$day.build.json"; \
-		cd $(STUDIO) && npx remotion studio --props="../$(CONTENT)/$$day.build.json"; \
+	if [ -n "$$day" ] && [ -f "$(CONTENT)/$$day/build.json" ]; then \
+		echo "Studio nạp $(CONTENT)/$$day/build.json"; \
+		cd $(STUDIO) && npx remotion studio --props="../$(CONTENT)/$$day/build.json"; \
 	else \
-		echo "Chưa có content/*.build.json nào, Studio mở bằng props mặc định."; \
+		echo "Chưa có content/*/build.json nào, Studio mở bằng props mặc định."; \
 		echo "Chạy 'make content DAY=2026-08-20' trước để xem video thật."; \
 		cd $(STUDIO) && npx remotion studio; \
 	fi
@@ -167,11 +172,15 @@ release:
 	@echo "==> Kiểm MP4 vừa dựng"
 	@python3 -m pipeline.check $(DAY)
 	@echo ""
+	@echo "==> Gói thư mục đăng"
+	@python3 -m pipeline.export $(DAY)
+	@echo ""
 	@echo "Đủ bộ cho $(DAY):"
-	@echo "  video       $(OUT)/$(DAY).mp4"
-	@echo "  ảnh bìa     $(OUT)/$(DAY)-thumbnail.png"
-	@echo "  trang duyệt $(OUT)/$(DAY)-check/index.html"
-	@echo "  ảnh ghép    $(OUT)/$(DAY)-check/sheet.jpg"
+	@echo "  thư mục đăng $(OUT)/$(DAY)/  (caption.txt, script.txt, audio/, metadata.json)"
+	@echo "  video        $(OUT)/$(DAY).mp4"
+	@echo "  ảnh bìa      $(OUT)/$(DAY)-thumbnail.png"
+	@echo "  trang duyệt  $(OUT)/$(DAY)-check/index.html"
+	@echo "  ảnh ghép     $(OUT)/$(DAY)-check/sheet.jpg"
 
 ## Render đúng 1 frame — cách nhanh nhất để bắt lỗi font và bố cục caption
 still:
@@ -188,7 +197,7 @@ thumbnail:
 ## In romaji và hiragana máy sinh, để đọc đối chiếu trước khi tin nó
 reading:
 	$(need_day)
-	@python3 -m pipeline.reading $(CONTENT)/$(DAY).json $(PROVIDER)
+	@python3 -m pipeline.reading $(CONTENT)/$(DAY)/script.json $(PROVIDER)
 
 ## Soi sổ tài sản: file thật, nguồn, tác giả, giấy phép, tag, ai đang dùng
 shots assets:
@@ -218,11 +227,28 @@ shots-add:
 	fi
 	@python3 -m pipeline.fetch add "$(FILE)" $(NAME) "$(URL)" "$(AUTHOR)" "$(LICENSE)" "$(TAGS)"
 
+## Chuẩn bị NỘI DUNG (TTS + timeline) cho mọi kịch bản chưa có build.json.
+## Khác `make all` ở chỗ không render: dùng khi muốn soạn cả tháng rồi mới
+## `make export-all` lấy caption và lời ra soát, trước khi tốn CPU dựng video.
+## Ngày nào đã có build.json thì bỏ qua — giọng đọc có cache nên chạy lại rẻ,
+## nhưng bỏ qua vẫn nhanh hơn.
+content-all:
+	@for d in $(CONTENT)/*/; do \
+		day=$$(basename "$$d"); \
+		[ -f "$$d/script.json" ] || continue; \
+		if [ -f "$$d/build.json" ]; then \
+			echo "bỏ qua $$day (đã có build.json)"; \
+		else \
+			echo "==> $$day"; \
+			python3 -m pipeline.run $$day || exit 1; \
+		fi; \
+	done
+
 ## Dựng mọi kịch bản chưa có MP4 tương ứng
 all:
-	@for f in $(CONTENT)/*.json; do \
-		case "$$f" in *.build.json) continue;; esac; \
-		day=$$(basename "$$f" .json); \
+	@for d in $(CONTENT)/*/; do \
+		day=$$(basename "$$d"); \
+		[ -f "$$d/script.json" ] || continue; \
 		if [ -f "$(OUT)/$$day.mp4" ]; then \
 			echo "bỏ qua $$day (đã có MP4)"; \
 		else \
@@ -234,7 +260,7 @@ all:
 ## Xoá mọi thứ máy sinh ra. Kịch bản và thư viện shot không bị đụng tới.
 clean:
 	rm -rf $(OUT)
-	rm -f $(CONTENT)/*.build.json $(CONTENT)/.*.cache.json
+	rm -f $(CONTENT)/*/build.json $(CONTENT)/*/.cache.json
 	rm -rf $(STUDIO)/public/audio/20*/
 	@echo "Đã xoá file máy sinh."
 	@echo "Kịch bản, nhạc nền và clip nền còn nguyên — chỉ giọng đọc bị xoá,"
@@ -249,6 +275,17 @@ new:
 ## In ngân hàng: mỗi mục bao nhiêu câu, ước lượng bao nhiêu giây, đã dùng ngày nào
 bank:
 	@python3 -m pipeline.new --bank
+
+## Gói một ngày thành thư mục đăng được: out/<ngày>/ có caption, lời Nhật–Việt,
+## giọng đọc từng câu, metadata và ghi công tài sản. Chỉ đọc build.json và MP4
+## đã có — không dựng lại gì, nên chạy lại bao nhiêu lần cũng được.
+export:
+	$(need_day)
+	@python3 -m pipeline.export $(DAY)
+
+## Gói MỌI ngày đã có content/<ngày>.build.json. Dùng khi đã dựng cả tháng.
+export-all:
+	@python3 -m pipeline.export --all
 
 ## Kiểm MP4 đã dựng: số đo tự kết luận + trang duyệt để mắt bắt tofu và chữ bị che
 check:

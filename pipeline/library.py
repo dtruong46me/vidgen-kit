@@ -22,6 +22,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import paths
 from .probe import MediaInfo, ProbeError, media_info
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -223,16 +224,15 @@ def _used_by(public_dir: Path) -> dict[str, list[str]]:
     """Mỗi file tài sản đang được những kịch bản nào gọi tên."""
     content_dir = public_dir.parent.parent / "content"
     used: dict[str, list[str]] = {}
-    for src in sorted(content_dir.glob("*.json")):
-        if src.name.endswith(".build.json") or src.name.startswith("."):
-            continue
+    for slug in paths.slugs(content_dir):
         try:
-            doc = json.loads(src.read_text(encoding="utf-8"))
+            doc = json.loads(
+                paths.script_path(slug, content_dir).read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
         for ref in [doc.get("bgm"), *(l.get("clip") for l in doc.get("lines", []))]:
             if ref:
-                used.setdefault(ref, []).append(src.stem)
+                used.setdefault(ref, []).append(slug)
     return used
 
 

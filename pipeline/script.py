@@ -5,6 +5,9 @@ Bản cũ đọc thẳng dict rồi `line["ja"]` giữa vòng lặp: thiếu m�
 câu thứ bảy, sau khi đã sinh sáu file mp3. Ở đây mọi thứ được kiểm ngay lúc
 đọc, nên hỏng là hỏng trước khi chạm vào mạng.
 
+Từ BƯỚC 8, kịch bản nằm ở `content/<ngày>/script.json` chứ không còn phẳng ở
+`content/<ngày>.json`. Đường dẫn hỏi `paths.py`, module này không tự ghép.
+
 Từ BƯỚC 3, kịch bản KHÔNG còn trường `romaji` — `pipeline/reading.py` sinh ra
 nó. Trường `romaji` nếu còn sót lại trong file cũ thì bị bỏ qua, không phải lỗi.
 """
@@ -14,6 +17,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+
+from . import paths
 
 
 class ScriptError(ValueError):
@@ -86,6 +91,13 @@ class Script:
     reading: str
     #: Tag mặc định cho mọi câu chưa tự khai tag.
     tags: tuple[str, ...]
+    #: Dòng để dán lên TikTok/Reels/YouTube, KHÔNG hiện trong video. Ngày tháng
+    #: do máy ghép vào đầu (xem post.py), nên ở đây chỉ viết phần chữ. Bỏ trống
+    #: thì `export.py` mượn tạm câu tiếng Việt cuối cùng và nhắc đặt câu riêng.
+    caption: str | None
+    #: Bộ thẻ dán kèm caption. Là CÀI ĐẶT chứ không phải nội dung — kênh nào
+    #: cũng một bộ, nên `make new` kế thừa nó như kế thừa giọng đọc.
+    hashtags: tuple[str, ...]
     #: None = không có tiêu đề ngày (cảnh 1 cũng không lặng thêm) / không có màn
     #: kết. Đó là mặc định, và nhờ vậy kịch bản
     #: viết trước BƯỚC 5 vẫn ra đúng số frame cũ.
@@ -175,6 +187,18 @@ def _transition(raw: object, where: str) -> str:
     return raw
 
 
+def _caption(raw: object, where: str) -> str | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, str):
+        raise ScriptError(
+            f"{where} có \"caption\" phải là chuỗi, ví dụ "
+            f"\"🌿 Có nhiều thứ không thể nắm giữ\". Đừng gõ ngày vào đây — "
+            f"máy ghép ngày từ tên kịch bản."
+        )
+    return raw.strip() or None
+
+
 def _text(value: object, key: str, where: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ScriptError(f"{where} có \"{key}\" rỗng hoặc không phải chuỗi.")
@@ -183,16 +207,16 @@ def _text(value: object, key: str, where: str) -> str:
 
 def load(content_dir: Path, slug: str) -> Script:
     """Đọc content/<slug>.json thành một Script đã kiểm."""
-    src = content_dir / f"{slug}.json"
+    src = paths.script_path(slug, content_dir)
     if not src.exists():
+        # Bố cục cũ để file phẳng ở content/<slug>.json. Không đọc lẳng lặng:
+        # hai bố cục cùng sống thì không ai biết file nào đang được dùng.
+        if paths.legacy_script(slug, content_dir) is not None:
+            raise ScriptError(paths.move_hint(slug, content_dir))
         raise ScriptError(
             f"Không tìm thấy {src}.\n"
             f"Kịch bản đang có: "
-            + (", ".join(sorted(
-                p.stem for p in content_dir.glob("*.json")
-                if not p.name.endswith(".build.json")
-                and not p.name.startswith(".")
-            )) or "(chưa có cái nào)")
+            + (", ".join(paths.slugs(content_dir)) or "(chưa có cái nào)")
         )
 
     try:
@@ -244,6 +268,8 @@ def load(content_dir: Path, slug: str) -> Script:
         bgm_volume=float(doc.get("bgmVolume", 0.12)),
         reading=doc.get("reading", "cutlet"),
         tags=_tags(doc.get("tags"), src.name),
+        caption=_caption(doc.get("caption"), src.name),
+        hashtags=_tags(doc.get("hashtags"), src.name),
         intro=_intro(doc.get("intro"), src.name),
         outro=_outro(doc.get("outro"), src.name),
         transition=_transition(doc.get("transition"), src.name),

@@ -2,7 +2,7 @@
 Lớp A (nội dung) và lớp B (tài sản) của vidgen-kit.
 
 Toàn bộ package này chỉ có một sản phẩm duy nhất: file
-`content/<slug>.build.json` — hợp đồng với Remotion. Không module nào ở đây
+`content/<slug>/build.json` — hợp đồng với Remotion. Không module nào ở đây
 được biết Remotion vẽ chữ ra sao, và không file nào bên studio/ được đọc
 ngược vào đây.
 

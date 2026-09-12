@@ -32,7 +32,8 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from . import env, library as library_mod, script as script_mod
+from . import (env, library as library_mod, paths, post as post_mod,
+               script as script_mod)
 from .intro import date_from_slug
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -70,8 +71,10 @@ RECENT_DAYS = 7
 #: thường, nên chừa mỗi đầu ngần này giây.
 TARGET_MARGIN = 2.0
 
-#: Trường thuộc về NỘI DUNG — không kế thừa từ ngày trước.
-CONTENT_KEYS = ("id", "title", "tags", "lines", "source")
+#: Trường thuộc về NỘI DUNG — không kế thừa từ ngày trước. `caption` nằm đây
+#: chứ không nằm trong cài đặt: mỗi ngày một câu khác, kế thừa là sai hẳn.
+#: `hashtags` thì ngược lại — nó ở DEFAULT_SETTINGS, nên được kế thừa.
+CONTENT_KEYS = ("id", "title", "tags", "caption", "lines", "source")
 
 #: Cài đặt khi chưa có kịch bản nào để kế thừa. Đúng bằng cài đặt của 2026-08-20.
 DEFAULT_SETTINGS = {
@@ -90,6 +93,9 @@ DEFAULT_SETTINGS = {
               "seconds": script_mod.DEFAULT_OUTRO_SECONDS},
     "targetSeconds": [45, 60],
     "transition": "crossfade",
+    # Bộ thẻ dán kèm caption. Kênh nào cũng một bộ, nên nó là cài đặt: sửa ở
+    # ngày gần nhất một lần là mọi ngày sau theo.
+    "hashtags": ["tiengnhat", "hoctiengnhat", "nhatngu", "chualanh", "songchamlai"],
 }
 
 _NOT_SPOKEN = re.compile(r"[\s、。，,．！!？?「」『』（）()・…]")
@@ -107,6 +113,8 @@ class Draft:
     tags: tuple[str, ...]
     lines: list[dict]
     source: dict
+    #: Dòng đăng kèm video. None = chưa có, `make export` sẽ mượn tạm câu chốt.
+    caption: str | None = None
 
 
 # --------------------------------------------------------------------------
@@ -116,13 +124,14 @@ class Draft:
 def _scripts(content_dir: Path) -> list[tuple[str, dict]]:
     """Mọi kịch bản người viết, xếp theo tên (tức theo ngày)."""
     out = []
-    for path in sorted(content_dir.glob("*.json")):
-        if path.name.endswith(".build.json") or path.name.startswith("."):
-            continue
+    for slug in paths.slugs(content_dir):
+        path = paths.script_path(slug, content_dir)
         try:
-            out.append((path.stem, json.loads(path.read_text(encoding="utf-8"))))
+            out.append((slug, json.loads(path.read_text(encoding="utf-8"))))
         except json.JSONDecodeError as exc:
-            raise NewError(f"{path.name} không phải JSON hợp lệ: {exc}") from exc
+            raise NewError(
+                f"content/{slug}/{paths.SCRIPT_NAME} không phải JSON hợp lệ: {exc}"
+            ) from exc
     return out
 
 
@@ -314,6 +323,7 @@ def _from_llm(model: str | None, day: date, slug: str,
         tags=tuple(data.get("tags", [])),
         lines=lines,
         source={"writer": llm.MODELS[name]},
+        caption=(data.get("caption") or "").strip() or None,
     )
 
 
@@ -339,6 +349,8 @@ def _writer(model: str) -> str | None:
 def compose(slug: str, day: date, draft: Draft, settings: dict) -> dict:
     """Cài đặt ở trên, nội dung ở dưới — mở file ra là thấy ngay phần cần sửa."""
     doc: dict = {"id": slug, "title": f"{day.month}月{day.day}日 - {draft.theme}"}
+    if draft.caption:
+        doc["caption"] = draft.caption
     for key, value in settings.items():
         if key == "intro" and isinstance(value, dict):
             # Khoảng lặng đầu video là cài đặt, chủ đề dưới tiêu đề là nội dung.
@@ -367,6 +379,8 @@ def _review(draft: Draft, settings: dict, day: date) -> list[str]:
             notes.append(f"câu {i} dài {n} chữ (quá {MAX_LINE_CHARS}), phụ đề dễ tràn")
         if not line["vi"].strip():
             notes.append(f"câu {i} chưa có bản dịch")
+    if not draft.caption:
+        notes.append("chưa có \"caption\" — `make export` sẽ mượn tạm câu chốt")
     t_lo, t_hi = _target(settings)
     seconds = estimate_seconds(draft.lines, settings)
     if not t_lo <= seconds <= t_hi:
@@ -375,16 +389,16 @@ def _review(draft: Draft, settings: dict, day: date) -> list[str]:
 
 
 def create(slug: str, model: str = "", log=print) -> Path:
-    """Tạo content/<slug>.json. Trả về đường dẫn file vừa ghi."""
+    """Tạo content/<slug>/script.json. Trả về đường dẫn file vừa ghi."""
     day = date_from_slug(slug)
     if day is None:
         raise NewError(f"\"{slug}\" không phải ngày. Ví dụ: make new DAY=2026-09-10")
 
-    dest = CONTENT_DIR / f"{slug}.json"
+    dest = paths.script_path(slug)
     if dest.exists():
         raise NewError(
             f"Đã có {dest.relative_to(ROOT)}. Đó là file người viết nên máy không "
-            f"đè. Muốn tạo lại thì xoá nó trước."
+            f"đè. Muốn tạo lại thì xoá thư mục content/{slug}/ trước."
         )
 
     scripts = _scripts(CONTENT_DIR)
@@ -399,7 +413,7 @@ def create(slug: str, model: str = "", log=print) -> Path:
         draft = _from_llm(writer, day, slug, scripts, settings, log)
         log(f"Nội dung do {draft.source['writer']} viết")
 
-    CONTENT_DIR.mkdir(parents=True, exist_ok=True)
+    dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(
         json.dumps(compose(slug, day, draft, settings), ensure_ascii=False, indent=2)
         + "\n",
@@ -420,6 +434,8 @@ def create(slug: str, model: str = "", log=print) -> Path:
         f"(số thật do TTS quyết)")
     for i, line in enumerate(draft.lines, start=1):
         log(f"  {i:2d}. {line['ja']}")
+    if draft.caption:
+        log(f"\n  caption  {post_mod.build(draft.caption, (), day).caption}")
     notes = _review(draft, settings, day)
     if notes:
         log("\n[!] Nên xem lại trước khi dựng:")

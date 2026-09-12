@@ -16,6 +16,8 @@ import json
 import subprocess
 from pathlib import Path
 
+from . import paths
+
 COMPOSITION = "Daily"
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,7 +37,7 @@ def _from_studio(path: Path) -> str:
 
 
 def _props_path(slug: str) -> Path:
-    props = CONTENT_DIR / f"{slug}.build.json"
+    props = paths.build_path(slug)
     if not props.exists():
         raise RenderError(
             f"Chưa có {props.relative_to(ROOT)} — chạy 'make content DAY={slug}' trước."

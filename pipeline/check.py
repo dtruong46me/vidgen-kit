@@ -33,7 +33,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import script as script_mod
+from . import paths, script as script_mod
 from .probe import ProbeError, count_frames, media_info
 from .render import OUT_DIR
 
@@ -101,7 +101,7 @@ def moments(build: dict) -> list[Moment]:
 # --------------------------------------------------------------------------
 
 def _load(slug: str) -> tuple[dict, Path, Path]:
-    build_path = CONTENT_DIR / f"{slug}.build.json"
+    build_path = paths.build_path(slug)
     if not build_path.exists():
         raise CheckError(
             f"Chưa có {build_path.relative_to(ROOT)} — chạy 'make video DAY={slug}' trước."

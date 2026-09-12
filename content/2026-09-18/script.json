@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-18",
+  "title": "9月18日 - 比べない",
+  "caption": "🌸 Hoa nở sớm và hoa nở muộn không ai thắng ai",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "比べない",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "flower",
+    "garden",
+    "bloom"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月18日です。おはようございます。",
+      "vi": "Hôm nay là ngày 18 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "庭には、早く咲く花と遅い花があります。",
+      "vi": "Trong vườn có hoa nở sớm và hoa nở muộn."
+    },
+    {
+      "ja": "どちらが偉いということはありません。",
+      "vi": "Chẳng có bên nào là hơn bên nào."
+    },
+    {
+      "ja": "咲く時期が、違うだけです。",
+      "vi": "Chỉ là mùa nở của chúng khác nhau thôi."
+    },
+    {
+      "ja": "遅い花は、遅い理由があります。",
+      "vi": "Hoa nở muộn thì có lý do của nó."
+    },
+    {
+      "ja": "人と比べると、自分の季節を見失います。",
+      "vi": "So với người khác, ta đánh mất mùa của mình."
+    },
+    {
+      "ja": "あなたには、あなたの時期があります。",
+      "vi": "Bạn có mùa của riêng bạn."
+    },
+    {
+      "ja": "まだ咲いていなくても、大丈夫です。",
+      "vi": "Chưa nở cũng không sao đâu."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "比べない"
+  }
+}

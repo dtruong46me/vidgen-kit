@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-17",
+  "title": "9月17日 - 空を見る",
+  "caption": "☁️ Ngẩng đầu lên mười giây thôi, trời vẫn rộng như thế",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "空を見る",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "light"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月17日です。おはようございます。",
+      "vi": "Hôm nay là ngày 17 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "最後に空を見上げたのは、いつでしょうか。",
+      "vi": "Lần cuối bạn ngẩng nhìn trời là khi nào nhỉ?"
+    },
+    {
+      "ja": "下を向いていると、世界は狭くなります。",
+      "vi": "Cứ cúi mặt thì thế giới hẹp lại."
+    },
+    {
+      "ja": "顔を上げるだけで、視界が広がります。",
+      "vi": "Chỉ cần ngẩng lên là tầm nhìn đã rộng ra."
+    },
+    {
+      "ja": "空は、いつも同じ広さでそこにあります。",
+      "vi": "Bầu trời luôn ở đó, rộng y như thế."
+    },
+    {
+      "ja": "狭くなっていたのは、私の方でした。",
+      "vi": "Cái hẹp lại hoá ra là ở phía tôi."
+    },
+    {
+      "ja": "十秒でいいので、外を見てください。",
+      "vi": "Mười giây thôi, hãy nhìn ra ngoài."
+    },
+    {
+      "ja": "それだけで、少し楽になります。",
+      "vi": "Chỉ vậy thôi mà đã nhẹ đi một chút."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "空を見る"
+  }
+}

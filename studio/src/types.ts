@@ -1,5 +1,5 @@
 /**
- * Kiểu dữ liệu của file content/<slug>.build.json — do pipeline/contract.py sinh ra.
+ * Kiểu dữ liệu của file content/<slug>/build.json — do pipeline/contract.py sinh ra.
  * Đây chính là "props" mà Remotion nhận vào để render.
  *
  * Mọi trường thêm vào từ BƯỚC 3 trở đi đều là TUỲ CHỌN hoặc có mặc định trung
@@ -61,6 +61,25 @@ export type Outro = {
  */
 export type Transition = "crossfade" | "dip_to_black" | "cut";
 
+/**
+ * Chữ để ĐĂNG kèm video — không có gì vẽ lên màn hình.
+ *
+ * Remotion không đọc trường này; `make export` mới đọc, để dựng caption.txt và
+ * description.txt. Khai ở đây vì types.ts là bản mô tả hợp đồng: một trường có
+ * trong build.json mà không có trong file này thì người đọc sẽ tưởng nó thừa.
+ */
+export type Post = {
+  /** Nguyên dòng dán được: "11.09.26 🌿 Có nhiều thứ không thể nắm giữ…" */
+  caption: string;
+  /** Phần người viết gõ, chưa có ngày ở đầu */
+  text: string;
+  /** "11.09.26" */
+  dateLabel: string;
+  hashtags: string[];
+  /** true = kịch bản chưa khai caption, máy mượn tạm câu tiếng Việt cuối cùng */
+  borrowed: boolean;
+};
+
 export type DailyVideoProps = {
   id: string;
   title: string;
@@ -80,5 +99,11 @@ export type DailyVideoProps = {
   transitionInFrames?: number;
   /** Hiện dòng hiragana dưới romaji. Mặc định tắt */
   showHira?: boolean;
+  /**
+   * Hai trường dưới đây Remotion KHÔNG dùng — chúng có mặt để lệnh khác đọc.
+   * `thumbnailFrame` cho `make thumbnail`, `post` cho `make export`.
+   */
+  thumbnailFrame?: number;
+  post?: Post | null;
   lines: Line[];
 };

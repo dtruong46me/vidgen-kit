@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-04",
+  "title": "9月4日 - 風の音",
+  "caption": "🍃 Gió thì không nhìn thấy được, ta biết nó qua cái lay của lá",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "風の音",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "nature"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月4日です。おはようございます。",
+      "vi": "Hôm nay là ngày 4 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "窓を開けると、風が入ってきました。",
+      "vi": "Mở cửa sổ ra, gió ùa vào."
+    },
+    {
+      "ja": "風は見えませんが、木が揺れるので分かります。",
+      "vi": "Gió không thấy được, nhưng cây lay nên ta biết."
+    },
+    {
+      "ja": "大切なものも、そうかもしれません。",
+      "vi": "Những điều quan trọng có lẽ cũng như thế."
+    },
+    {
+      "ja": "目には見えないけれど、確かにそこにあります。",
+      "vi": "Mắt không thấy, nhưng chắc chắn là có ở đó."
+    },
+    {
+      "ja": "誰かの優しさも、後から気づくことが多いですね。",
+      "vi": "Sự dịu dàng của ai đó, ta thường nhận ra muộn nhỉ."
+    },
+    {
+      "ja": "今日は、気づく側になってみましょう。",
+      "vi": "Hôm nay, hãy thử làm người nhận ra."
+    },
+    {
+      "ja": "小さな揺れを、見つけられますように。",
+      "vi": "Mong bạn tìm thấy những rung động nhỏ."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "風の音"
+  }
+}

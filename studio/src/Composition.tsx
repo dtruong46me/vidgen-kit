@@ -39,7 +39,7 @@ const calculateMetadata: CalculateMetadataFunction<DailyVideoProps> = ({
  * Không audio, không clip — cảnh rơi về nền gradient, đúng như một câu chưa
  * chọn được cảnh quay.
  *
- * Lúc render thật, `--props=../content/<ngày>.build.json` ghi đè toàn bộ chỗ này.
+ * Lúc render thật, `--props=../content/<ngày>/build.json` ghi đè toàn bộ chỗ này.
  */
 const PLACEHOLDER: DailyVideoProps = {
   id: "preview",
