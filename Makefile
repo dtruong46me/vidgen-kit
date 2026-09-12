@@ -6,13 +6,13 @@
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4 + ảnh bìa
 #   make release DAY=2026-08-20      trọn gói để đăng: video + ảnh bìa + check
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
-#   make thumbnail DAY=2026-08-20    render ảnh bìa: tiêu đề ngày đã hiện, câu 1 chưa đọc
+#   make thumbnail DAY=2026-08-20    render ảnh bìa: ngày tháng + câu chào cùng trên hình
 #   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
 #   make shots-find / shots-get / shots-add   thêm clip vào thư viện
 #   make new     DAY=2026-09-10      tạo kịch bản mới (ngân hàng, hoặc Claude nếu có khoá)
 #   make bank                        in ngân hàng kịch bản kèm ước lượng thời lượng
 #   make check   DAY=2026-08-20      kiểm MP4: số đo + trang duyệt từng cảnh
-#   make export  DAY=2026-08-20      gói ra out/<ngày>/: caption, lời, audio, metadata
+#   make export  DAY=2026-08-20      gói ra out/<ngày>/: caption, lời, audio, ảnh bìa, metadata
 #   make export-all                  gói mọi ngày đã dựng nội dung
 #   make content-all                 chuẩn bị nội dung cho MỌI kịch bản chưa có
 #   make all                         dựng mọi kịch bản chưa có MP4
@@ -187,9 +187,10 @@ still:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --still $(FRAME)
 
-## Ảnh bìa: frame mà ngày và chủ đề vừa hiện đủ, caption câu 1 chưa vào, chưa có
-## tiếng đọc. Frame đó do timeline.py chọn (thumbnailFrame trong build.json).
+## Ảnh bìa: frame mà tiêu đề ngày VÀ câu chào おはようございます cùng hiện đủ.
+## Frame đó do timeline.py chọn (thumbnailFrame trong build.json).
 ## Như `still`, chỉ vẽ từ build.json đã có — sửa kịch bản thì `make content` trước.
+## Thường không phải gõ: `make video` dựng kèm, `make export` dựng nốt nếu thiếu.
 thumbnail:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --thumbnail

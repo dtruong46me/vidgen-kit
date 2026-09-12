@@ -13,6 +13,7 @@ sẵn rồi bảo Remotion vẽ ra.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -32,7 +33,6 @@ class RenderError(RuntimeError):
 
 def _from_studio(path: Path) -> str:
     """Đường dẫn nhìn từ bên trong studio/ — đây là chỗ sinh ra tiền tố ../."""
-    import os
     return os.path.relpath(path, STUDIO_DIR)
 
 
@@ -48,11 +48,20 @@ def _props_path(slug: str) -> Path:
 def _run(args: list[str]) -> None:
     # Thiếu node_modules thì npx chỉ báo "could not determine executable to run",
     # không nói thiếu gì — chặn trước bằng một câu dễ hiểu.
-    if not (STUDIO_DIR / "node_modules" / ".bin" / "remotion").exists():
+    # `lexists`, không phải `Path.exists()`: `.bin/remotion` có thể là symlink
+    # mà Windows không đi theo được (node_modules cài từ WSL). Lúc đó
+    # `Path.exists()` NÉM OSError [WinError 1920] chứ không trả về False, và cả
+    # lệnh chết ở đúng dòng kiểm tra — nghịch lý, vì dòng này sinh ra để thay
+    # một thông báo khó hiểu bằng một câu dễ hiểu. `lexists` chỉ hỏi "có cái tên
+    # đó không", không đi theo liên kết, nên nó trả lời được.
+    if not os.path.lexists(STUDIO_DIR / "node_modules" / ".bin" / "remotion"):
         raise RenderError("Chưa cài Remotion (studio/node_modules trống) — chạy 'make setup' trước.")
     # Không nuốt stdout/stderr: thanh tiến trình của Remotion và thông báo lỗi
     # của nó là thứ đáng xem nhất khi render hỏng.
-    proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)
+    try:
+        proc = subprocess.run(["npx", "remotion", *args], cwd=STUDIO_DIR)
+    except OSError as exc:
+        raise RenderError(f"Không gọi được npx: {exc}") from exc
     if proc.returncode != 0:
         raise RenderError(f"Remotion dừng với mã {proc.returncode}. Xem log phía trên.")
 
@@ -86,7 +95,7 @@ def still(slug: str, frame: int) -> Path:
 
 
 def thumbnail(slug: str) -> Path:
-    """build.json -> out/<slug>-thumbnail.png — ảnh bìa: tiêu đề ngày đã hiện, câu 1 chưa đọc.
+    """build.json -> out/<slug>-thumbnail.png — ảnh bìa: ngày tháng và câu chào cùng trên hình.
 
     Frame lấy từ `thumbnailFrame` trong build.json, do timeline.py chọn. Module
     này chỉ đọc số đó, không tự đoán frame nào đẹp (P-2).
@@ -98,4 +107,4 @@ def thumbnail(slug: str) -> Path:
             f"{props.relative_to(ROOT)} dựng từ bản cũ, chưa có thumbnailFrame — "
             f"chạy 'make content DAY={slug}' rồi thử lại."
         )
-    return _still(slug, frame, OUT_DIR / f"{slug}-thumbnail.png")
+    return _still(slug, frame, OUT_DIR / slug / f"{slug}-thumbnail.png")

@@ -69,13 +69,22 @@ chừng 2/3 chiều cao, chừa chỗ cho chỗ nhấn giọng.
 make thumbnail DAY=2026-08-20    # out/2026-08-20-thumbnail.png
 ```
 
-Chụp đúng frame caption câu 1 bắt đầu vào — `thumbnailFrame` trong build.json,
-mặc định 45. Ở frame đó ngày và chủ đề đã hiện đủ (chủ đề vào xong ở frame 44),
-caption còn trong suốt, và chưa có tiếng đọc. Frame do `timeline.py` chọn,
-`render.py` chỉ đọc số đó (P-2).
+Chụp đúng frame **caption câu 1 vừa vào xong** — `thumbnailFrame` trong
+build.json, mặc định 45 + 26 + 6 = **77**. Ở frame đó có đủ ba thứ trên hình:
+ngày tháng, chủ đề, và câu chào `今日は、…です。おはようございます。`.
 
-Như `make still`, lệnh này chỉ vẽ từ build.json đã có. `make video` thì dựng
-luôn ảnh bìa ngay sau MP4, nên ngày thường không phải gọi riêng.
+Bản trước chụp ở frame 45, đúng lúc caption **bắt đầu** vào — nên caption còn
+trong suốt hoàn toàn và ảnh bìa chỉ có mỗi tiêu đề ngày. Mà ảnh bìa là thứ duy
+nhất người lướt thấy trước khi quyết định xem hay không: thiếu lời chào là thiếu
+nửa thông tin.
+
+Hai số cộng thêm nằm ở `timeline.py` (`CAPTION_IN_FRAMES` 26 phải khớp
+`IN_FRAMES` của `Caption.tsx`, `THUMBNAIL_SETTLE` 6 là nhịp thở cho chắc chữ đã
+đứng yên). Frame do `timeline.py` chọn, `render.py` chỉ đọc số đó (P-2).
+
+Như `make still`, lệnh này chỉ vẽ từ build.json đã có. Thường không phải gõ:
+`make video` dựng ảnh bìa ngay sau MP4, và `make export` dựng nốt cho ngày nào
+còn thiếu.
 
 ### Chữ
 

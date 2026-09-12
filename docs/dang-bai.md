@@ -90,7 +90,8 @@ Sinh ra `out/2026-09-11/`:
 | `metadata.json` | Mọi số đo và mọi trường máy đọc được |
 | `credits.txt` | Nguồn, tác giả, giấy phép từng clip và bản nhạc |
 | `audio/line-XX.mp3` | Giọng đọc từng câu |
-| `<ngày>.mp4`, `<ngày>-thumbnail.png` | Video và ảnh bìa, nếu đã dựng |
+| `<ngày>-thumbnail.png` | Ảnh bìa — thiếu thì `make export` dựng luôn |
+| `<ngày>.mp4` | Video, nếu đã dựng |
 
 `script.txt` trông thế này:
 
@@ -113,6 +114,14 @@ không gọi TTS, không chọn clip, không tính một frame nào — phép c�
 nhất nó dùng là mượn của `check.py` (P-2). Vì vậy chạy lại bao nhiêu lần cũng
 được, và sửa `export.py` không bao giờ làm lệch video.
 
+**Đúng một ngoại lệ: ảnh bìa.** Thiếu `out/<ngày>-thumbnail.png`, hoặc file đó
+cũ hơn `build.json`, thì `make export` gọi Remotion chụp lại. Gói không có ảnh
+bìa là gói chưa đăng được, mà ảnh bìa chỉ tốn MỘT frame chứ không phải cả video.
+Ngoại lệ này không phá nguyên tắc trên: frame chụp là `thumbnailFrame` đã ghi
+sẵn trong hợp đồng, `export.py` không tự tính. Ngày nào đã có ảnh bìa mới thì
+không dựng lại, nên lần gói thứ hai vẫn nhanh và vẫn ra thư mục giống hệt. Dựng
+không được (chưa cài Remotion) thì nó kêu một dòng rồi gói tiếp, không chặn.
+
 Thư mục cũ bị **xoá trước khi gói lại**. Bớt một câu rồi gói lại mà còn
 `line-09.mp3` nằm lại thì người đăng sẽ tưởng video có chín câu.
 
@@ -128,6 +137,11 @@ dụng làm mốc.
 - `build.json chưa có trường "post"` — build.json dựng bằng bản pipeline trước
   BƯỚC 7. Chạy `make content` lại.
 - `chưa có out/<ngày>.mp4` — gói thiếu video, chạy `make video`.
+- `chưa dựng được ảnh bìa: …` — Remotion chưa chạy được ở máy này. Gói vẫn đủ
+  phần chữ; chạy `make thumbnail DAY=...` ở máy dựng được là có.
+- `<ngày>-thumbnail.png là bản chụp từ lần dựng trước` — có ảnh bìa, nhưng nó cũ
+  hơn `build.json`, tức chụp ở frame của bản kịch bản trước. Gói vẫn mang nó
+  theo, nhưng đừng đăng trước khi chụp lại.
 - `<tên clip> thiếu tác giả, giấy phép, nguồn` — `library/shots.json` còn trống
   chỗ đó. Xem `make shots`.
 

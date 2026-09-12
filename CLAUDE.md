@@ -81,12 +81,17 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   Cảnh 1 lặng `intro.pauseSeconds` (mặc định 1,5 giây) rồi mới đọc, và caption
   câu 1 chờ đúng bấy nhiêu (`captionStartInFrames`). `build.json` vẫn ghi
   `intro: null` để Remotion bản cũ đếm đúng tổng — đừng xoá trường đó.
-- **Ảnh bìa chụp đúng lúc caption câu 1 bắt đầu vào** (`thumbnailFrame`, do
-  `timeline.py` chọn): ngày và chủ đề đã hiện đủ, caption còn trong suốt, chưa
-  có tiếng. Chủ đề vào xong ở frame 44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong
-  `TitleCard.tsx`) — nâng hai số đó hoặc hạ `pauseSeconds` dưới 1,5 là ảnh bìa
-  bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4; `make release`
-  thêm `make check` sau cùng — đó là lệnh trọn gói của một ngày.
+- **Ảnh bìa chụp lúc caption câu 1 VÀO XONG** (`thumbnailFrame`, do `timeline.py`
+  chọn — mặc định 45 + 26 + 6 = 77): trên hình có đủ ngày tháng, chủ đề và câu
+  chào `おはようございます`. Bản trước chụp ở frame 45, đúng lúc caption mới bắt
+  đầu vào, nên ảnh bìa chỉ có mỗi tiêu đề ngày — mà ảnh bìa là thứ duy nhất
+  người lướt thấy trước khi quyết định xem. `CAPTION_IN_FRAMES` (26) trong
+  `timeline.py` phải khớp `IN_FRAMES` của `Caption.tsx`; nó chỉ dùng để chọn
+  frame ảnh bìa, không tham gia phép cộng nào. Chủ đề vẫn phải vào xong ở frame
+  44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong `TitleCard.tsx`) để không hiện
+  cùng nhịp với caption. `make video` dựng ảnh bìa ngay sau MP4, `make export`
+  dựng nốt cho ngày nào còn thiếu; `make release` thêm `make check` sau cùng —
+  đó là lệnh trọn gói của một ngày.
 - **Caption bài đăng là chữ ĐỂ ĐĂNG, không phải chữ để vẽ.** Trường `caption`
   trong kịch bản không hiện trong video; nó đi ra `out/<ngày>/caption.txt`. Ngày
   tháng KHÔNG gõ vào đó — `pipeline/post.py` ghép từ tên kịch bản (`2026-09-11`
@@ -98,13 +103,19 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `CONTENT_KEYS` của `new.py` nên không kế thừa (mỗi ngày một câu khác);
   `hashtags` nằm trong `DEFAULT_SETTINGS` nên kế thừa như giọng đọc và nhạc nền
   (kênh nào cũng một bộ thẻ).
-- **`make export` chỉ ĐỌC, không dựng.** Nó gói `content/<ngày>/build.json` và
-  MP4 đã có ra `out/<ngày>/`, không gọi TTS, không chọn clip, không tính frame —
+- **`make export` chỉ ĐỌC, trừ đúng một thứ: ẢNH BÌA.** Nó gói
+  `content/<ngày>/build.json` và MP4 đã có ra `out/<ngày>/`, không gọi TTS,
+  không chọn clip, không tính frame —
   phép cộng frame duy nhất nó dùng là mượn `check.py` (P-2). Nhờ vậy sửa
   `export.py` không bao giờ làm lệch một frame nào. Nó xoá thư mục cũ trước khi
   gói lại: bớt một câu mà còn `line-09.mp3` nằm lại là người đăng tưởng video có
   chín câu. Và nó KHÔNG ghi dấu thời gian vào `metadata.json` — gói hai lần phải
-  ra hai thư mục giống hệt nhau, y như bộ chọn clip phải tất định.
+  ra hai thư mục giống hệt nhau, y như bộ chọn clip phải tất định. Ngoại lệ ảnh
+  bìa: thiếu `out/<ngày>-thumbnail.png` hoặc file đó cũ hơn `build.json` thì nó
+  gọi Remotion chụp lại, vì gói không có ảnh bìa là gói chưa đăng được mà ảnh
+  bìa chỉ tốn MỘT frame. Ngoại lệ này không phá câu trên: frame chụp là
+  `thumbnailFrame` đã ghi sẵn trong hợp đồng, `export.py` không tự tính. Dựng
+  không được thì kêu một dòng rồi gói tiếp, không chặn.
 - **Sóng giọng đọc (`VoiceWave.tsx`) đọc từ file giọng của từng câu, không phải
   nhạc nền.** Nằm ngay trên tiêu đề, chạy suốt các cảnh, lặng thì phẳng thành
   hàng chấm. Chỉ là lớp vẽ: không có trường nào trong hợp đồng, vì `audio` và
@@ -451,12 +462,19 @@ Nghiệm thu BƯỚC 9 đạt:
 5. **Remotion đọc hợp đồng mới không sai kiểu.** `tsc --noEmit` sạch. Trường
    `segments` là tuỳ chọn, bản cũ bỏ qua thì vẫn hiện nguyên `ja`/`vi` (P-3).
 
+Ảnh bìa dời từ frame 45 sang **frame 77** (caption câu 1 vào xong) để bắt được
+cả ngày tháng lẫn `おはようございます`, và `make export` giờ tự dựng ảnh bìa cho
+ngày nào còn thiếu hoặc đang mang bản cũ. Cả 31 ngày dựng lại: tổng frame **y
+nguyên** từng ngày (`2026-08-20` vẫn 1562) — `thumbnailFrame` không tham gia
+phép cộng nào.
+
 Một chỗ chưa kiểm được ở BƯỚC 9: **chưa nhìn thấy khung hình thật.**
 `node_modules/.bin/remotion` trên máy này là symlink do WSL tạo, Python bên
 Windows không stat nổi (WinError 1920), nên `make still` và `make check` không
 chạy. Phần frame và phần chữ đã kiểm bằng số; phần BỐ CỤC — khối chữ có nở quá
 lên vùng tiêu đề không — phải chạy `make still DAY=2026-08-20 FRAME=614` và
-`FRAME=756` ở môi trường dựng được mới biết chắc.
+`FRAME=756` ở môi trường dựng được mới biết chắc. Ảnh bìa mới (frame 77) cũng
+chưa ai nhìn thấy — `make thumbnail DAY=2026-08-20` là xong.
 
 Một khiếm khuyết BƯỚC 7 lộ ra khi dựng tháng 9, đã sửa ở phía kịch bản:
 

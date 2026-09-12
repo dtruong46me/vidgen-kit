@@ -32,8 +32,12 @@ const TITLE_IN = 34;
  * Dòng chủ đề hiện sau dòng ngày bấy nhiêu frame.
  *
  * Nó vào xong ở frame 10 + 34 = 44 — kịp trước frame 45, lúc caption câu 1 bắt
- * đầu vào (khoảng lặng mặc định 1,5 giây ở 30fps). `make thumbnail` chụp đúng
- * frame 45 đó, nên nâng số này lên là ảnh bìa bắt chủ đề đang hiện dở.
+ * đầu vào (khoảng lặng mặc định 1,5 giây ở 30fps). Hai khối chữ không được hiện
+ * cùng lúc, nên nâng số này lên là chủ đề và caption chồng nhịp nhau.
+ *
+ * Ảnh bìa thì chụp muộn hơn nữa — frame 77, lúc caption câu 1 đã vào xong — nên
+ * ở đó cả ngày, chủ đề lẫn lời chào đều đã đứng yên (xem `thumbnail_frame`
+ * trong pipeline/timeline.py).
  */
 const SUBTITLE_DELAY = 10;
 /**

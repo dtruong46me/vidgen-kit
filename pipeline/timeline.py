@@ -50,6 +50,15 @@ from .script import Script
 from .tts import Voiceover
 
 
+#: Caption vào xong trong bao nhiêu frame — phải khớp `IN_FRAMES` của
+#: `studio/src/Caption.tsx`. Chỉ dùng để CHỌN frame làm ảnh bìa, không tham gia
+#: phép cộng nào: lệch một hai frame thì ảnh bìa xấu đi chứ timeline không lệch.
+CAPTION_IN_FRAMES = 26
+#: Chờ thêm bấy nhiêu frame sau khi chữ vào xong rồi mới chụp ảnh bìa — một
+#: nhịp thở, để chắc chắn bắt được chữ đứng yên chứ không phải frame cuối của
+#: animation.
+THUMBNAIL_SETTLE = 6
+
 #: Mảnh caption ngắn nhất được phép. Ngắn hơn thì chữ vừa hiện xong đã phải tắt,
 #: đọc ra là giật. Dùng để ép các mốc không dồn cục khi giọng đọc lướt nhanh.
 MIN_SEGMENT_FRAMES = 15
@@ -104,14 +113,31 @@ class Timeline:
 
     @property
     def thumbnail_frame(self) -> int:
-        """Frame làm ảnh bìa: tiêu đề ngày đã hiện đủ, câu 1 chưa đọc.
+        """Frame làm ảnh bìa: ngày tháng VÀ câu chào cùng hiện đủ trên hình.
 
-        Chính là lúc caption cảnh 1 bắt đầu vào. Ở frame đó caption còn trong suốt
-        hoàn toàn và giọng đọc chưa cất lên, còn TitleCard.tsx cho ngày và chủ đề
-        vào xong ở frame 44 — kịp trước khoảng lặng mặc định 45 frame. Không có
-        tiêu đề thì là frame 0.
+        Bản trước chụp đúng lúc caption cảnh 1 BẮT ĐẦU vào — ở frame đó caption
+        còn trong suốt hoàn toàn, nên ảnh bìa chỉ có mỗi tiêu đề ngày nằm trên
+        clip. Mà câu 1 của mọi kịch bản là
+        `今日は、<ngày>です。おはようございます。`: bỏ nó đi là bỏ mất lời chào,
+        thứ nói cho người lướt biết đây là video gì.
+
+        Giờ lùi lại `CAPTION_IN_FRAMES + THUMBNAIL_SETTLE` frame, tức caption đã
+        vào xong và đứng yên một nhịp. Tiêu đề ngày vẫn còn nguyên — nó sống hết
+        cảnh 1 và chỉ mờ đi ở đoạn chuyển sang cảnh 2. Không có tiêu đề thì
+        caption vào ngay từ frame 0 và công thức vẫn đúng.
         """
-        return self.scenes[0].caption_start_in_frames if self.scenes else 0
+        if not self.scenes:
+            return 0
+        scene = self.scenes[0]
+        start = scene.caption_start_in_frames
+        span = scene.duration_in_frames - start
+        if scene.segments:
+            # Câu 1 mà bị cắt mảnh thì lời chào nằm ở mảnh CUỐI — lấy mảnh đó.
+            start = scene.segments[-1].from_in_frames
+            span = scene.segments[-1].duration_in_frames
+        # `span // 2` là lưới an toàn cho mảnh quá ngắn: thà lấy giữa mảnh còn
+        # hơn rơi vào đoạn chữ đang tắt đi.
+        return start + min(CAPTION_IN_FRAMES + THUMBNAIL_SETTLE, span // 2)
 
 
 def _opening_pause(script: Script) -> float:

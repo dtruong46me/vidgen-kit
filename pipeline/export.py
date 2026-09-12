@@ -22,6 +22,13 @@ Module này KHÔNG tính gì cả. Nó đọc `content/<slug>/build.json` — h�
 chốt — cộng thêm số đo thật của MP4 nếu có. Nó là người đóng gói, không phải
 người dựng. Vì vậy sửa nó không bao giờ làm lệch một frame nào.
 
+Một ngoại lệ, đúng một thứ: **ảnh bìa còn thiếu thì gọi Remotion dựng luôn.**
+Gói không có ảnh bìa là gói chưa đăng được, mà ảnh bìa chỉ tốn MỘT frame chứ
+không phải cả video. Ngoại lệ này không phá nguyên tắc ở trên, vì nó không tính
+frame nào cả: frame chụp là `thumbnailFrame` đã ghi sẵn trong hợp đồng, do
+`timeline.py` chọn (P-2). Ngày nào đã có ảnh bìa thì không dựng lại, nên lần gói
+thứ hai vẫn nhanh và vẫn ra thư mục giống hệt.
+
 Phép cộng frame duy nhất ở đây mượn nguyên của `check.py` (`total_frames`,
 `moments`), chứ không viết lại — P-2: đếm frame sai thì chỉ có thể sai ở một chỗ.
 
@@ -38,7 +45,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import library as library_mod, paths
+from . import library as library_mod, paths, render as render_mod
 from .check import total_frames
 from .probe import ProbeError, count_frames, media_info
 from .render import OUT_DIR
@@ -186,7 +193,7 @@ def credit_rows(build: dict, library) -> tuple[list[str], list[str]]:
     return rows, notes
 
 
-def metadata(build: dict, mp4: Path | None) -> dict:
+def metadata(build: dict, mp4: Path | None, thumb: Path | None = None) -> dict:
     """Mọi thứ máy đọc được, gộp một chỗ. Số đo lấy từ CHÍNH file MP4 nếu có."""
     fps = build.get("fps", 30)
     promised = total_frames(build)
@@ -204,6 +211,14 @@ def metadata(build: dict, mp4: Path | None) -> dict:
             })
         except ProbeError as exc:
             video["error"] = str(exc)
+
+    # Ảnh bìa: ghi cả frame đã chụp, để sau này nhìn metadata là biết ảnh bìa
+    # lấy ở đâu ra mà không phải mở build.json.
+    thumbnail = {
+        "file": thumb.name if thumb else None,
+        "rendered": thumb is not None,
+        "frame": build.get("thumbnailFrame"),
+    }
 
     cursor = 0
     lines = []
@@ -238,6 +253,7 @@ def metadata(build: dict, mp4: Path | None) -> dict:
         "seconds": round(promised / fps, 3),
         "post": _post(build),
         "video": video,
+        "thumbnail": thumbnail,
         "bgm": build.get("bgm"),
         "assets": _used_assets(build),
         "lines": lines,
@@ -274,6 +290,42 @@ def _copy_if_exists(src: Path, dest_dir: Path, out: list[str]) -> None:
         out.append(src.name)
 
 
+def _thumbnail_stale(thumb: Path, slug: str) -> bool:
+    """Ảnh bìa cần dựng lại chưa? Thiếu, hoặc cũ hơn hợp đồng.
+
+    So mtime với `build.json` vì `thumbnailFrame` nằm trong đó: dựng lại nội
+    dung xong mà ảnh bìa vẫn là bản chụp ở frame cũ thì gói mang một cái bìa
+    không còn đúng với video — mà nhìn file thì không thấy.
+    """
+    if not thumb.exists():
+        return True
+    return thumb.stat().st_mtime < paths.build_path(slug).stat().st_mtime
+
+
+def _ensure_thumbnail(thumb: Path, slug: str, log) -> list[str]:
+    """Lo cho gói có ảnh bìa mới. Trả về ghi chú, KHÔNG ném lỗi.
+
+    Hỏng thì không chặn: máy nào chưa dựng được video thì vẫn phải gói được
+    phần chữ. Nói ra một dòng là đủ — nhưng phải nói đủ hai chuyện khác nhau:
+    không dựng được, và gói đang mang bản chụp cũ.
+    """
+    if not _thumbnail_stale(thumb, slug):
+        return []
+
+    log(f"  dựng ảnh bìa out/{thumb.name} (chưa có hoặc đã cũ)…")
+    try:
+        render_mod.thumbnail(slug)
+        return []
+    except (render_mod.RenderError, OSError) as exc:
+        notes = [f"chưa dựng được ảnh bìa: {exc}"]
+    if thumb.exists():
+        notes.append(
+            f"{thumb.name} là bản chụp từ lần dựng trước, cũ hơn build.json — "
+            f"frame có thể không còn đúng. Chạy `make thumbnail DAY={slug}`"
+        )
+    return notes
+
+
 def package(slug: str, log=print) -> Package:
     """Gói một ngày. Trả về Package; ném ExportError khi chưa có build.json."""
     build = _build(slug)
@@ -288,6 +340,8 @@ def package(slug: str, log=print) -> Package:
     credits, notes = credit_rows(build, library)
 
     mp4 = OUT_DIR / f"{slug}.mp4"
+    thumb = OUT_DIR / f"{slug}-thumbnail.png"
+    notes += _ensure_thumbnail(thumb, slug, log)
     written = []
 
     (dest_dir / "caption.txt").write_text(caption_text(build), encoding="utf-8")
@@ -301,7 +355,8 @@ def package(slug: str, log=print) -> Package:
         "\n".join(credits) + "\n" if credits else "", encoding="utf-8")
     written.append("credits.txt")
     (dest_dir / "metadata.json").write_text(
-        json.dumps(metadata(build, mp4 if mp4.exists() else None),
+        json.dumps(metadata(build, mp4 if mp4.exists() else None,
+                            thumb if thumb.exists() else None),
                    ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8")
     written.append("metadata.json")
@@ -311,7 +366,7 @@ def package(slug: str, log=print) -> Package:
     written.append(f"audio/ ({copied} file)")
 
     _copy_if_exists(mp4, dest_dir, written)
-    _copy_if_exists(OUT_DIR / f"{slug}-thumbnail.png", dest_dir, written)
+    _copy_if_exists(thumb, dest_dir, written)
 
     if not mp4.exists():
         notes.append(f"chưa có {mp4.relative_to(ROOT)} — gói thiếu video, "
