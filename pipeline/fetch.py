@@ -45,6 +45,15 @@ VIDEO_DIR = ROOT / "studio" / "public" / "video"
 TIMEOUT = 30
 MIN_WIDTH = 1080
 
+# Cloudflare của Pexels chặn thẳng User-Agent mặc định của urllib
+# ("Python-urllib/3.x") bằng error 1010 — HTTP 403, kể cả khi khoá API đúng.
+# Đó đúng là cái đã làm T-1 treo nhiều ngày: tưởng hỏng khoá, hoá ra hỏng UA.
+# Khai một UA trình duyệt cho MỌI lần gọi mạng của module này, cả tìm lẫn tải.
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+)
+
 
 class FetchError(RuntimeError):
     """Không tải được. Thông báo viết cho người đọc, không phải traceback."""
@@ -117,7 +126,7 @@ def _key(provider: str) -> str:
 
 
 def _get_json(url: str, headers: dict[str, str]) -> dict:
-    req = urllib.request.Request(url, headers=headers)
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
             return json.loads(resp.read().decode("utf-8"))
@@ -128,6 +137,25 @@ def _get_json(url: str, headers: dict[str, str]) -> dict:
         raise FetchError(f"Không nối được tới máy chủ: {exc.reason}") from exc
     except json.JSONDecodeError as exc:
         raise FetchError(f"Máy chủ trả về thứ không phải JSON: {url}") from exc
+
+
+def _best_file(files, width_of):
+    """Chọn bản tải trong các bản mà nhà cung cấp đưa ra.
+
+    KHÔNG lấy bản rộng nhất. Video đích chỉ 1080×1920, mà clip nền thì CÓ
+    commit — một bản 4K nặng gấp năm lần bản 1080 mà lên khung hình y hệt, chỉ
+    phình repo. Vậy nên: bản dọc HẸP NHẤT mà vẫn đủ 1080px. Không có bản nào
+    đủ rộng thì lấy bản rộng nhất, để người dùng còn thấy nó thiếu bao nhiêu.
+    """
+    files = list(files)
+    if not files:
+        return None
+    vertical = [f for f in files if width_of(f)[1] > width_of(f)[0]]
+    pool = vertical or files
+    enough = [f for f in pool if width_of(f)[0] >= MIN_WIDTH]
+    if enough:
+        return min(enough, key=lambda f: width_of(f)[0])
+    return max(pool, key=lambda f: width_of(f)[0])
 
 
 def _pexels(query: str | None, source_id: str | None, per_page: int) -> list[Candidate]:
@@ -145,11 +173,10 @@ def _pexels(query: str | None, source_id: str | None, per_page: int) -> list[Can
 
     out = []
     for video in doc.get("videos", []):
-        # Lấy bản dọc to nhất; không có bản dọc nào thì lấy bản to nhất để
-        # người dùng còn thấy mà tự quyết định có crop hay không.
-        files = video.get("video_files", []) or []
-        vertical = [f for f in files if (f.get("height") or 0) > (f.get("width") or 0)]
-        best = max(vertical or files, key=lambda f: f.get("width") or 0, default=None)
+        best = _best_file(
+            video.get("video_files", []) or [],
+            lambda f: (f.get("width") or 0, f.get("height") or 0),
+        )
         if not best:
             continue
         out.append(Candidate(
@@ -180,9 +207,10 @@ def _pixabay(query: str | None, source_id: str | None, per_page: int) -> list[Ca
 
     out = []
     for hit in doc.get("hits", []):
-        sizes = (hit.get("videos") or {}).values()
-        vertical = [v for v in sizes if (v.get("height") or 0) > (v.get("width") or 0)]
-        best = max(vertical or sizes, key=lambda v: v.get("width") or 0, default=None)
+        best = _best_file(
+            (hit.get("videos") or {}).values(),
+            lambda v: (v.get("width") or 0, v.get("height") or 0),
+        )
         if not best:
             continue
         out.append(Candidate(
@@ -243,7 +271,8 @@ def _download(url: str, dest: Path) -> None:
     # một file mp4 cụt trong studio/public/ cho ffprobe vấp phải.
     tmp = dest.with_suffix(dest.suffix + ".part")
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp, tmp.open("wb") as fh:
+        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp, tmp.open("wb") as fh:
             shutil.copyfileobj(resp, fh)
     except (urllib.error.URLError, OSError) as exc:
         tmp.unlink(missing_ok=True)

@@ -85,7 +85,8 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   `timeline.py` chọn): ngày và chủ đề đã hiện đủ, caption còn trong suốt, chưa
   có tiếng. Chủ đề vào xong ở frame 44 (`SUBTITLE_DELAY` 10 + `TITLE_IN` 34 trong
   `TitleCard.tsx`) — nâng hai số đó hoặc hạ `pauseSeconds` dưới 1,5 là ảnh bìa
-  bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4.
+  bắt chữ đang hiện dở. `make video` dựng ảnh bìa ngay sau MP4; `make release`
+  thêm `make check` sau cùng — đó là lệnh trọn gói của một ngày.
 - **Sóng giọng đọc (`VoiceWave.tsx`) đọc từ file giọng của từng câu, không phải
   nhạc nền.** Nằm ngay trên tiêu đề, chạy suốt các cảnh, lặng thì phẳng thành
   hàng chấm. Chỉ là lớp vẽ: không có trường nào trong hợp đồng, vì `audio` và
@@ -110,9 +111,14 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
 - **Không commit file máy sinh:** `out/`, `content/*.build.json`,
   `content/*.cache.json`, `studio/public/audio/20*/`. Không có ngoại lệ nào.
   Studio mở bằng props mặc định viết thẳng trong `Composition.tsx`, không đọc file.
-- **Nhạc nền và clip nền thì CÓ commit.** Chúng là tài sản thật, tải một lần dùng
-  mãi, và thiếu chúng là video mất hình mất tiếng. Chỉ giọng đọc mới là đồ máy
-  sinh, vì `make content` dựng lại được trong vài giây.
+- **Nhạc nền CÓ commit, clip nền thì KHÔNG.** Nhạc nhẹ và không tải lại được
+  bằng lệnh, nên nó vào git. Clip nền thì ngược lại: thư viện 52 clip dọc
+  1080×1920 nặng 1,6 GB, mà `library/shots.json` ghi đủ nguồn và id nên
+  `make shots-get` dựng lại được từng cái — sổ vào git, file thì không. Vì vậy
+  máy mới clone về sẽ thấy `make shots` kêu "thiếu file" cho tới khi tải lại.
+  Ba clip đầu (`tea-room`, `matcha-whisk`, `tea-tray`) đã nằm trong lịch sử từ
+  trước nên vẫn được git theo dõi. Giọng đọc cũng không commit, vì
+  `make content` dựng lại được trong vài giây.
 - **Romaji do máy sinh, đừng gõ tay.** Kịch bản không có trường `romaji` nữa.
   Máy đọc sai chữ nào thì thêm cách đọc vào `library/readings.json` — bảng đó áp
   cho mọi ngày, sửa một lần là xong mãi. Đọc đối chiếu bằng `make reading`.
@@ -120,6 +126,11 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   macron (今日 ra `Kyou`, tức mở lại D-5), không đọc số (`8月20日` ra
   `8 gatsu 20ka`), và đọc sai chữ nhiều nghĩa. Lớp macron bám vào `pron` và
   `kana` của MeCab chứ không đoán theo mặt chữ — nhờ vậy `思う` không thành `omō`.
+- **Thư viện hiện có 52 clip, 7 tag chính:** `tea`, `walk`, `rain`, `flower`,
+  `window`, `hands`, `garden`, cộng các tag phụ (`calm`, `interior`, `morning`,
+  `people`, `ritual`, `nature`, `closeup`…) mà `library/bank.json` đang gọi tên.
+  Bảy clip mỗi tag chính là đủ để một ngày tám cảnh không dùng lại clip nào và
+  không cảnh nào phải loop — kiểm bằng `pipeline.shots.choose`.
 - **Mỗi file trong `studio/public/` phải có một dòng trong `library/shots.json`.**
   Câu hỏi "clip này ở đâu ra" chỉ rẻ đúng một lúc: lúc vừa tải về. Ba clip đầu
   tiên suýt mất dấu, may là lịch sử git còn tên file gốc nên truy ngược được.
@@ -137,6 +148,16 @@ Debug bằng cách mở file JSON hoặc nghe file MP3, không phải bằng cá
   khác nhau và mốc hồi quy mất nghĩa. Phá hoà bằng thứ tự dòng trong sổ.
 - **Chọn clip phải chạy SAU tts.** Muốn biết clip có đủ dài không thì phải biết
   cảnh dài bao nhiêu, mà cảnh dài bao nhiêu là do giọng đọc quyết định (P-1).
+- **Mọi lần gọi mạng trong `fetch.py` phải mang `User-Agent` trình duyệt.**
+  Cloudflare của Pexels chặn thẳng UA mặc định của urllib (`Python-urllib/3.x`)
+  bằng error 1010, trả HTTP 403 — mà `fetch.py` dịch 403 thành "khoá API sai
+  hoặc hết hạn", nên đọc log thì tưởng hỏng khoá và đi xin khoá mới. Đó đúng là
+  cái đã làm T-1 treo. Hằng `USER_AGENT` khai một chỗ, dùng cho cả tìm lẫn tải.
+- **Tải bản dọc vừa đủ 1080px, đừng lấy bản rộng nhất.** Video đích chỉ
+  1080×1920, một bản 4K lên khung hình y hệt mà nặng gấp năm. `_best_file` lấy
+  bản dọc HẸP NHẤT mà vẫn đủ 1080. Siêu dữ liệu của Pexels có lúc nói dối —
+  `6186641` quảng cáo `hd_1080_2048` nhưng phục vụ file 720×1366 — nên đừng tin
+  con số API trả về, `make shots` đo lại bằng ffprobe mới là số thật.
 - **Khoá API đọc từ `.env` ở gốc repo, không bao giờ vào git.** `pipeline/env.py`
   nạp file đó; biến môi trường thật thắng file. `.env` nằm trong `.gitignore`,
   `.env.example` mới là file được commit, và `make setup` chép cái sau thành cái
@@ -213,12 +234,10 @@ Không cái nào chặn dây chuyền — `make video` chạy đủ mà không c
 
 | | Việc | Vì sao treo | Làm xong thì được gì |
 |---|---|---|---|
-| T-1 | Lấy `PEXELS_API_KEY` | Trang đăng nhập Pexels đang lỗi *"An unexpected error occurred"* — lỗi phía họ, không phải cấu hình. Cloudflare cũng chặn cả `curl` lẫn WebFetch từ máy này | Điền nốt tên tác giả ba clip trong `library/shots.json`, và `make shots-find SOURCE=pexels` chạy được |
 | T-2 | Lấy `PIXABAY_API_KEY` | Chưa làm. Dễ hơn Pexels nhiều: đăng nhập xong khoá hiện thẳng trên `pixabay.com/api/docs/` | `make shots-find SOURCE=pixabay` chạy được. Code đã đối chiếu với tài liệu API của họ, khớp |
-| T-3 | Tìm clip 30fps thay ba clip 25fps (D-8) | Cần người xem và chọn, máy không quyết hộ | Hết giật ở cảnh lia chậm |
-| T-4 | Gắn tag cho thư viện khi nó lớn lên (s4e) | Chỉ có 3 clip nên chưa cấp bách | Bộ chọn ghép cảnh đúng chủ đề hơn |
+| T-3 | Bỏ hẳn ba clip 25fps `tea-room`, `matcha-whisk`, `tea-tray` (D-8) | Cần người xem và chọn cái thay. 49 clip mới đều 30fps rồi, nên chỉ còn ba cái cũ vướng — mà `2026-08-20.json` ghim tên cả ba, đổi là mốc hồi quy đổi theo | Hết giật ở cảnh lia chậm |
 | T-5 | Quyết có cắm `ANTHROPIC_API_KEY` (s6f) | Tốn tiền theo lượt gọi; không cắm cũng không chặn gì | `make new` do Claude viết, tránh lặp ý 7 ngày gần nhất. Đường gọi thật CHƯA được kiểm — lần đầu hãy đọc kỹ kịch bản trước khi dựng |
-| T-6 | Nới ngân hàng kịch bản | Mới có 7 mục, tức 7 ngày không cần khoá. Tag `rain`, `window`, `walk`, `flower`, `garden` trong ngân hàng chưa khớp clip nào | Chạy dài ngày không cần khoá; clip đúng chủ đề hơn |
+| T-6 | Nới ngân hàng kịch bản | Mới có 7 mục, tức 7 ngày không cần khoá. Phần tag đã xong: cả 12 tag ngân hàng dùng giờ đều có clip mang | Chạy dài ngày không cần khoá |
 | T-7 | Vài chỗ romaji tách chữ chưa chuẩn | Không sai cách đọc, chỉ sai chỗ dấu cách (`sumaseruto`, `shizumuka mo`, `ni do to`, `Da kara koso`, `Itsu mo`) — cần người đọc chốt cách viết | Sửa từng chữ bằng `library/readings.json`: dấu cách trong cách đọc là chỗ tách |
 
 Không có khoá nào thì đường `make shots-add` vẫn làm được mọi thứ đường API làm —
@@ -259,9 +278,9 @@ Nghiệm thu BƯỚC 4 đạt trên ba mặt:
 1. **Nguồn và giấy phép truy ngược được hết.** `library/shots.json` ghi đủ năm
    tài sản. Ba clip là Pexels 8508048 / 8507912 / 8507953 — lấy từ tên file gốc
    trong commit `09e08ce`, đối chiếu md5 qua lần đổi tên `R100` ở `c61b177`.
-   Hai bản nhạc là của Snoozy Beats. **Tên tác giả ba clip vẫn để trống**, vì
-   Pexels chặn cả `curl` lẫn WebFetch bằng Cloudflare; điền nốt được khi có
-   `PEXELS_API_KEY`, và `make shots` kêu cho tới lúc đó.
+   Hai bản nhạc là của Snoozy Beats. Tên tác giả ba clip là **Ivan S**, điền
+   được sau khi đường API Pexels thông (xem phần thư viện bên dưới). Hai bản
+   nhạc thì vẫn thiếu url và giấy phép, `make shots` còn kêu chỗ đó.
 2. **Máy chọn clip tốt hơn tay người.** Bỏ hết trường `clip` khỏi
    `2026-08-20.json` rồi để `shots.py` tự chọn: vẫn đúng 1462 frame, không cảnh
    nào loop, và biên mỏng nhất là **48 frame (1,6 giây)** — so với **5 frame
@@ -275,7 +294,7 @@ Ba khiếm khuyết đo được ở BƯỚC 4 — hai đã đóng, một còn m
 |---|---|---|
 | D-6 | Ba clip nền không có nguồn, không có giấy phép | Đóng — `library/shots.json` |
 | D-7 | `scripts/check_assets.py` gọi ffprobe riêng, trái quy ước "probe.py là chỗ duy nhất" | Đóng — gộp vào `pipeline/library.py`, `make assets` thành bí danh của `make shots` |
-| D-8 | Cả ba clip đều 25fps trong timeline 30fps — cảnh lia chậm hơi giật | **Còn mở.** `make shots` cảnh báo. Sửa bằng cách tìm clip 30fps, không sửa được bằng code |
+| D-8 | Cả ba clip đều 25fps trong timeline 30fps — cảnh lia chậm hơi giật | **Thu hẹp.** 49 clip thêm vào sau này đều đúng 30fps, nên hàng mới không dính. Ba clip gốc vẫn 25fps và `make shots` vẫn kêu — xem T-3 |
 
 Nghiệm thu BƯỚC 5 đạt:
 

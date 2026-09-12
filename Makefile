@@ -4,6 +4,7 @@
 #   make studio [DAY=2026-08-20]     mở Remotion Studio bằng dữ liệu thật
 #   make content DAY=2026-08-20      chỉ chuẩn bị nội dung (TTS + timeline)
 #   make video   DAY=2026-08-20      dựng trọn: nội dung -> render MP4 + ảnh bìa
+#   make release DAY=2026-08-20      trọn gói để đăng: video + ảnh bìa + check
 #   make still   DAY=2026-08-20 FRAME=300   render 1 frame ra PNG
 #   make thumbnail DAY=2026-08-20    render ảnh bìa: tiêu đề ngày đã hiện, câu 1 chưa đọc
 #   make shots                       soi sổ tài sản: nguồn, giấy phép, tag, ai dùng
@@ -47,7 +48,7 @@ define need_day
 	fi
 endef
 
-.PHONY: help setup studio content video still thumbnail reading shots assets \
+.PHONY: help setup studio content video release still thumbnail reading shots assets \
         shots-find shots-get shots-add all clean check new bank
 
 help:
@@ -57,6 +58,7 @@ help:
 	@echo "  make studio [DAY=2026-08-20]      mở Remotion Studio bằng dữ liệu thật"
 	@echo "  make content DAY=2026-08-20       chuẩn bị nội dung (TTS + timeline)"
 	@echo "  make video   DAY=2026-08-20       dựng trọn ra MP4 + ảnh bìa"
+	@echo "  make release DAY=2026-08-20       trọn gói: MP4 + ảnh bìa + check"
 	@echo "  make still   DAY=2026-08-20 FRAME=300"
 	@echo "  make thumbnail DAY=2026-08-20     chỉ render ảnh bìa ra out/<ngày>-thumbnail.png"
 	@echo "  make reading DAY=2026-08-20       in romaji + hiragana máy sinh"
@@ -154,6 +156,22 @@ content:
 video:
 	$(need_day)
 	@python3 -m pipeline.run $(DAY) --render
+
+## Trọn gói một ngày, đủ thứ để đăng: video (nội dung + MP4 + ảnh bìa) rồi check
+## (số đo + trang duyệt). Check chạy trên MP4 VỪA dựng, nên không có chuyện kiểm
+## nhầm bản cũ. Render hỏng thì dừng luôn, không check một file dở dang.
+release:
+	$(need_day)
+	@python3 -m pipeline.run $(DAY) --render
+	@echo ""
+	@echo "==> Kiểm MP4 vừa dựng"
+	@python3 -m pipeline.check $(DAY)
+	@echo ""
+	@echo "Đủ bộ cho $(DAY):"
+	@echo "  video       $(OUT)/$(DAY).mp4"
+	@echo "  ảnh bìa     $(OUT)/$(DAY)-thumbnail.png"
+	@echo "  trang duyệt $(OUT)/$(DAY)-check/index.html"
+	@echo "  ảnh ghép    $(OUT)/$(DAY)-check/sheet.jpg"
 
 ## Render đúng 1 frame — cách nhanh nhất để bắt lỗi font và bố cục caption
 still:

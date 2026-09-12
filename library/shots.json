@@ -17,6 +17,7 @@
       "file": "video/tea-room.mp4",
       "tags": [
         "tea",
+        "ritual",
         "interior",
         "tatami",
         "scroll",
@@ -27,8 +28,8 @@
       "note": "Toàn cảnh phòng trà, tranh cuộn, chiếu tatami",
       "source": "pexels",
       "sourceId": "8508048",
-      "url": "https://www.pexels.com/video/8508048/",
-      "author": "",
+      "url": "https://www.pexels.com/video/a-woman-pouring-hot-water-into-a-teapot-8508048/",
+      "author": "Ivan S",
       "license": "Pexels License",
       "licenseUrl": "https://www.pexels.com/license/",
       "attributionRequired": false
@@ -38,18 +39,18 @@
       "file": "video/matcha-whisk.mp4",
       "tags": [
         "tea",
+        "ritual",
         "matcha",
         "hands",
         "closeup",
         "green",
-        "calm",
-        "ritual"
+        "calm"
       ],
       "note": "Cận cảnh tay đánh matcha, nhìn từ trên xuống",
       "source": "pexels",
       "sourceId": "8507912",
-      "url": "https://www.pexels.com/video/8507912/",
-      "author": "",
+      "url": "https://www.pexels.com/video/a-person-sifting-matcha-at-a-table-8507912/",
+      "author": "Ivan S",
       "license": "Pexels License",
       "licenseUrl": "https://www.pexels.com/license/",
       "attributionRequired": false
@@ -59,17 +60,942 @@
       "file": "video/tea-tray.mp4",
       "tags": [
         "tea",
+        "ritual",
         "hands",
         "people",
         "closeup",
-        "warm",
-        "ritual"
+        "warm"
       ],
       "note": "Hai người chuyền khay trà, nền đỏ ấm",
       "source": "pexels",
       "sourceId": "8507953",
-      "url": "https://www.pexels.com/video/8507953/",
-      "author": "",
+      "url": "https://www.pexels.com/video/a-person-putting-dried-herbs-on-the-bamboo-8507953/",
+      "author": "Ivan S",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-pouring-tea",
+      "file": "video/person-pouring-tea.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "hands",
+        "closeup",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "7117857",
+      "url": "https://www.pexels.com/video/a-person-pouring-tea-7117857/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-pouring-water",
+      "file": "video/person-pouring-water.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "hands",
+        "closeup",
+        "people",
+        "calm",
+        "morning"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "5615246",
+      "url": "https://www.pexels.com/video/person-pouring-water-on-a-mug-5615246/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "pouring-tea-wax",
+      "file": "video/pouring-tea-wax.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "interior",
+        "calm",
+        "warm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "13579577",
+      "url": "https://www.pexels.com/video/pouring-tea-near-wax-candles-13579577/",
+      "author": "hello aesthe",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "bamboo-scoop-matcha",
+      "file": "video/bamboo-scoop-matcha.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "matcha",
+        "hands",
+        "closeup",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "7141723",
+      "url": "https://www.pexels.com/video/bamboo-scoop-and-matcha-powder-7141723/",
+      "author": "Monstera Production",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "traditional-japanese-tea",
+      "file": "video/traditional-japanese-tea.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "interior",
+        "tatami",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "30772235",
+      "url": "https://www.pexels.com/video/traditional-japanese-tea-ceremony-in-tatami-room-30772235/",
+      "author": "Yelena from Pexels",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "pouring-tea-scenic",
+      "file": "video/pouring-tea-scenic.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "nature",
+        "calm",
+        "morning"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36365688",
+      "url": "https://www.pexels.com/video/pouring-tea-in-scenic-countryside-setting-36365688/",
+      "author": "Hobi Photography",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-pouring-tea-2",
+      "file": "video/person-pouring-tea-2.mp4",
+      "tags": [
+        "tea",
+        "ritual",
+        "hands",
+        "closeup",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "15650007",
+      "url": "https://www.pexels.com/video/a-person-pouring-tea-into-a-teapot-in-front-of-a-fireplace-15650007/",
+      "author": "hello aesthe",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "scenic-spring-walkway",
+      "file": "video/scenic-spring-walkway.mp4",
+      "tags": [
+        "walk",
+        "flower",
+        "nature",
+        "spring",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36904769",
+      "url": "https://www.pexels.com/video/scenic-spring-walkway-with-cherry-blossoms-36904769/",
+      "author": "Huu Huynh",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "explore-osaka-shinsekai",
+      "file": "video/explore-osaka-shinsekai.mp4",
+      "tags": [
+        "walk",
+        "street",
+        "city",
+        "people",
+        "evening"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "37606282",
+      "url": "https://www.pexels.com/video/explore-osaka-s-shinsekai-with-tsutenkaku-tower-37606282/",
+      "author": "Tanvir Araf",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "walking-urban-sidewalk",
+      "file": "video/walking-urban-sidewalk.mp4",
+      "tags": [
+        "walk",
+        "street",
+        "city",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "34913017",
+      "url": "https://www.pexels.com/video/walking-on-urban-sidewalk-in-casual-pants-34913017/",
+      "author": "Burak Elçi",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "woman-walking-alone",
+      "file": "video/woman-walking-alone.mp4",
+      "tags": [
+        "walk",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "5838174",
+      "url": "https://www.pexels.com/video/vertical-video-of-a-woman-walking-alone-through-the-forest-5838174/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-walking-alone",
+      "file": "video/person-walking-alone.mp4",
+      "tags": [
+        "walk",
+        "nature",
+        "forest",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "5828553",
+      "url": "https://www.pexels.com/video/person-walking-alone-in-the-woods-5828553/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "walking-snowy-winter",
+      "file": "video/walking-snowy-winter.mp4",
+      "tags": [
+        "walk",
+        "winter",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "35497009",
+      "url": "https://www.pexels.com/video/walking-through-snowy-winter-landscape-35497009/",
+      "author": "Hediye Dağkıran",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "stroll-rainy-bergen",
+      "file": "video/stroll-rainy-bergen.mp4",
+      "tags": [
+        "walk",
+        "rain",
+        "street",
+        "city",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "35441620",
+      "url": "https://www.pexels.com/video/stroll-through-rainy-bergen-streets-35441620/",
+      "author": "A R",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "tranquil-rainy-day",
+      "file": "video/tranquil-rainy-day.mp4",
+      "tags": [
+        "rain",
+        "water",
+        "nature",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "39338928",
+      "url": "https://www.pexels.com/video/tranquil-rainy-day-outdoors-stream-39338928/",
+      "author": "Ariel Hernandez",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "blurred-autumn-trees",
+      "file": "video/blurred-autumn-trees.mp4",
+      "tags": [
+        "rain",
+        "window",
+        "nature",
+        "autumn",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "35450122",
+      "url": "https://www.pexels.com/video/blurred-autumn-trees-through-rainy-window-35450122/",
+      "author": "Raimundo Robas",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "raindrops-window-autumn",
+      "file": "video/raindrops-window-autumn.mp4",
+      "tags": [
+        "rain",
+        "window",
+        "interior",
+        "autumn",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36732052",
+      "url": "https://www.pexels.com/video/raindrops-on-window-with-autumn-view-36732052/",
+      "author": "Patrik Stoltz",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "rainy-night-street",
+      "file": "video/rainy-night-street.mp4",
+      "tags": [
+        "rain",
+        "street",
+        "city",
+        "night"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "29583716",
+      "url": "https://www.pexels.com/video/rainy-night-street-scene-with-lights-and-mountains-29583716/",
+      "author": "Rebaz Geo",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "window-rain-drops",
+      "file": "video/window-rain-drops.mp4",
+      "tags": [
+        "rain",
+        "window",
+        "interior",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "19802056",
+      "url": "https://www.pexels.com/video/a-window-with-rain-drops-on-it-and-a-building-in-the-background-19802056/",
+      "author": "Abdulvahap Demir",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "water-drops-leaves",
+      "file": "video/water-drops-leaves.mp4",
+      "tags": [
+        "rain",
+        "water",
+        "nature",
+        "closeup",
+        "green"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "12639703",
+      "url": "https://www.pexels.com/video/water-drops-over-leaves-12639703/",
+      "author": "Ismael Jiménez Barcenas",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "raindrops-window-winter",
+      "file": "video/raindrops-window-winter.mp4",
+      "tags": [
+        "rain",
+        "window",
+        "interior",
+        "winter",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "35441619",
+      "url": "https://www.pexels.com/video/raindrops-on-window-in-winter-storm-35441619/",
+      "author": "Christian Zimmermann",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "vibrant-red-poppies",
+      "file": "video/vibrant-red-poppies.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "garden",
+        "summer"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "32216348",
+      "url": "https://www.pexels.com/video/vibrant-red-poppies-swaying-in-sunshine-32216348/",
+      "author": "Murat Halıcı",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "daisies-summer-meadow",
+      "file": "video/daisies-summer-meadow.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "garden",
+        "summer"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "32623596",
+      "url": "https://www.pexels.com/video/close-up-of-daisies-in-a-summer-meadow-32623596/",
+      "author": "Damir K",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "blooming-cherry-blossom",
+      "file": "video/blooming-cherry-blossom.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "spring",
+        "sakura"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36971694",
+      "url": "https://www.pexels.com/video/blooming-cherry-blossom-tree-in-springtime-36971694/",
+      "author": "Vladimir Srajber",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "beautiful-pink-cherry",
+      "file": "video/beautiful-pink-cherry.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "spring",
+        "sakura"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "31442548",
+      "url": "https://www.pexels.com/video/beautiful-pink-cherry-blossoms-in-spring-31442548/",
+      "author": "Yui Kaneko",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "daisies-swaying-breeze",
+      "file": "video/daisies-swaying-breeze.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "garden"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "31221366",
+      "url": "https://www.pexels.com/video/close-up-of-daisies-swaying-in-the-breeze-31221366/",
+      "author": "Olga Petrova",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "hibiscus-flower-palm",
+      "file": "video/hibiscus-flower-palm.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "closeup"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36960480",
+      "url": "https://www.pexels.com/video/close-up-of-hibiscus-flower-and-palm-tree-36960480/",
+      "author": "Magda Ehlers",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "pink-flowers-swaying",
+      "file": "video/pink-flowers-swaying.mp4",
+      "tags": [
+        "flower",
+        "nature",
+        "bloom",
+        "spring"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "9829388",
+      "url": "https://www.pexels.com/video/pink-flowers-swaying-in-wind-9829388/",
+      "author": "Katherine Mihailova",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "flowing-sheer-curtains",
+      "file": "video/flowing-sheer-curtains.mp4",
+      "tags": [
+        "window",
+        "light",
+        "interior",
+        "calm",
+        "morning"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36622181",
+      "url": "https://www.pexels.com/video/flowing-sheer-curtains-in-soft-light-36622181/",
+      "author": "Damir K",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "autumn-raindrops-glass",
+      "file": "video/autumn-raindrops-glass.mp4",
+      "tags": [
+        "window",
+        "rain",
+        "interior",
+        "autumn",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36732061",
+      "url": "https://www.pexels.com/video/autumn-raindrops-on-glass-window-36732061/",
+      "author": "Patrik Stoltz",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "contemplation-dawn-cozy",
+      "file": "video/contemplation-dawn-cozy.mp4",
+      "tags": [
+        "window",
+        "light",
+        "interior",
+        "morning",
+        "people",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "31470192",
+      "url": "https://www.pexels.com/video/contemplation-at-dawn-in-a-cozy-bedroom-31470192/",
+      "author": "Shubh Agrawal",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "contemplative-morning-scene",
+      "file": "video/contemplative-morning-scene.mp4",
+      "tags": [
+        "window",
+        "light",
+        "interior",
+        "morning",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "30899632",
+      "url": "https://www.pexels.com/video/contemplative-morning-scene-in-a-sunlit-room-30899632/",
+      "author": "ranjeet .",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "cover-book-man",
+      "file": "video/cover-book-man.mp4",
+      "tags": [
+        "window",
+        "interior",
+        "people",
+        "hands",
+        "reading",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "19996463",
+      "url": "https://www.pexels.com/video/the-cover-of-the-book-the-man-in-the-window-19996463/",
+      "author": "Allan Carvalho",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "moody-sunlit-curtain",
+      "file": "video/moody-sunlit-curtain.mp4",
+      "tags": [
+        "window",
+        "light",
+        "interior",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "32699200",
+      "url": "https://www.pexels.com/video/moody-sunlit-curtain-and-window-32699200/",
+      "author": "Alexander Mass",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "pottery-crafting-hands",
+      "file": "video/pottery-crafting-hands.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "craft",
+        "ritual",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "37487817",
+      "url": "https://www.pexels.com/video/pottery-crafting-hands-shaping-clay-masterfully-37487817/",
+      "author": "Jobelle Meana",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-writing-plain",
+      "file": "video/person-writing-plain.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "craft",
+        "writing",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "6186809",
+      "url": "https://www.pexels.com/video/person-writing-on-the-plain-background-6186809/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "man-holding-cup",
+      "file": "video/man-holding-cup.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "people",
+        "morning",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "6343885",
+      "url": "https://www.pexels.com/video/man-holding-a-cup-of-coffee-6343885/",
+      "author": "KATRIN  BOLOVTSOVA",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "hands-writing-paper",
+      "file": "video/hands-writing-paper.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "craft",
+        "writing",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "28773433",
+      "url": "https://www.pexels.com/video/hands-writing-on-paper-with-precision-28773433/",
+      "author": "Fahrettin Turgut",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-flipping-book",
+      "file": "video/person-flipping-book.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "reading",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "10758625",
+      "url": "https://www.pexels.com/video/a-person-flipping-book-pages-while-holding-a-paper-cup-10758625/",
+      "author": "Micaela Alejandro",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "person-molding-clay",
+      "file": "video/person-molding-clay.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "craft",
+        "ritual",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "5321628",
+      "url": "https://www.pexels.com/video/person-molding-a-clay-5321628/",
+      "author": "Monstera Production",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "tranquil-japanese-garden",
+      "file": "video/tranquil-japanese-garden.mp4",
+      "tags": [
+        "garden",
+        "nature",
+        "green",
+        "water",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "31311910",
+      "url": "https://www.pexels.com/video/tranquil-japanese-garden-with-bridge-scene-31311910/",
+      "author": "Gera Cejas",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "tranquil-moment-japanese",
+      "file": "video/tranquil-moment-japanese.mp4",
+      "tags": [
+        "garden",
+        "nature",
+        "green",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "31311761",
+      "url": "https://www.pexels.com/video/tranquil-moment-in-a-japanese-zen-garden-31311761/",
+      "author": "Gera Cejas",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "sunlight-filtering-bamboo",
+      "file": "video/sunlight-filtering-bamboo.mp4",
+      "tags": [
+        "garden",
+        "nature",
+        "green",
+        "bamboo",
+        "light",
+        "morning"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "34211146",
+      "url": "https://www.pexels.com/video/sunlight-filtering-through-bamboo-trees-in-forest-34211146/",
+      "author": "Panya Niyomtham",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "colorful-koi-fish",
+      "file": "video/colorful-koi-fish.mp4",
+      "tags": [
+        "garden",
+        "water",
+        "nature",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "35669000",
+      "url": "https://www.pexels.com/video/colorful-koi-fish-swimming-in-tranquil-pond-35669000/",
+      "author": "Huu Huynh",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "exploring-rocky-forest",
+      "file": "video/exploring-rocky-forest.mp4",
+      "tags": [
+        "garden",
+        "nature",
+        "green",
+        "walk",
+        "forest"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "34572117",
+      "url": "https://www.pexels.com/video/exploring-rocky-forest-pathway-with-metal-rails-34572117/",
+      "author": "iPhone Snaps 🇨🇦",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "serene-garden-waterfall",
+      "file": "video/serene-garden-waterfall.mp4",
+      "tags": [
+        "garden",
+        "water",
+        "nature",
+        "green",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "36708996",
+      "url": "https://www.pexels.com/video/serene-garden-waterfall-at-traditional-pavilion-36708996/",
+      "author": "Alex Ohan",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "serene-cherry-blossom",
+      "file": "video/serene-cherry-blossom.mp4",
+      "tags": [
+        "garden",
+        "flower",
+        "bloom",
+        "spring",
+        "sakura"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "37511773",
+      "url": "https://www.pexels.com/video/serene-cherry-blossom-tree-in-full-bloom-37511773/",
+      "author": "Physical  Pixel",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "serene-cityscape-view",
+      "file": "video/serene-cityscape-view.mp4",
+      "tags": [
+        "window",
+        "city",
+        "interior",
+        "calm"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "39329852",
+      "url": "https://www.pexels.com/video/serene-cityscape-view-from-hotel-room-window-39329852/",
+      "author": "Adit Syahfiar",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "attributionRequired": false
+    },
+    {
+      "id": "writing-in-notebook",
+      "file": "video/writing-in-notebook.mp4",
+      "tags": [
+        "hands",
+        "closeup",
+        "craft",
+        "writing",
+        "people"
+      ],
+      "note": "",
+      "source": "pexels",
+      "sourceId": "6245719",
+      "url": "https://www.pexels.com/video/a-close-up-of-a-person-writing-in-a-notebook-6245719/",
+      "author": "Monstera Production",
       "license": "Pexels License",
       "licenseUrl": "https://www.pexels.com/license/",
       "attributionRequired": false

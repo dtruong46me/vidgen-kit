@@ -11,9 +11,12 @@ video đã dựng xong. Không lệnh nào cần khoá API.
 make new     DAY=2026-09-10    # tạo content/2026-09-10.json
                                # mở file ra đọc, sửa câu nào muốn sửa
 make reading DAY=2026-09-10    # đọc đối chiếu romaji máy sinh
-make video   DAY=2026-09-10    # ~10 phút trên máy 2 nhân, ra MP4 + ảnh bìa
-make check   DAY=2026-09-10    # số đo + trang duyệt từng cảnh
+make release DAY=2026-09-10    # MP4 + ảnh bìa + check; ~34 phút cho 52 giây video (WSL, concurrency 1)
 ```
+
+`make release` là `make video` (nội dung, MP4, ảnh bìa) rồi `make check` (số đo,
+trang duyệt) trong một lệnh. Render hỏng thì dừng trước check. Muốn làm từng
+bước thì hai lệnh kia vẫn gọi riêng được.
 
 ---
 
@@ -168,7 +171,8 @@ make check DAY=2026-08-20
 `Độ mới` báo WARN cả khi `make content` dựng lại ra build.json giống hệt — nó
 chỉ so giờ sửa file. Thấy WARN thì `make video` lại cho chắc.
 
-Lệnh trả mã lỗi 1 nếu có mục FAIL, nên xâu được: `make video DAY=... && make check DAY=...`.
+Lệnh trả mã lỗi 1 nếu có mục FAIL, nên xâu được — `make release DAY=...` chính là
+`make video` rồi `make check` xâu sẵn.
 
 ### Trang duyệt
 
