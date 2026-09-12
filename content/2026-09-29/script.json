@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-29",
+  "title": "9月29日 - 帰る場所",
+  "caption": "🏮 Chỗ để về không cần rộng, chỉ cần là của mình",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "帰る場所",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "interior",
+    "window"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月29日です。おはようございます。",
+      "vi": "Hôm nay là ngày 29 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "どんなに疲れても、帰る場所があれば歩けます。",
+      "vi": "Mệt đến đâu, có chỗ để về là còn đi được."
+    },
+    {
+      "ja": "広い家でなくても、いいのです。",
+      "vi": "Không cần phải là căn nhà rộng."
+    },
+    {
+      "ja": "灯りがひとつ、あればいいのです。",
+      "vi": "Chỉ cần có một ngọn đèn là đủ."
+    },
+    {
+      "ja": "場所でなくても、かまいません。",
+      "vi": "Mà không phải một nơi chốn cũng không sao."
+    },
+    {
+      "ja": "好きな音楽も、帰る場所になります。",
+      "vi": "Bản nhạc bạn thích cũng là một chỗ để về."
+    },
+    {
+      "ja": "自分の帰る場所を、知っておきましょう。",
+      "vi": "Hãy biết rõ đâu là chỗ trở về của mình."
+    },
+    {
+      "ja": "今日も、ちゃんと帰ってきてください。",
+      "vi": "Hôm nay cũng vậy, nhớ về nhà nhé."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "帰る場所"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-09",
+  "title": "9月9日 - ひとりの時間",
+  "caption": "🪟 Cô đơn và ở một mình là hai chuyện khác nhau",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "ひとりの時間",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "interior"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月9日です。おはようございます。",
+      "vi": "Hôm nay là ngày 9 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "今日は、少しひとりになってみませんか。",
+      "vi": "Hôm nay, bạn thử ở một mình một chút nhé?"
+    },
+    {
+      "ja": "寂しいのと、ひとりでいるのは違います。",
+      "vi": "Cô đơn và ở một mình là hai chuyện khác nhau."
+    },
+    {
+      "ja": "誰の声も入らない時間に、自分の声が聞こえます。",
+      "vi": "Khi không có tiếng ai xen vào, ta nghe được tiếng mình."
+    },
+    {
+      "ja": "何がしたいのか、何が嫌なのか。",
+      "vi": "Mình muốn gì, mình ngại điều gì."
+    },
+    {
+      "ja": "人といると、それが分からなくなります。",
+      "vi": "Ở cạnh người khác, ta hay không còn biết nữa."
+    },
+    {
+      "ja": "三十分でいいのです。",
+      "vi": "Ba mươi phút thôi cũng được."
+    },
+    {
+      "ja": "窓のそばに、静かに座ってみてください。",
+      "vi": "Hãy thử ngồi lặng bên cửa sổ."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "ひとりの時間"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-25",
+  "title": "9月25日 - 道端の景色",
+  "caption": "🌾 Cảnh đẹp không đợi ở cuối đường, nó nằm rải suốt dọc đường",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "道端の景色",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "walk",
+    "street",
+    "flower"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月25日です。おはようございます。",
+      "vi": "Hôm nay là ngày 25 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "目的地ばかり見て、歩いていませんか。",
+      "vi": "Bạn có đang chỉ nhìn đích mà đi không?"
+    },
+    {
+      "ja": "道の途中にも、景色はあります。",
+      "vi": "Giữa đường cũng có cảnh để ngắm."
+    },
+    {
+      "ja": "着いてからでは、見られないものです。",
+      "vi": "Tới nơi rồi thì không xem được nữa."
+    },
+    {
+      "ja": "急ぐ日ほど、まわりが消えていきます。",
+      "vi": "Ngày càng vội thì xung quanh càng biến mất."
+    },
+    {
+      "ja": "一度だけ、立ち止まってみてください。",
+      "vi": "Chỉ một lần thôi, hãy thử dừng lại."
+    },
+    {
+      "ja": "いつもの道が、少し違って見えます。",
+      "vi": "Con đường quen sẽ trông hơi khác đi."
+    },
+    {
+      "ja": "今日の途中にも、何かあります。",
+      "vi": "Trên đường đi hôm nay cũng có gì đó."
+    },
+    {
+      "ja": "見上げれば、空も途中にあります。",
+      "vi": "Ngẩng lên thì bầu trời cũng nằm giữa đường."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "道端の景色"
+  }
+}

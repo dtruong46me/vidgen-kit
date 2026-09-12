@@ -1,0 +1,15 @@
+# Phụ thuộc Python của pipeline/. Cài bằng:  make setup
+#
+# Đừng chạy `pip install` trần. Máy dựng có hơn một Python (conda base và python
+# của codespace); `pip` trần trỏ vào cái nào là tuỳ PATH, nên rất dễ cài xong
+# một chỗ rồi `make` chạy ở chỗ kia và báo thiếu thư viện. `make setup` dùng
+# `python3 -m pip` nên luôn cài vào đúng trình thông dịch mà Makefile sẽ gọi.
+#
+# ffprobe KHÔNG nằm ở đây — nó đi kèm ffmpeg, cài bằng trình quản lý gói của hệ
+# điều hành (apt install ffmpeg / brew install ffmpeg).
+
+edge-tts        # DEC-01 — giọng đọc tiếng Nhật
+cutlet          # DEC-02 — romaji Hepburn
+unidic-lite     # từ điển MeCab cho cutlet; thiếu nó là cutlet không khởi động được
+pykakasi        # đường lui của DEC-02, xem pipeline/reading.py
+anthropic       # DEC-06 — chỉ nạp khi `make new` gọi Claude; thiếu nó thì ngân hàng vẫn chạy

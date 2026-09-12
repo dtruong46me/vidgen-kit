@@ -1,0 +1,85 @@
+{
+  "id": "2026-09-30",
+  "title": "9月30日 - 月の終わりに",
+  "caption": "🌾 Cuối tháng rồi, không cần tổng kết, chỉ cần thở ra một hơi",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "月の終わりに",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "garden",
+    "nature"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月30日です。おはようございます。",
+      "vi": "Hôm nay là ngày 30 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "九月が、今日で終わります。",
+      "vi": "Tháng chín hôm nay là hết."
+    },
+    {
+      "ja": "できなかったことを、数えないでください。",
+      "vi": "Đừng đếm những điều mình chưa làm được."
+    },
+    {
+      "ja": "三十日、生きただけで十分です。",
+      "vi": "Sống qua ba mươi ngày, thế đã là đủ."
+    },
+    {
+      "ja": "雨の日も、晴れの日も過ぎました。",
+      "vi": "Ngày mưa rồi ngày nắng, tất cả đã qua."
+    },
+    {
+      "ja": "どちらも、同じ長さの一日でした。",
+      "vi": "Cả hai đều là những ngày dài bằng nhau."
+    },
+    {
+      "ja": "明日から、また新しい月です。",
+      "vi": "Từ ngày mai lại là một tháng mới."
+    },
+    {
+      "ja": "深く息をして、今日を終えましょう。",
+      "vi": "Hít một hơi thật sâu rồi khép lại hôm nay."
+    },
+    {
+      "ja": "よく歩いた三十日でした。",
+      "vi": "Ba mươi ngày ấy, bạn đã đi rất tốt rồi."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "月の終わりに"
+  }
+}

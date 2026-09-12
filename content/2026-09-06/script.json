@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-06",
+  "title": "9月6日 - 名もない花",
+  "caption": "🌼 Bông hoa ven đường không nở để được khen, nó chỉ nở thôi",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "名もない花",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "flower",
+    "garden",
+    "bloom"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月6日です。おはようございます。",
+      "vi": "Hôm nay là ngày 6 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "道の端に、小さな花が咲いていました。",
+      "vi": "Bên vệ đường, một bông hoa nhỏ đang nở."
+    },
+    {
+      "ja": "名前は分かりません。",
+      "vi": "Tôi không biết tên nó."
+    },
+    {
+      "ja": "誰かに褒められるために咲いたのでもありません。",
+      "vi": "Nó cũng chẳng nở để được ai khen."
+    },
+    {
+      "ja": "ただ、そこに咲いているだけです。",
+      "vi": "Nó chỉ đơn giản là đang nở ở đó."
+    },
+    {
+      "ja": "それでも、通りかかった人の目に留まります。",
+      "vi": "Vậy mà người đi ngang vẫn dừng mắt lại."
+    },
+    {
+      "ja": "認められなくても、意味はあります。",
+      "vi": "Không được ai công nhận thì vẫn có ý nghĩa."
+    },
+    {
+      "ja": "今日のあなたも、きっとそうです。",
+      "vi": "Bạn của hôm nay chắc chắn cũng vậy."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "名もない花"
+  }
+}

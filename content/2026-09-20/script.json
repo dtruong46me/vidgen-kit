@@ -1,0 +1,85 @@
+{
+  "id": "2026-09-20",
+  "title": "9月20日 - 何もしない日",
+  "caption": "🛋️ Một ngày không làm gì không phải ngày lãng phí",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "何もしない日",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "interior"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月20日です。おはようございます。",
+      "vi": "Hôm nay là ngày 20 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "今日は、何もしない日にしませんか。",
+      "vi": "Hôm nay, mình lấy làm ngày không làm gì nhé?"
+    },
+    {
+      "ja": "予定を消すのは、少し勇気がいります。",
+      "vi": "Xoá đi một lịch hẹn cũng cần chút can đảm."
+    },
+    {
+      "ja": "休むことに、理由はいりません。",
+      "vi": "Nghỉ ngơi thì không cần lý do."
+    },
+    {
+      "ja": "疲れる前に休む方が、早く戻れます。",
+      "vi": "Nghỉ trước khi mệt thì hồi lại nhanh hơn."
+    },
+    {
+      "ja": "何もしない時間は、無駄ではありません。",
+      "vi": "Quãng thời gian không làm gì không hề lãng phí."
+    },
+    {
+      "ja": "畑も、休ませないと実りません。",
+      "vi": "Ruộng đất không cho nghỉ thì cũng chẳng ra hoa trái."
+    },
+    {
+      "ja": "今日は、自分を休ませてあげてください。",
+      "vi": "Hôm nay, hãy để cho mình được nghỉ."
+    },
+    {
+      "ja": "明日のために、今日休むのです。",
+      "vi": "Nghỉ hôm nay là để dành sức cho ngày mai."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "何もしない日"
+  }
+}

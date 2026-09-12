@@ -1,0 +1,77 @@
+{
+  "id": "2026-09-10",
+  "title": "9月10日 - 雨の音",
+  "caption": "🌧️ Ngày mưa không bắt ta phải vui, nó chỉ mời ta ngồi xuống một lát",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "雨の音",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "rain",
+    "window"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月10日です。おはようございます。",
+      "vi": "Hôm nay là ngày 10 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "窓の外で、静かに雨が降っています。",
+      "vi": "Ngoài cửa sổ, mưa đang rơi thật khẽ."
+    },
+    {
+      "ja": "雨の日は、少しだけ気持ちが沈むかもしれません。",
+      "vi": "Ngày mưa, có lẽ lòng ta hơi chùng xuống một chút."
+    },
+    {
+      "ja": "でも、雨の音に耳を澄ませると、心がゆっくり落ち着いていきます。",
+      "vi": "Nhưng khi lắng tai nghe tiếng mưa, lòng ta dần dần lắng lại."
+    },
+    {
+      "ja": "急がなくても、大丈夫です。",
+      "vi": "Không cần vội vàng đâu."
+    },
+    {
+      "ja": "花も木も、雨の日にはただ静かに待っています。",
+      "vi": "Hoa và cây, vào ngày mưa, cũng chỉ lặng lẽ chờ đợi."
+    },
+    {
+      "ja": "今日は、自分にやさしくしてあげてください。",
+      "vi": "Hôm nay, hãy dịu dàng với chính mình nhé."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "bank",
+    "id": "ame-no-oto"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-07",
+  "title": "9月7日 - 静かな朝",
+  "caption": "☕ Buổi sáng chưa ai thức là khoảng lặng phải đi tìm mới có",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "静かな朝",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "tea",
+    "morning",
+    "interior"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月7日です。おはようございます。",
+      "vi": "Hôm nay là ngày 7 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "誰も起きていない時間に、目が覚めました。",
+      "vi": "Tôi tỉnh giấc vào giờ chưa ai thức."
+    },
+    {
+      "ja": "お湯を沸かす音だけが、部屋に響きます。",
+      "vi": "Chỉ có tiếng nước sôi vang khẽ trong phòng."
+    },
+    {
+      "ja": "こんな静けさは、探さないと見つかりません。",
+      "vi": "Sự tĩnh lặng như thế, không tìm thì không gặp."
+    },
+    {
+      "ja": "一日のうち、ほんの少しでいいのです。",
+      "vi": "Trong một ngày, chỉ cần một chút thôi cũng đủ."
+    },
+    {
+      "ja": "何も予定のない時間を、自分に残してください。",
+      "vi": "Hãy chừa lại cho mình một quãng không có lịch hẹn."
+    },
+    {
+      "ja": "その時間が、あとで効いてきます。",
+      "vi": "Quãng đó về sau sẽ phát huy tác dụng."
+    },
+    {
+      "ja": "今日も、静かな時間をひとつ。",
+      "vi": "Hôm nay cũng vậy, một khoảng lặng thôi."
+    },
+    {
+      "ja": "素敵な一日を。",
+      "vi": "Chúc bạn một ngày thật đẹp."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "静かな朝"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-24",
+  "title": "9月24日 - 半分でいい",
+  "caption": "🍶 Rót nửa chén là còn chỗ cho hơi ấm toả ra",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "半分でいい",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "tea",
+    "hands",
+    "closeup"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月24日です。おはようございます。",
+      "vi": "Hôm nay là ngày 24 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "湯のみに、お茶を半分だけいれます。",
+      "vi": "Tôi chỉ rót trà nửa chén."
+    },
+    {
+      "ja": "いっぱいにすると、こぼれてしまいます。",
+      "vi": "Rót đầy thì sẽ tràn ra ngoài."
+    },
+    {
+      "ja": "余白があるから、持てるのです。",
+      "vi": "Có chỗ trống nên mới cầm được."
+    },
+    {
+      "ja": "予定も、同じかもしれません。",
+      "vi": "Có lẽ lịch hẹn cũng giống vậy."
+    },
+    {
+      "ja": "全部つめこむと、一つも味わえません。",
+      "vi": "Nhồi hết vào thì chẳng thưởng thức được cái nào."
+    },
+    {
+      "ja": "半分でいい日が、あっていいのです。",
+      "vi": "Có những ngày làm một nửa cũng được."
+    },
+    {
+      "ja": "今日は、少しだけ空けておきましょう。",
+      "vi": "Hôm nay, hãy chừa lại một khoảng trống."
+    },
+    {
+      "ja": "空いた分に、ゆとりが入ります。",
+      "vi": "Phần để trống ấy là chỗ cho sự thong thả lọt vào."
+    },
+    {
+      "ja": "素敵な一日を。",
+      "vi": "Chúc bạn một ngày thật đẹp."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "半分でいい"
+  }
+}

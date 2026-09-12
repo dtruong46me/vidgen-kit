@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-27",
+  "title": "9月27日 - 落ち葉のように",
+  "caption": "🍁 Lá rụng không phải là hết, nó đang nuôi mùa sau",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "落ち葉のように",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "nature",
+    "autumn",
+    "garden"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月27日です。おはようございます。",
+      "vi": "Hôm nay là ngày 27 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "落ち葉が、土の上に積もっています。",
+      "vi": "Lá rụng chất lên trên mặt đất."
+    },
+    {
+      "ja": "落ちた葉は、終わりに見えます。",
+      "vi": "Chiếc lá rơi trông như đã kết thúc."
+    },
+    {
+      "ja": "でも、土に返って次の春を作ります。",
+      "vi": "Nhưng nó về với đất và làm nên mùa xuân sau."
+    },
+    {
+      "ja": "何かを終えることは、失うことではありません。",
+      "vi": "Kết thúc một điều gì không có nghĩa là mất đi."
+    },
+    {
+      "ja": "形を変えて、残っていくだけです。",
+      "vi": "Nó chỉ đổi hình dạng rồi ở lại thôi."
+    },
+    {
+      "ja": "手放した仕事も、あなたに残っています。",
+      "vi": "Công việc bạn buông cũng vẫn còn lại trong bạn."
+    },
+    {
+      "ja": "今日は、落ち葉を一枚見てみて。",
+      "vi": "Hôm nay, thử nhìn một chiếc lá rụng xem."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "落ち葉のように"
+  }
+}

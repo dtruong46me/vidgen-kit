@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-03",
+  "title": "9月3日 - 手のぬくもり",
+  "caption": "🤲 Bàn tay nói trước cả lời, hôm nay hãy chạm vào một thứ gì đó ấm",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "手のぬくもり",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "hands",
+    "closeup",
+    "people"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月3日です。おはようございます。",
+      "vi": "Hôm nay là ngày 3 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "誰かと手をつないだ日を、覚えていますか。",
+      "vi": "Bạn còn nhớ ngày mình nắm tay một ai đó không?"
+    },
+    {
+      "ja": "手は、言葉より先に気持ちを伝えます。",
+      "vi": "Bàn tay truyền cảm xúc đi trước cả lời nói."
+    },
+    {
+      "ja": "温かい湯のみを持つときも同じです。",
+      "vi": "Lúc cầm chén trà ấm cũng vậy."
+    },
+    {
+      "ja": "手のひらから、ゆっくり温もりが広がります。",
+      "vi": "Hơi ấm từ lòng bàn tay lan ra thật chậm."
+    },
+    {
+      "ja": "心が冷えた日は、何か温かいものに触れてみてください。",
+      "vi": "Ngày lòng nguội lạnh, hãy thử chạm vào một thứ gì ấm."
+    },
+    {
+      "ja": "それだけで、少し落ち着くことがあります。",
+      "vi": "Chỉ vậy thôi mà đôi khi lòng đã dịu lại."
+    },
+    {
+      "ja": "小さな温もりを、今日もひとつ。",
+      "vi": "Hôm nay cũng thế, một chút ấm áp nhỏ thôi."
+    },
+    {
+      "ja": "素敵な一日になりますように。",
+      "vi": "Chúc bạn một ngày thật tuyệt."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "手のぬくもり"
+  }
+}

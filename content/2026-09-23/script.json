@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-23",
+  "title": "9月23日 - 支えあう",
+  "caption": "🤝 Nhờ vả không làm bạn yếu đi, nó chỉ làm quãng đường ngắn lại",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "支えあう",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "people",
+    "hands",
+    "walk"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月23日です。おはようございます。",
+      "vi": "Hôm nay là ngày 23 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "重い荷物を、一人で運ぼうとしていました。",
+      "vi": "Tôi định một mình khuân cái túi nặng."
+    },
+    {
+      "ja": "誰かが、そっと片方を持ってくれました。",
+      "vi": "Ai đó lặng lẽ đỡ giúp một bên."
+    },
+    {
+      "ja": "それだけで、道が短くなりました。",
+      "vi": "Chỉ vậy thôi mà quãng đường ngắn lại."
+    },
+    {
+      "ja": "頼ることは、弱さではありません。",
+      "vi": "Nhờ vả không phải là yếu đuối."
+    },
+    {
+      "ja": "一人で抱える方が、危ないこともあります。",
+      "vi": "Ôm hết một mình đôi khi còn nguy hiểm hơn."
+    },
+    {
+      "ja": "助けを求める言葉を、練習しておきましょう。",
+      "vi": "Hãy tập trước câu nói xin được giúp đỡ."
+    },
+    {
+      "ja": "今日は、誰かに少し頼ってみて。",
+      "vi": "Hôm nay, thử dựa vào ai đó một chút xem."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "支えあう"
+  }
+}

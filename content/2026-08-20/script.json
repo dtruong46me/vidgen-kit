@@ -1,0 +1,85 @@
+{
+  "id": "2026-08-20",
+  "title": "8月20日 - 小さな幸せ",
+  "caption": "🍵 Hạnh phúc không đợi dịp lớn, nó nằm trong những chuyện rất nhỏ của hôm nay",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "小さな幸せ",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "lines": [
+    {
+      "ja": "今日は、8月20日です。おはようございます。",
+      "vi": "Hôm nay là ngày 20 tháng 8. Chào buổi sáng.",
+      "clip": "video/tea-tray.mp4",
+      "clipStartInSeconds": 0.0
+    },
+    {
+      "ja": "今日も新しい一日が始まりました。",
+      "vi": "Hôm nay, một ngày mới lại bắt đầu.",
+      "clip": "video/tea-room.mp4",
+      "clipStartInSeconds": 0.0
+    },
+    {
+      "ja": "朝の空気は、少し涼しくて気持ちいいですね。",
+      "vi": "Không khí buổi sáng hơi mát, thật dễ chịu nhỉ.",
+      "clip": "video/tea-room.mp4",
+      "clipStartInSeconds": 10.0
+    },
+    {
+      "ja": "毎日の生活は、同じことの繰り返しに見えるけれど、小さな変化が、きっとどこかにあります。",
+      "vi": "Cuộc sống mỗi ngày trông như chỉ là sự lặp lại của những điều giống nhau, nhưng chắc chắn ở đâu đó vẫn có những thay đổi nhỏ.",
+      "clip": "video/matcha-whisk.mp4",
+      "clipStartInSeconds": 0.0
+    },
+    {
+      "ja": "美味しいご飯を食べたり、好きな音楽を聴いたり、誰かと笑ったり。",
+      "vi": "Ăn một bữa cơm ngon, nghe bản nhạc mình thích, cười cùng một ai đó.",
+      "clip": "video/tea-tray.mp4",
+      "clipStartInSeconds": 5.5
+    },
+    {
+      "ja": "そんな小さな幸せを、大切にしたいですね。",
+      "vi": "Những hạnh phúc nhỏ bé như thế, mình muốn trân trọng nhỉ.",
+      "clip": "video/tea-room.mp4",
+      "clipStartInSeconds": 16.5
+    },
+    {
+      "ja": "今日も無理をせず、自分のペースで。",
+      "vi": "Hôm nay cũng đừng gắng sức quá, cứ theo nhịp độ của riêng mình.",
+      "clip": "video/matcha-whisk.mp4",
+      "clipStartInSeconds": 8.0
+    },
+    {
+      "ja": "素敵な一日になりますように。",
+      "vi": "Chúc bạn có một ngày thật tuyệt vời.",
+      "clip": "video/tea-tray.mp4",
+      "clipStartInSeconds": 8.5
+    }
+  ],
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ]
+}

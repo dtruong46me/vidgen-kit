@@ -1,0 +1,156 @@
+import {
+  AbsoluteFill,
+  interpolate,
+  Loop,
+  OffthreadVideo,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
+import type { Line, Transition } from "./types";
+
+/** Bảng màu nền dùng khi 1 câu chưa có clip quay — tông trầm kiểu trà đạo. */
+const PALETTES = [
+  ["#1b2a24", "#3f5d4e"], // rêu
+  ["#241f1a", "#5a4632"], // đất nung
+  ["#1a1f26", "#3c4a5c"], // tro xanh
+  ["#2a221f", "#6b4f3a"], // gỗ
+  ["#161a17", "#37453a"], // sumi
+  ["#231d24", "#54415a"], // tử đằng
+  ["#1d2422", "#456156"], // matcha
+  ["#26201c", "#6a5140"], // hoàng thổ
+  ["#191d1f", "#3d5157"], // sương sớm
+];
+
+/**
+ * Ba kiểu chuyển cảnh, khác nhau ở CHỖ NÀO trong thời gian chứ không chỉ ở
+ * hiệu ứng — nên phải đọc cùng với DailyVideo.tsx, nơi quyết định mỗi cảnh bắt
+ * đầu ở frame nào:
+ *
+ *   crossfade    cảnh này bắt đầu SỚM hơn T frame và sáng dần lên, chồng lên
+ *                cuối cảnh trước. Không cảnh nào tối đi. Đây là kiểu êm nhất
+ *                và là mặc định.
+ *   dip_to_black cảnh nằm đúng ô của nó, sáng lên trong T/2 đầu và tối đi trong
+ *                T/2 cuối. Giữa hai cảnh có một khoảnh khắc đen thật sự.
+ *   cut          cắt thẳng, không frame nào dành cho hiệu ứng.
+ *
+ * Vì sao chia đôi T ở dip_to_black: hai nửa cộng lại đúng bằng T, nên đổi kiểu
+ * chuyển cảnh không làm đổi cảm giác về nhịp — chỉ đổi cách nối.
+ */
+const opacityFor = (
+  mode: Transition,
+  frame: number,
+  index: number,
+  fadeFrames: number,
+  windowFrames: number,
+) => {
+  if (mode === "cut") return 1;
+
+  if (mode === "dip_to_black") {
+    const half = Math.max(1, Math.round(fadeFrames / 2));
+    return (
+      interpolate(frame, [0, half], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }) *
+      interpolate(frame, [windowFrames - half, windowFrames], [1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      })
+    );
+  }
+
+  // crossfade — cảnh đầu tiên không fade từ màu đen ra: nó chính là khung hình
+  // đầu video, cũng là ảnh bìa lúc người xem lướt tới, nên phải có hình ngay từ
+  // frame 0. Các cảnh sau fade chồng lên cảnh trước.
+  if (index === 0) return 1;
+  return interpolate(frame, [0, fadeFrames], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+};
+
+export const Background: React.FC<{
+  line: Line;
+  index: number;
+  /** Số frame dành cho hiệu ứng chuyển cảnh */
+  fadeInFrames: number;
+  /** Kiểu chuyển cảnh. Không truyền thì crossfade, đúng hành vi trước BƯỚC 5 */
+  mode?: Transition;
+  /** Độ dài THẬT của Sequence bọc ngoài — crossfade dài hơn cảnh đúng T frame */
+  windowFrames?: number;
+}> = ({ line, index, fadeInFrames, mode = "crossfade", windowFrames }) => {
+  const frame = useCurrentFrame();
+  const window = windowFrames ?? line.durationInFrames;
+
+  const opacity = opacityFor(mode, frame, index, fadeInFrames, window);
+
+  // Ken Burns: phóng to rất chậm để khung hình không bị "chết"
+  const scale = interpolate(frame, [0, window], [1.06, 1.14], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const [from, to] = PALETTES[index % PALETTES.length];
+
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      <AbsoluteFill style={{ transform: `scale(${scale})` }}>
+        {line.clip ? (
+          <ClipLayer line={line} />
+        ) : (
+          <AbsoluteFill
+            style={{
+              background: `linear-gradient(160deg, ${from} 0%, ${to} 100%)`,
+            }}
+          />
+        )}
+      </AbsoluteFill>
+
+      {/*
+        Lớp phủ tối để caption luôn đọc được.
+
+        Caption neo ở 2/3 dưới (xem SAFE_BOTTOM trong Caption.tsx), nên lớp phủ
+        phải ĐẬM NHẤT Ở DƯỚI chứ không phải đậm đều. Bản đầu phủ nhạt nhất đúng
+        ở giữa khung, mà đó lại là chỗ chữ bắt đầu — chữ Việt nằm trên chiếu tre
+        sáng gần như chìm mất.
+
+        Nửa trên vẫn để nhẹ tay: đó là phần khán giả xem hình, phủ đậm là phí clip.
+
+        Nền gradient vốn đã tối sẵn -> phủ nhẹ thôi kẻo thành đen kịt.
+      */}
+      <AbsoluteFill
+        style={{
+          background: line.clip
+            ? "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.34) 28%, rgba(0,0,0,0.52) 50%, rgba(0,0,0,0.78) 70%, rgba(0,0,0,0.88) 100%)"
+            : "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.35) 100%)",
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
+const ClipLayer: React.FC<{ line: Line }> = ({ line }) => {
+  const { fps } = useVideoConfig();
+
+  const video = (
+    <OffthreadVideo
+      src={staticFile(line.clip as string)}
+      trimBefore={Math.round(line.clipStartInSeconds * fps)}
+      muted
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  );
+
+  // Clip ngắn hơn cảnh thì cho chạy lặp lại thay vì để màn hình đen
+  if (
+    line.clipDurationInFrames &&
+    line.clipDurationInFrames < line.durationInFrames
+  ) {
+    return (
+      <Loop durationInFrames={line.clipDurationInFrames}>{video}</Loop>
+    );
+  }
+
+  return video;
+};

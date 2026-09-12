@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-08",
+  "title": "9月8日 - 待つこと",
+  "caption": "🌱 Đợi trông như chẳng làm gì, nhưng bên trong thì đang lớn",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "待つこと",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "garden",
+    "nature"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月8日です。おはようございます。",
+      "vi": "Hôm nay là ngày 8 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "庭の木が、実をつけるまで待っています。",
+      "vi": "Cây trong vườn đang đợi đến lúc kết trái."
+    },
+    {
+      "ja": "待つ時間は、何もしていないように見えます。",
+      "vi": "Thời gian chờ trông như chẳng làm gì cả."
+    },
+    {
+      "ja": "でも、中では静かに育っています。",
+      "vi": "Nhưng bên trong, mọi thứ đang lặng lẽ lớn lên."
+    },
+    {
+      "ja": "すぐに答えが出ないことも同じです。",
+      "vi": "Những chuyện chưa ra kết quả ngay cũng vậy."
+    },
+    {
+      "ja": "焦って掘り返せば、根が傷つきます。",
+      "vi": "Sốt ruột mà bới lên thì rễ sẽ tổn thương."
+    },
+    {
+      "ja": "今はまだ、そのときではないだけです。",
+      "vi": "Chỉ là bây giờ chưa phải lúc, vậy thôi."
+    },
+    {
+      "ja": "待てる人は、強い人です。",
+      "vi": "Người biết đợi là người mạnh mẽ."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "待つこと"
+  }
+}

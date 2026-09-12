@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-13",
+  "title": "9月13日 - 秋のはじまり",
+  "caption": "🍂 Mùa không đổi trong một đêm, nó đổi dần cho ta kịp quen",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "秋のはじまり",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "nature",
+    "flower",
+    "autumn"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月13日です。おはようございます。",
+      "vi": "Hôm nay là ngày 13 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "朝の風が、少し冷たくなりました。",
+      "vi": "Gió buổi sáng đã se lạnh hơn một chút."
+    },
+    {
+      "ja": "いつのまにか、秋が始まっています。",
+      "vi": "Chẳng biết từ lúc nào, mùa thu đã bắt đầu."
+    },
+    {
+      "ja": "季節は、一晩では変わりません。",
+      "vi": "Mùa không thay đổi chỉ trong một đêm."
+    },
+    {
+      "ja": "少しずつ変わるから、体が慣れていきます。",
+      "vi": "Vì đổi từ từ nên cơ thể mới kịp quen."
+    },
+    {
+      "ja": "急な変化は、誰にとってもつらいものです。",
+      "vi": "Thay đổi đột ngột thì ai cũng thấy khó chịu."
+    },
+    {
+      "ja": "自分を変えたいときも、同じです。",
+      "vi": "Lúc muốn thay đổi chính mình cũng thế."
+    },
+    {
+      "ja": "秋のように、ゆっくりで大丈夫です。",
+      "vi": "Cứ chậm như mùa thu là được rồi."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "秋のはじまり"
+  }
+}

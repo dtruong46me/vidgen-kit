@@ -1,0 +1,81 @@
+{
+  "id": "2026-09-11",
+  "title": "9月11日 - 手放す",
+  "caption": "🌿 Có nhiều thứ không thể nắm giữ, không phải chuyện gì cũng có kết quả",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "手放す",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "rain",
+    "window"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月11日です。おはようございます。",
+      "vi": "Hôm nay là ngày 11 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "手のひらに、雨をためようとしたことがありますか。",
+      "vi": "Bạn từng thử hứng nước mưa trong lòng bàn tay chưa?"
+    },
+    {
+      "ja": "どんなに強く握っても、こぼれていきます。",
+      "vi": "Nắm chặt đến mấy thì nước vẫn cứ trôi đi."
+    },
+    {
+      "ja": "握らなければ、指の上を流れていくだけです。",
+      "vi": "Không nắm lại thì nó chỉ chảy qua trên ngón tay."
+    },
+    {
+      "ja": "持てないものは、もともと持てないのです。",
+      "vi": "Thứ không giữ được thì vốn dĩ đã không giữ được."
+    },
+    {
+      "ja": "努力が足りなかったわけではありません。",
+      "vi": "Không phải vì bạn chưa cố gắng đủ."
+    },
+    {
+      "ja": "結果にならなかったことも、無駄ではありません。",
+      "vi": "Chuyện không thành kết quả cũng không hề vô ích."
+    },
+    {
+      "ja": "手放したあとに、空いた手で持てるものがあります。",
+      "vi": "Buông ra rồi, tay trống mới cầm được thứ khác."
+    },
+    {
+      "ja": "今日も、無理に握らないで。",
+      "vi": "Hôm nay cũng vậy, đừng gắng nắm chặt."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "手放す"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-19",
+  "title": "9月19日 - 夜のしずけさ",
+  "caption": "🌙 Đêm không giải quyết gì cả, nó chỉ cho mọi thứ tạm nghỉ",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "夜のしずけさ",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "rain",
+    "city",
+    "night"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月19日です。おはようございます。",
+      "vi": "Hôm nay là ngày 19 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "夜の街は、昼より静かに見えます。",
+      "vi": "Phố đêm trông tĩnh lặng hơn ban ngày."
+    },
+    {
+      "ja": "同じ道なのに、音が少ないだけで違います。",
+      "vi": "Cùng một con đường, chỉ ít tiếng động thôi đã khác."
+    },
+    {
+      "ja": "夜は、何かを解決してくれません。",
+      "vi": "Đêm chẳng giải quyết giúp ta chuyện gì."
+    },
+    {
+      "ja": "ただ、一度止まる時間をくれます。",
+      "vi": "Nó chỉ cho ta một quãng để dừng lại."
+    },
+    {
+      "ja": "考えすぎる夜は、寝てしまいましょう。",
+      "vi": "Đêm nào nghĩ nhiều quá thì cứ đi ngủ thôi."
+    },
+    {
+      "ja": "朝になれば、同じ問題が軽くなります。",
+      "vi": "Sáng ra, cũng vấn đề đó mà lại nhẹ đi."
+    },
+    {
+      "ja": "今日は、早めに休んでください。",
+      "vi": "Hôm nay hãy nghỉ sớm một chút nhé."
+    },
+    {
+      "ja": "穏やかな一日になりますように。",
+      "vi": "Chúc bạn một ngày bình yên."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "夜のしずけさ"
+  }
+}

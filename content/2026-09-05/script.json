@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-05",
+  "title": "9月5日 - 歩く速さ",
+  "caption": "🚶 Đổi nhịp chân một chút, con đường quen hiện ra khác hẳn",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "歩く速さ",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "walk",
+    "street",
+    "morning"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月5日です。おはようございます。",
+      "vi": "Hôm nay là ngày 5 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "駅まで歩く道を、少しゆっくり歩いてみました。",
+      "vi": "Tôi thử đi chậm lại một chút trên đường ra ga."
+    },
+    {
+      "ja": "いつもは見ない看板が、目に入りました。",
+      "vi": "Tấm biển thường ngày không để ý lại đập vào mắt."
+    },
+    {
+      "ja": "速さを変えると、見えるものが変わります。",
+      "vi": "Đổi tốc độ thì thứ mình nhìn thấy cũng đổi."
+    },
+    {
+      "ja": "急いでいるとき、私たちは前しか見ていません。",
+      "vi": "Lúc vội, chúng ta chỉ nhìn về phía trước."
+    },
+    {
+      "ja": "今日は一本、遅い電車でもいいですね。",
+      "vi": "Hôm nay đi chuyến tàu sau một chuyến cũng được nhỉ."
+    },
+    {
+      "ja": "遅れて困ることは、案外少ないものです。",
+      "vi": "Chậm một chút mà thành rắc rối thì hoá ra cũng hiếm."
+    },
+    {
+      "ja": "あなたの速さで、歩いてください。",
+      "vi": "Hãy đi bằng nhịp của riêng bạn."
+    },
+    {
+      "ja": "気をつけて、いってらっしゃい。",
+      "vi": "Đi đường cẩn thận nhé."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "歩く速さ"
+  }
+}

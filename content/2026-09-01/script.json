@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-01",
+  "title": "9月1日 - 朝の光",
+  "caption": "🌅 Tháng mới không bắt bạn phải khác đi, nó chỉ mời bạn bước tiếp",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "朝の光",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "window",
+    "light",
+    "morning"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月1日です。おはようございます。",
+      "vi": "Hôm nay là ngày 1 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "九月が始まりました。",
+      "vi": "Tháng chín đã bắt đầu."
+    },
+    {
+      "ja": "カーテンを開けると、朝の光が入ってきます。",
+      "vi": "Kéo rèm ra, ánh sáng buổi sáng tràn vào."
+    },
+    {
+      "ja": "光は、何も言わずにただそこにあります。",
+      "vi": "Ánh sáng chẳng nói gì, nó chỉ ở đó thôi."
+    },
+    {
+      "ja": ["新しい月だからといって、", "急に変わらなくていいのです。"],
+      "vi": ["Tháng mới không có nghĩa là", "bạn phải đổi khác ngay."]
+    },
+    {
+      "ja": "昨日の続きを、今日も静かに歩けば十分です。",
+      "vi": "Cứ lặng lẽ đi tiếp phần dang dở của hôm qua là đủ rồi."
+    },
+    {
+      "ja": "光が差す場所は、毎日少しずつ動いています。",
+      "vi": "Chỗ nắng rọi tới mỗi ngày lại dịch đi một chút."
+    },
+    {
+      "ja": "あなたの一日にも、どこかに光があります。",
+      "vi": "Trong ngày của bạn, ở đâu đó cũng có ánh sáng."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "朝の光"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "_doc": [
+    "Ngân hàng kịch bản viết sẵn. `make new` lấy từ đây khi không có",
+    "ANTHROPIC_API_KEY — không gọi mạng, không tốn tiền (DEC-06).",
+    "",
+    "Mỗi mục là phần NỘI DUNG của một ngày: chủ đề, tag và các câu. Phần CÀI ĐẶT",
+    "(giọng, nhạc, nhịp, màn kết...) không nằm ở đây — kịch bản mới kế thừa nó từ",
+    "ngày gần nhất, nên chỉnh một lần là áp cho mọi ngày sau.",
+    "",
+    "  theme  — chủ đề, hiện nhỏ dưới ngày tháng ở đầu video, nét bút lông. Ngắn thôi: 2–8 chữ.",
+    "  tags   — gợi ý cho bộ chọn clip. Không clip nào trùng thì máy lấy clip bất kỳ.",
+    "  lines  — câu tiếng Nhật và bản dịch. KHÔNG có romaji, KHÔNG có clip.",
+    "",
+    "Hai chỗ trống điền ngày: {date} ra 9月10日, {date_vi} ra ngày 10 tháng 9.",
+    "",
+    "Mọi mục mở đầu bằng MỘT CÂU CỐ ĐỊNH, nói ngày trước rồi mới chào, chung một dòng:",
+    "  今日は、{date}です。おはようございます。",
+    "Câu đó khai ở OPENING trong pipeline/new.py; `make bank` đánh dấu mục nào lệch.",
+    "",
+    "Độ dài: 2026-08-20 có 166 chữ Nhật (không tính dấu câu) ra 52 giây kể cả mở",
+    "đầu và kết. Giữ mỗi mục trong khoảng 120–180 chữ, 8–10 câu, mỗi câu dưới 40",
+    "chữ. `make bank` in ước lượng thời lượng của từng mục.",
+    "",
+    "Máy chọn mục chưa dùng lần nào, theo thứ tự trong file. Dùng hết thì quay lại",
+    "mục dùng lâu nhất. Thêm mục mới vào CUỐI file để không đảo thứ tự cũ."
+  ],
+  "scripts": [
+    {
+      "id": "ame-no-oto",
+      "theme": "雨の音",
+      "tags": ["rain", "window", "calm"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "窓の外で、静かに雨が降っています。", "vi": "Ngoài cửa sổ, mưa đang rơi thật khẽ." },
+        { "ja": "雨の日は、少しだけ気持ちが沈むかもしれません。", "vi": "Ngày mưa, có lẽ lòng ta hơi chùng xuống một chút." },
+        { "ja": "でも、雨の音に耳を澄ませると、心がゆっくり落ち着いていきます。", "vi": "Nhưng khi lắng tai nghe tiếng mưa, lòng ta dần dần lắng lại." },
+        { "ja": "急がなくても、大丈夫です。", "vi": "Không cần vội vàng đâu." },
+        { "ja": "花も木も、雨の日にはただ静かに待っています。", "vi": "Hoa và cây, vào ngày mưa, cũng chỉ lặng lẽ chờ đợi." },
+        { "ja": "今日は、自分にやさしくしてあげてください。", "vi": "Hôm nay, hãy dịu dàng với chính mình nhé." },
+        { "ja": "穏やかな一日になりますように。", "vi": "Chúc bạn một ngày bình yên." }
+      ]
+    },
+    {
+      "id": "ippai-no-ocha",
+      "theme": "一杯のお茶",
+      "tags": ["tea", "hands", "calm"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "今日も新しい朝が来ました。", "vi": "Một buổi sáng mới lại đến." },
+        { "ja": "温かいお茶を、一杯いれてみませんか。", "vi": "Hay là mình pha một tách trà ấm nhé." },
+        { "ja": "お湯を注いで、葉が開くのを待つ。", "vi": "Rót nước nóng, rồi đợi lá trà nở ra." },
+        { "ja": "その少しの時間が、心に余白をくれます。", "vi": "Chút thời gian ngắn ấy cho lòng ta một khoảng lặng." },
+        { "ja": "忙しい日ほど、立ち止まることを忘れがちですね。", "vi": "Càng những ngày bận rộn, ta càng dễ quên dừng lại nhỉ." },
+        { "ja": "一口飲んで、深く息をしてみましょう。", "vi": "Nhấp một ngụm, rồi hít thở thật sâu." },
+        { "ja": "一日は、思っているより長いものです。", "vi": "Một ngày dài hơn ta vẫn nghĩ." },
+        { "ja": "今日も、あなたのペースで。", "vi": "Hôm nay cũng vậy, cứ theo nhịp của riêng bạn." },
+        { "ja": "よい一日を。", "vi": "Chúc bạn một ngày tốt lành." }
+      ]
+    },
+    {
+      "id": "chiisana-ippo",
+      "theme": "小さな一歩",
+      "tags": ["walk", "morning"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "朝の道を、少しだけ歩いてみました。", "vi": "Sáng nay, mình thử đi bộ một chút." },
+        { "ja": "いつもの景色なのに、今日は違って見えます。", "vi": "Vẫn là khung cảnh quen thuộc, vậy mà hôm nay trông thật khác." },
+        { "ja": "大きく変わらなくても、いいのです。", "vi": "Không cần phải thay đổi lớn lao đâu." },
+        { "ja": "昨日より一歩だけ、前に進めたら十分です。", "vi": "Chỉ cần tiến thêm một bước so với hôm qua là đủ rồi." },
+        { "ja": "小さな一歩も、続ければ長い道になります。", "vi": "Những bước nhỏ, nếu cứ bước tiếp, cũng thành một con đường dài." },
+        { "ja": "疲れたら、休んでもかまいません。", "vi": "Mệt thì cứ nghỉ, không sao cả." },
+        { "ja": "道は、どこにも逃げませんから。", "vi": "Vì con đường sẽ chẳng đi đâu mất." },
+        { "ja": "今日も、よい一日になりますように。", "vi": "Mong hôm nay cũng là một ngày tốt đẹp." }
+      ]
+    },
+    {
+      "id": "saku-toki",
+      "theme": "咲くとき",
+      "tags": ["flower", "garden", "calm"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "道ばたに、小さな花が咲いていました。", "vi": "Bên vệ đường, một bông hoa nhỏ đã nở." },
+        { "ja": "誰にも見られなくても、花はちゃんと咲きます。", "vi": "Dù không ai ngắm, hoa vẫn cứ nở." },
+        { "ja": "比べることも、急ぐこともなく。", "vi": "Không so bì, cũng chẳng vội vàng." },
+        { "ja": "自分の季節が来るのを、ただ待っているのです。", "vi": "Nó chỉ đang chờ mùa của riêng mình đến." },
+        { "ja": "人も、きっと同じですね。", "vi": "Con người chắc cũng vậy nhỉ." },
+        { "ja": "まだ咲いていなくても、根はちゃんと育っています。", "vi": "Dù chưa nở, rễ vẫn đang lớn lên từng ngày." },
+        { "ja": "今日は、自分を信じてあげてください。", "vi": "Hôm nay, hãy tin vào chính mình nhé." },
+        { "ja": "やさしい一日になりますように。", "vi": "Mong hôm nay là một ngày dịu dàng." }
+      ]
+    },
+    {
+      "id": "ichigo-ichie",
+      "theme": "一期一会",
+      "tags": ["tea", "people", "ritual"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "今日も一日が始まりますね。", "vi": "Một ngày nữa lại bắt đầu nhỉ." },
+        { "ja": "一期一会という言葉があります。", "vi": "Có một câu nói là “Nhất kỳ nhất hội”." },
+        { "ja": "茶道から生まれた言葉です。", "vi": "Đó là câu nói sinh ra từ trà đạo." },
+        { "ja": "今日のこの時間は、二度と来ないという意味です。", "vi": "Nghĩa là khoảnh khắc hôm nay sẽ không bao giờ trở lại." },
+        { "ja": "毎朝会う人も、昨日とは少し違います。", "vi": "Người ta gặp mỗi sáng cũng đã khác hôm qua một chút." },
+        { "ja": "だからこそ、一つ一つの出会いを大切にしたいですね。", "vi": "Chính vì thế, mình muốn trân trọng từng lần gặp gỡ nhỉ." },
+        { "ja": "今日会う人に、やさしい言葉をかけてみましょう。", "vi": "Hãy thử nói một lời dịu dàng với người mình gặp hôm nay." },
+        { "ja": "よい出会いがありますように。", "vi": "Mong bạn có những cuộc gặp gỡ đẹp." }
+      ]
+    },
+    {
+      "id": "hitoyasumi",
+      "theme": "ひと休み",
+      "tags": ["window", "interior", "calm"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "今日も一日、お疲れさまです。", "vi": "Hôm nay bạn cũng đã vất vả rồi." },
+        { "ja": "窓を開けると、やわらかい風が入ってきます。", "vi": "Mở cửa sổ ra, một làn gió nhẹ ùa vào." },
+        { "ja": "がんばった日も、うまくいかなかった日も。", "vi": "Dù là ngày đã cố gắng, hay ngày chẳng suôn sẻ." },
+        { "ja": "どちらも、あなたの大切な一日です。", "vi": "Cả hai đều là một ngày quý giá của bạn." },
+        { "ja": "完璧じゃなくても、ちゃんと前に進んでいます。", "vi": "Dù chưa hoàn hảo, bạn vẫn đang tiến về phía trước." },
+        { "ja": "温かいものを飲んで、少しひと休みしましょう。", "vi": "Uống chút gì ấm, rồi nghỉ ngơi một lát nhé." },
+        { "ja": "明日のことは、明日考えればいいのです。", "vi": "Chuyện ngày mai, để mai hẵng nghĩ." },
+        { "ja": "ゆっくり休んでくださいね。", "vi": "Hãy nghỉ ngơi thật thoải mái nhé." }
+      ]
+    },
+    {
+      "id": "taru-wo-shiru",
+      "theme": "足るを知る",
+      "tags": ["tea", "hands", "morning"],
+      "lines": [
+        { "ja": "今日は、{date}です。おはようございます。", "vi": "Hôm nay là {date_vi}. Chào buổi sáng." },
+        { "ja": "足るを知る、という言葉を知っていますか。", "vi": "Bạn có biết câu “biết thế nào là đủ” không?" },
+        { "ja": "もっと欲しいと思う気持ちは、誰にでもあります。", "vi": "Ai cũng có lúc muốn có thêm nữa." },
+        { "ja": "でも、今あるものを数えてみると、意外とたくさんあります。", "vi": "Nhưng thử đếm những gì mình đang có, hóa ra lại nhiều bất ngờ." },
+        { "ja": "朝ご飯が食べられること。", "vi": "Được ăn bữa sáng." },
+        { "ja": "話せる人がいること。", "vi": "Có người để trò chuyện." },
+        { "ja": "それだけで、今日はもう十分に豊かです。", "vi": "Chỉ vậy thôi, hôm nay đã đủ đầy rồi." },
+        { "ja": "満ち足りた一日になりますように。", "vi": "Mong hôm nay là một ngày thật trọn vẹn." }
+      ]
+    }
+  ]
+}

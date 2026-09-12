@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-15",
+  "title": "9月15日 - 遠回り",
+  "caption": "🌲 Đường vòng không phải đường sai, nó chỉ dài hơn một chút",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "遠回り",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "walk",
+    "forest",
+    "nature"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月15日です。おはようございます。",
+      "vi": "Hôm nay là ngày 15 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "近道が工事中で、遠回りをしました。",
+      "vi": "Đường tắt đang sửa nên tôi phải đi vòng."
+    },
+    {
+      "ja": "知らない道に、大きな木がありました。",
+      "vi": "Trên con đường lạ có một cây cổ thụ."
+    },
+    {
+      "ja": "近道ばかり選んでいたら、会えませんでした。",
+      "vi": "Cứ chọn đường tắt thì tôi đã không gặp được nó."
+    },
+    {
+      "ja": "遠回りは、間違いではありません。",
+      "vi": "Đi vòng không phải là đi sai."
+    },
+    {
+      "ja": "ただ、少し長いだけです。",
+      "vi": "Chỉ là hơi dài hơn một chút thôi."
+    },
+    {
+      "ja": "人生でも、同じことが起こります。",
+      "vi": "Trong đời cũng có chuyện y như vậy."
+    },
+    {
+      "ja": "回った分だけ、見たものが増えます。",
+      "vi": "Vòng bao nhiêu thì thấy thêm bấy nhiêu."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "遠回り"
+  }
+}

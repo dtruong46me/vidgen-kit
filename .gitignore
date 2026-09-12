@@ -216,4 +216,33 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-/tmp
+# /tmp
+# ---------------------------------------------------------------
+# vidgen-kit
+# ---------------------------------------------------------------
+# Sản phẩm và file trung gian do máy sinh: chạy lại `make video` là có.
+out/
+studio/public/audio/20*/
+
+# Một ngày là một thư mục content/<ngày>/ với ba file. Chỉ script.json là của
+# người viết; build.json (hợp đồng) và .cache.json (cache TTS) do máy sinh,
+# `make content` dựng lại trong vài giây.
+content/*/build.json
+content/*/.cache.json
+
+# Giọng đọc do edge-tts sinh. Nhạc nền thì KHÔNG khớp mẫu này nên vẫn được
+# commit — nó là tài sản thật, tải một lần dùng mãi.
+
+# Clip nền KHÔNG vào git nữa. Thư viện 52 clip dọc 1080×1920 nặng 1,6 GB; đẩy
+# chừng đó vào lịch sử git là mỗi lần clone phải tải lại hết, mà clip thì tải
+# lại được: library/shots.json ghi đủ nguồn và id, `make shots-get` dựng lại
+# từng cái. Sổ vào git, file thì không.
+#
+# Ba clip đầu (tea-room, matcha-whisk, tea-tray) đã nằm trong lịch sử từ trước
+# nên git vẫn theo dõi chúng — mẫu này chỉ chặn file MỚI. Muốn bỏ nốt ba cái đó
+# thì phải `git rm --cached` riêng.
+studio/public/video/*.mp4
+
+# Phụ thuộc Node của studio/
+studio/node_modules/
+studio/dist/

@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-12",
+  "title": "9月12日 - 続けること",
+  "caption": "🪵 Không ai thấy ngày thứ nhất, người ta chỉ thấy ngày thứ một trăm",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "続けること",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "hands",
+    "craft",
+    "closeup"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月12日です。おはようございます。",
+      "vi": "Hôm nay là ngày 12 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "同じことを、毎日少しずつ続けてみます。",
+      "vi": "Cùng một việc, mỗi ngày làm một chút."
+    },
+    {
+      "ja": "一日では、何も変わりません。",
+      "vi": "Một ngày thì chẳng có gì thay đổi."
+    },
+    {
+      "ja": "十日でも、まだ分かりません。",
+      "vi": "Mười ngày cũng vẫn chưa thấy gì."
+    },
+    {
+      "ja": "それでも、手は覚えていきます。",
+      "vi": "Vậy mà đôi tay thì cứ nhớ dần."
+    },
+    {
+      "ja": "百日目に、人はそれを才能と呼びます。",
+      "vi": "Đến ngày thứ một trăm, người ta gọi đó là tài năng."
+    },
+    {
+      "ja": "見えない九十九日が、いつもあります。",
+      "vi": "Chín mươi chín ngày không ai thấy thì lúc nào cũng có."
+    },
+    {
+      "ja": "今日は、その一日です。",
+      "vi": "Hôm nay chính là một trong những ngày ấy."
+    },
+    {
+      "ja": "今日の分を、ただやるだけです。",
+      "vi": "Chỉ cần làm phần của hôm nay, vậy thôi."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "続けること"
+  }
+}

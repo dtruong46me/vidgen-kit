@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-28",
+  "title": "9月28日 - 小さな約束",
+  "caption": "🤍 Giữ lời với chính mình là cách tự tin bắt đầu",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "小さな約束",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "hands",
+    "writing",
+    "people"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月28日です。おはようございます。",
+      "vi": "Hôm nay là ngày 28 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "人との約束は、よく守ります。",
+      "vi": "Lời hứa với người khác thì ta hay giữ."
+    },
+    {
+      "ja": "自分との約束は、どうでしょうか。",
+      "vi": "Còn lời hứa với chính mình thì sao nhỉ?"
+    },
+    {
+      "ja": "早く寝る、と決めた夜を思い出します。",
+      "vi": "Tôi nhớ những đêm đã tự nhủ sẽ ngủ sớm."
+    },
+    {
+      "ja": "小さな約束を破るたび、自信が減ります。",
+      "vi": "Mỗi lần thất hứa nhỏ, lòng tin vào mình lại vơi."
+    },
+    {
+      "ja": "だから、約束は小さくしましょう。",
+      "vi": "Vậy nên hãy hứa những điều thật nhỏ."
+    },
+    {
+      "ja": "守れる大きさに、してあげるのです。",
+      "vi": "Hãy để nó nhỏ vừa đủ để mình giữ được."
+    },
+    {
+      "ja": "今日の約束は、ひとつだけ。",
+      "vi": "Lời hứa hôm nay, chỉ một thôi."
+    },
+    {
+      "ja": "守れたら、自分に小さく礼を。",
+      "vi": "Giữ được rồi thì khẽ cảm ơn chính mình một tiếng."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "小さな約束"
+  }
+}

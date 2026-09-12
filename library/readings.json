@@ -1,0 +1,9 @@
+{
+  "_doc": "Chữ nào MeCab đọc sai thì ghi cách đọc đúng bằng hiragana vào đây. Bảng này áp cho MỌI ngày, nên sửa một lần là xong mãi. Chuỗi dài được thay trước chuỗi ngắn. Muốn romaji tách chữ thì đặt dấu cách trong cách đọc (いちご いちえ ra ichigo ichie); dòng hiragana tự bỏ dấu cách đi. Kiểm lại bằng: make reading DAY=... hoặc soi cả ngân hàng kịch bản.",
+  "words": {
+    "一日": "いちにち",
+    "一歩": "いっぽ",
+    "一杯": "いっぱい",
+    "一期一会": "いちご いちえ"
+  }
+}

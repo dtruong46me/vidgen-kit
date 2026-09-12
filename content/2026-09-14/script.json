@@ -1,0 +1,82 @@
+{
+  "id": "2026-09-14",
+  "title": "9月14日 - 言葉の重さ",
+  "caption": "✍️ Lời nói ra thì không rút lại được, nên nói chậm một nhịp",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "言葉の重さ",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "hands",
+    "writing",
+    "people"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月14日です。おはようございます。",
+      "vi": "Hôm nay là ngày 14 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "言いたいことを、紙に書いてみました。",
+      "vi": "Tôi thử viết điều muốn nói ra giấy."
+    },
+    {
+      "ja": "書いてみると、言わなくていいことが分かります。",
+      "vi": "Viết ra rồi mới thấy có điều không cần nói."
+    },
+    {
+      "ja": "口から出た言葉は、戻せません。",
+      "vi": "Lời đã ra khỏi miệng thì không lấy lại được."
+    },
+    {
+      "ja": "だから、一度だけ息をおきましょう。",
+      "vi": "Vậy nên hãy thở một nhịp trước đã."
+    },
+    {
+      "ja": "その一呼吸が、関係を守ることがあります。",
+      "vi": "Nhịp thở ấy đôi khi giữ được một mối quan hệ."
+    },
+    {
+      "ja": "優しい言葉も、同じだけ強く残ります。",
+      "vi": "Lời dịu dàng cũng ở lại mạnh mẽ y như vậy."
+    },
+    {
+      "ja": "今日は、ひとつだけ優しい言葉を。",
+      "vi": "Hôm nay, chỉ một lời dịu dàng thôi."
+    },
+    {
+      "ja": "よい一日を。",
+      "vi": "Chúc bạn một ngày lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "言葉の重さ"
+  }
+}

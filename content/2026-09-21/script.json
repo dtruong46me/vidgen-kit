@@ -1,0 +1,86 @@
+{
+  "id": "2026-09-21",
+  "title": "9月21日 - 木の年輪",
+  "caption": "🌳 Vòng gỗ hẹp là năm cây sống khó, nó vẫn được tính là một vòng",
+  "voice": "ja-JP-NanamiNeural",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "bgm": "audio/bgm-lonely-self.mp3",
+  "bgmVolume": 0.12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "leadIn": 0.35,
+  "pauseAfter": 0.7,
+  "intro": {
+    "title": "木の年輪",
+    "pauseSeconds": 1.5
+  },
+  "outro": {
+    "text": "またあした",
+    "seconds": 3.0
+  },
+  "targetSeconds": [
+    45,
+    60
+  ],
+  "transition": "crossfade",
+  "hashtags": [
+    "tiengnhat",
+    "hoctiengnhat",
+    "nhatngu",
+    "chualanh",
+    "songchamlai"
+  ],
+  "tags": [
+    "garden",
+    "forest",
+    "nature"
+  ],
+  "lines": [
+    {
+      "ja": "今日は、9月21日です。おはようございます。",
+      "vi": "Hôm nay là ngày 21 tháng 9. Chào buổi sáng."
+    },
+    {
+      "ja": "切り株に、年輪が見えました。",
+      "vi": "Trên gốc cây cụt, tôi thấy những vòng năm."
+    },
+    {
+      "ja": "広い年もあれば、狭い年もあります。",
+      "vi": "Có năm vòng rộng, cũng có năm vòng hẹp."
+    },
+    {
+      "ja": "狭い年は、雨が少なかった年です。",
+      "vi": "Năm vòng hẹp là năm ít mưa."
+    },
+    {
+      "ja": "それでも、その年も一本の輪です。",
+      "vi": "Dù vậy, năm đó vẫn là một vòng đầy đủ."
+    },
+    {
+      "ja": "苦しかった年も、消えずに残ります。",
+      "vi": "Những năm khốn khó cũng không mất đi, chúng ở lại."
+    },
+    {
+      "ja": "消えないから、木は太くなるのです。",
+      "vi": "Chính vì không mất đi nên cây mới dày lên."
+    },
+    {
+      "ja": "あなたの狭い年も、同じです。",
+      "vi": "Những năm chật vật của bạn cũng vậy."
+    },
+    {
+      "ja": "太い木ほど、狭い輪を持っています。",
+      "vi": "Cây càng to thì càng mang nhiều vòng hẹp."
+    },
+    {
+      "ja": "よい一日になりますように。",
+      "vi": "Chúc bạn một ngày tốt lành."
+    }
+  ],
+  "source": {
+    "writer": "claude-opus-5",
+    "id": "木の年輪"
+  }
+}
