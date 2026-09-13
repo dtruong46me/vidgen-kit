@@ -246,3 +246,4 @@ studio/public/video/*.mp4
 # Phụ thuộc Node của studio/
 studio/node_modules/
 studio/dist/
+content
