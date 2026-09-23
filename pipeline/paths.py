@@ -23,7 +23,7 @@ là thấy đủ một ngày.
 Trước đây video và ảnh bìa nằm lẻ ở `out/<ngày>.mp4` rồi được CHÉP vào thư mục
 gói: mỗi video nằm hai chỗ, và `out/` của một tháng là 60 file lẻ lẫn giữa 30
 thư mục. Hai thứ còn nằm ngoài thư mục ngày là đồ để SOÁT, không phải để đăng:
-trang duyệt của `make check` và ảnh tĩnh của `make still`.
+trang soát của `make check` và ảnh tĩnh của `make still`.
 
 Mọi module khác PHẢI hỏi ở đây, không được tự ghép chuỗi. Đó là cùng một lý do
 khiến `probe.py` là chỗ duy nhất gọi ffprobe và `timeline.py` là chỗ duy nhất
@@ -33,7 +33,7 @@ Chọn NHIỀU ngày (`select`) cũng nằm ở đây, vì chọn ngày chính l
 đang có những ngày nào" — Makefile hỏi qua `python3 -m pipeline.paths`.
 
 `.cache.json` để riêng được hay không? Được — nó chỉ chứa vân tay SHA1 của
-`(câu Nhật | giọng | tốc độ | cao độ)` từng dòng, để `make content` biết câu nào
+`(câu Nhật | giọng | tốc độ | cao độ)` từng dòng, để `make build` biết câu nào
 KHÔNG phải đọc lại. Xoá nó đi thì video dựng ra y hệt, chỉ tốn thêm một lượt gọi
 edge-tts. Nó nằm chung thư mục ngày vì nó thuộc về ngày đó, và có dấu chấm đầu
 tên để không chen vào giữa hai file người ta thật sự mở ra đọc.
@@ -80,12 +80,24 @@ def slugs(content_dir: Path = CONTENT_DIR) -> list[str]:
 
 
 def built_slugs(content_dir: Path = CONTENT_DIR) -> list[str]:
-    """Mọi ngày ĐÃ dựng nội dung."""
+    """Mọi ngày ĐÃ soạn nguyên liệu (có build.json)."""
     return sorted(p.parent.name for p in content_dir.glob(f"*/{BUILD_NAME}"))
 
 
+def latest_built(content_dir: Path = CONTENT_DIR) -> str | None:
+    """Ngày có build.json được SOẠN gần đây nhất (theo thời gian sửa file).
+
+    Không phải ngày muộn nhất trên lịch: vừa soạn lại 2026-08-20 để thử thì
+    `make studio` phải mở đúng ngày đó, dù trong content/ có cả tháng 10.
+    """
+    built = list(content_dir.glob(f"*/{BUILD_NAME}"))
+    if not built:
+        return None
+    return max(built, key=lambda p: p.stat().st_mtime).parent.name
+
+
 def script_paths(content_dir: Path = CONTENT_DIR) -> list[Path]:
-    """Đường dẫn mọi kịch bản. Dùng khi cần đọc cả loạt (make new, make shots)."""
+    """Đường dẫn mọi kịch bản. Dùng khi cần đọc cả loạt (make new, make shots-list)."""
     return [script_path(slug, content_dir) for slug in slugs(content_dir)]
 
 
@@ -135,7 +147,7 @@ def still_path(slug: str, frame: int, out_root: Path = OUT_DIR) -> Path:
 
 
 def check_dir(slug: str, out_root: Path = OUT_DIR) -> Path:
-    """Trang duyệt của `make check` — đồ soát, nên nằm NGOÀI thư mục đăng."""
+    """Trang soát của `make check` — đồ soát, nên nằm NGOÀI thư mục đăng."""
     return out_root / f"{slug}-check"
 
 
@@ -208,28 +220,75 @@ def span(days: list[str]) -> str:
     return f"{days[0]} … {days[-1]} ({len(days)} ngày)"
 
 
-def main(argv: list[str] | None = None) -> int:
-    """In các ngày khớp, mỗi dòng một ngày — cho vòng lặp trong Makefile.
+#: Bộ lọc cho `--list` và chuỗi chọn: tên cờ -> ngày nào được giữ lại. Makefile
+#: hỏi qua đây thay vì tự thử `[ -f out/$day/$day.mp4 ]` — hỏi tự ghép chuỗi là
+#: đổi tên file trong paths.py xong, `make video-all` tưởng chưa ngày nào có MP4
+#: rồi render lại cả tháng mà không kêu một tiếng.
+FILTERS = {
+    "--built": lambda slug: build_path(slug).exists(),
+    "--unbuilt": lambda slug: not build_path(slug).exists(),
+    "--unrendered": lambda slug: not video_path(slug).exists(),
+}
 
-        python3 -m pipeline.paths 2026-09-12..          ngày CÓ kịch bản
-        python3 -m pipeline.paths 2026-09 --built       ngày ĐÃ dựng nội dung
+USAGE = f"""Cách dùng:
+    python3 -m pipeline.paths <ngày> [LỌC]   các ngày KHỚP chuỗi chọn
+    python3 -m pipeline.paths --list [LỌC]   MỌI ngày có kịch bản
+    python3 -m pipeline.paths --latest-built ngày soạn gần đây nhất (cho make studio)
+LỌC (tuỳ chọn, một cái):
+    --built        đã có build.json
+    --unbuilt      chưa có build.json
+    --unrendered   chưa có MP4
+{SPEC_HELP}"""
+
+
+def main(argv: list[str] | None = None) -> int:
+    """In các ngày, mỗi dòng một ngày — cho vòng lặp trong Makefile.
+
+        python3 -m pipeline.paths 2026-09-12..          ngày CÓ kịch bản, khớp chuỗi
+        python3 -m pipeline.paths 2026-09 --built       ngày ĐÃ soạn nguyên liệu
+        python3 -m pipeline.paths --list                MỌI ngày có kịch bản
+        python3 -m pipeline.paths --list --unbuilt      ngày chưa soạn (make build-all)
+        python3 -m pipeline.paths --list --unrendered   ngày chưa có MP4 (make video-all)
+        python3 -m pipeline.paths --latest-built        MỘT ngày (make studio)
+
+    `--list` KHÔNG phải một chuỗi chọn rỗng, nên nó không lỗi khi chưa có ngày
+    nào: nó in ra không dòng nào và trả về 0. Người gọi là vòng `for` trong
+    Makefile, mà một danh sách rỗng thì chạy không vòng nào là đúng — còn chuỗi
+    chọn không khớp ngày nào mới là gõ sai, và chỗ đó vẫn báo lỗi như cũ.
     """
     args = list(sys.argv[1:] if argv is None else argv)
-    built = "--built" in args
-    specs = [a for a in args if a != "--built"]
-    if len(specs) != 1:
-        print(f"Cách dùng: python3 -m pipeline.paths <ngày> [--built]\n{SPEC_HELP}",
-              file=sys.stderr)
+    if args == ["--latest-built"]:
+        # Chưa soạn ngày nào thì in không dòng nào, trả 0 — make studio tự lo
+        # đường lui bằng props mặc định, đó không phải lỗi.
+        latest = latest_built()
+        if latest:
+            sys.stdout.buffer.write(f"{latest}\n".encode())
+        return 0
+    listing = "--list" in args
+    filters = [a for a in args if a in FILTERS]
+    specs = [a for a in args if a != "--list" and a not in FILTERS]
+    wrong_args = len(filters) > 1 or (bool(specs) if listing else len(specs) != 1)
+    if wrong_args:
+        print(USAGE, file=sys.stderr)
         return 2
+    keep = FILTERS[filters[0]] if filters else (lambda slug: True)
+    pool = [slug for slug in slugs() if keep(slug)]
+    built = filters == ["--built"]
+    if listing:
+        sys.stdout.buffer.write("".join(f"{s}\n" for s in pool).encode())
+        return 0
     spec = specs[0]
-    pool = built_slugs() if built else slugs()
     try:
         chosen = select(spec, pool) if is_range(spec) else [s for s in pool if s == spec]
     except SpecError as exc:
         print(f"[lỗi] {exc}", file=sys.stderr)
         return 2
     if not chosen:
-        what = "đã dựng nội dung" if built else "có kịch bản"
+        what = {
+            "--built": "đã soạn nguyên liệu",
+            "--unbuilt": "chưa soạn nguyên liệu",
+            "--unrendered": "chưa có MP4",
+        }.get(filters[0] if filters else "", "có kịch bản")
         print(f"[lỗi] Không ngày nào khớp '{spec}' mà {what}. "
               f"Đang có: {span(pool) or '(chưa có ngày nào)'}", file=sys.stderr)
         return 1

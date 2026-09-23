@@ -1,8 +1,14 @@
-# Caption và gói đăng bài
+# Lời đăng và gói đăng bài
 
-Video dựng xong vẫn chưa đăng được. Còn thiếu dòng caption, còn thiếu bản chữ để
+Video render xong vẫn chưa đăng được. Còn thiếu lời đăng, còn thiếu bản chữ để
 soát lại, còn thiếu chỗ ghi công tác giả clip. Hai thứ trong tài liệu này lấp
 chỗ đó: trường `caption` trong kịch bản, và lệnh `make export` gói mọi thứ lại.
+
+> **Hai chữ dễ lẫn.** *Lời đăng* là chữ dán vào bài đăng TikTok/Reels, KHÔNG hiện
+> trong video. *Caption* là chữ hiện TRÊN HÌNH (xem `caption-va-cau-dai.md`).
+> Trường trong kịch bản và file trong gói vẫn tên là `caption` / `caption.txt` —
+> theo cách TikTok và Reels gọi ô chữ bài đăng — nhưng văn xuôi ở đây luôn gọi nó
+> là lời đăng. Toàn bộ dây chuyền, từ kịch bản tới lúc đăng: `README.md`.
 
 ---
 
@@ -10,26 +16,26 @@ chỗ đó: trường `caption` trong kịch bản, và lệnh `make export` gó
 
 ```bash
 make new     DAY=2026-09-11    # tạo content/2026-09-11/script.json
-                               # mở ra viết caption, sửa câu nào muốn sửa
-make reading DAY=2026-09-11    # đọc đối chiếu romaji máy sinh
-make release DAY=2026-09-11    # MP4 + ảnh bìa + check + GÓI ĐĂNG, một lệnh
+                               # mở ra viết lời đăng, sửa câu nào muốn sửa
+make reading DAY=2026-09-11    # soát romaji máy sinh
+make release DAY=2026-09-11    # video + check + export: MP4, ảnh bìa, GÓI ĐĂNG
 ```
 
 Sau `make release`, thư mục `out/2026-09-11/` đã đủ để mở ra và đăng.
 
-Chỉ muốn gói lại (sửa caption xong, không muốn render lại):
+Chỉ muốn gói lại (sửa lời đăng xong, không muốn render lại):
 
 ```bash
-make content DAY=2026-09-11    # dựng lại build.json để caption mới vào
-make export  DAY=2026-09-11    # gói lại — không đụng tới MP4 đã có
+make build  DAY=2026-09-11     # soạn lại build.json để lời đăng mới vào
+make export DAY=2026-09-11     # gói lại — không đụng tới MP4 đã có
 ```
 
 ---
 
 ## Trường `caption`
 
-Một dòng tiếng Việt trong `content/<ngày>/script.json`, **không hiện trong
-video**. Chỉ viết câu chữ — không ngày, không emoji:
+Lời đăng: một dòng tiếng Việt trong `content/<ngày>/script.json`, **không hiện
+trong video**. Chỉ viết câu chữ — không ngày, không emoji:
 
 ```json
 {
@@ -53,11 +59,11 @@ gõ tay là sẽ có ngày lệch với tiêu đề trong video. Định dạng 
 **Emoji là 🌿 cho MỌI ngày**, khai ở `EMOJI` trong cùng file đó. Trước đây mỗi
 kịch bản tự chọn một emoji hợp chủ đề (🍵, 🌅, 🪵…), nên lướt trang kênh thì mỗi
 bài một kiểu. Giờ nó là dấu nhận diện của kênh, cùng loại với định dạng ngày.
-Kịch bản nào còn để emoji ở đầu `caption` thì máy bỏ nó đi và `make content`
+Kịch bản nào còn để emoji ở đầu `caption` thì máy bỏ nó đi và `make build`
 nhắc một dòng `[!]` — không bao giờ in hai emoji liền nhau.
 
 Bỏ trống `caption` cũng chạy: máy mượn tạm câu tiếng Việt cuối cùng của kịch bản
-(lời chúc chốt video) và nhắc một dòng `[!]` ở cả `make content` lẫn
+(lời chúc chốt video) và nhắc một dòng `[!]` ở cả `make build` lẫn
 `make export`. Tạm được, nhưng nhạt — ngày nào cũng "Chúc bạn một ngày tốt lành".
 
 ### `hashtags` là CÀI ĐẶT, không phải nội dung
@@ -80,7 +86,8 @@ Viết thẻ không cần dấu `#`; `make export` tự thêm.
 ```bash
 make export DAY=2026-09-11                   # một ngày
 make export FROM=2026-09-12 TO=2026-09-30    # từ ngày tới ngày, tính cả hai đầu
-make export FROM=2026-09-12                  # từ ngày đó tới ngày cuối cùng đã dựng
+make export FROM=2026-09-12                  # từ ngày đó tới ngày cuối cùng
+make export TO=2026-09-30                    # từ ngày đầu tiên tới ngày đó
 make export MONTH=2026-09                    # cả tháng
 make export-all                              # MỌI ngày đã có build.json
 ```
@@ -92,16 +99,16 @@ Mỗi ngày một thư mục, đủ thứ để đăng — `out/2026-09-11/`:
 
 | File | Dùng để làm gì |
 |---|---|
-| `<ngày>.mp4` | Video để đăng. Remotion dựng thẳng vào đây |
-| `<ngày>-thumbnail.png` | Ảnh bìa. Remotion dựng thẳng vào đây — thiếu thì `make export` dựng luôn |
-| `caption.txt` | Dòng caption + hashtag. Dán thẳng TikTok/Reels |
-| `description.txt` | Caption + toàn bộ lời Nhật–Việt + ghi công. Dán YouTube |
+| `<ngày>.mp4` | Video để đăng. `make video` render thẳng vào đây |
+| `<ngày>-thumbnail.png` | Ảnh bìa. `make video` render thẳng vào đây — thiếu thì `make export` render luôn |
+| `caption.txt` | Lời đăng + hashtag. Dán thẳng TikTok/Reels |
+| `description.txt` | Lời đăng + toàn bộ lời Nhật–Việt + ghi công. Dán YouTube |
 | `script.txt` | Bảng đọc từng câu: Nhật / romaji / hiragana / Việt |
 | `metadata.json` | Mọi số đo và mọi trường máy đọc được |
 | `credits.txt` | Nguồn, tác giả, giấy phép từng clip và bản nhạc |
 | `audio/line-XX.mp3` | Giọng đọc từng câu |
 
-Ngoài thư mục ngày chỉ còn đồ để SOÁT, không phải để đăng: trang duyệt
+Ngoài thư mục ngày chỉ còn đồ để SOÁT, không phải để đăng: trang soát
 `out/<ngày>-check/` của `make check` và ảnh tĩnh `out/<ngày>-f<frame>.png` của
 `make still`.
 
@@ -119,7 +126,7 @@ Ngoài thư mục ngày chỉ còn đồ để SOÁT, không phải để đăng
     Hôm nay là ngày 11 tháng 9. Chào buổi sáng.
 ```
 
-### Lệnh này không dựng gì cả
+### Lệnh này không soạn, không render
 
 `make export` chỉ **đọc** `content/<ngày>/build.json` và đo lại MP4 nếu có. Nó
 không gọi TTS, không chọn clip, không tính một frame nào — phép cộng frame duy
@@ -131,8 +138,8 @@ file đó cũ hơn `build.json`, thì `make export` gọi Remotion chụp lại.
 có ảnh bìa là gói chưa đăng được, mà ảnh bìa chỉ tốn MỘT frame chứ không phải cả
 video. Ngoại lệ này không phá nguyên tắc trên: frame chụp là `thumbnailFrame` đã
 ghi sẵn trong hợp đồng, `export.py` không tự tính. Ngày nào đã có ảnh bìa mới thì
-không dựng lại, nên lần gói thứ hai vẫn nhanh và vẫn ra thư mục giống hệt. Dựng
-không được (chưa cài Remotion) thì nó kêu một dòng rồi gói tiếp, không chặn.
+không render lại, nên lần gói thứ hai vẫn nhanh và vẫn ra thư mục giống hệt.
+Render không được (chưa cài Remotion) thì nó kêu một dòng rồi gói tiếp, không chặn.
 
 **Gói lại chỉ xoá phần nó viết ra.** `caption.txt`, `description.txt`,
 `script.txt`, `credits.txt`, `metadata.json` và `audio/` bị xoá rồi viết lại —
@@ -140,7 +147,7 @@ bớt một câu mà còn `line-09.mp3` nằm lại thì người đăng sẽ t�
 câu. Video và ảnh bìa nằm cùng thư mục thì KHÔNG bị đụng tới: xoá theo là mất
 nửa tiếng render.
 
-**Bố cục cũ tự dời vào.** Video dựng trước khi đổi bố cục nằm lẻ ở
+**Bố cục cũ tự dời vào.** Video render trước khi đổi bố cục nằm lẻ ở
 `out/<ngày>.mp4` (ảnh bìa ở `out/<ngày>-thumbnail.png`). `make export` DỜI
 chúng vào thư mục ngày — dời chứ không chép, để mỗi video chỉ nằm một chỗ.
 
@@ -152,39 +159,39 @@ dụng làm mốc.
 
 ### Những chỗ `make export` kêu
 
-- `caption đang mượn câu chốt` — kịch bản chưa khai `caption`.
-- `build.json chưa có trường "post"` — build.json dựng bằng bản pipeline trước
-  BƯỚC 7. Chạy `make content` lại.
+- `lời đăng đang mượn câu chốt` — kịch bản chưa khai `caption`.
+- `build.json chưa có trường "post"` — build.json soạn bằng bản pipeline trước
+  BƯỚC 7. Chạy `make build` lại.
 - `chưa có out/<ngày>/<ngày>.mp4` — gói thiếu video, chạy `make video`.
-- `chưa dựng được ảnh bìa: …` — Remotion chưa chạy được ở máy này. Gói vẫn đủ
-  phần chữ; chạy `make thumbnail DAY=...` ở máy dựng được là có.
-- `<ngày>-thumbnail.png là bản chụp từ lần dựng trước` — có ảnh bìa, nhưng nó cũ
+- `chưa render được ảnh bìa: …` — Remotion chưa chạy được ở máy này. Gói vẫn đủ
+  phần chữ; chạy `make thumbnail DAY=...` ở máy render được là có.
+- `<ngày>-thumbnail.png là bản chụp từ lần render trước` — có ảnh bìa, nhưng nó cũ
   hơn `build.json`, tức chụp ở frame của bản kịch bản trước. Gói vẫn mang nó
   theo, nhưng đừng đăng trước khi chụp lại.
 - `còn bản cũ out/<ngày>.mp4 nằm lẻ ngoài` — thư mục ngày đã có video của nó,
   nên bản lẻ không được dời vào. Xem lại rồi xoá bản lẻ.
 - `<tên clip> thiếu tác giả, giấy phép, nguồn` — `library/shots.json` còn trống
-  chỗ đó. Xem `make shots`.
+  chỗ đó. Xem `make shots-list`.
 
 ---
 
 ## Cả tháng (hay cả tuần) một lượt
 
 ```bash
-# 1. Soạn kịch bản cho từng ngày (hoặc viết tay vào content/)
+# 1. Viết kịch bản cho từng ngày (hoặc viết tay vào content/)
 for d in 01 02 03 04 05; do make new DAY=2026-10-$d; done
 
-# 2. Mở content/2026-10-*/script.json ra viết caption cho từng ngày
+# 2. Mở content/2026-10-*/script.json ra viết lời đăng cho từng ngày
 #    (bỏ qua cũng được — máy mượn câu chốt và kêu)
 
-# 3. Dựng nội dung mọi ngày chưa có build.json: TTS + chọn clip + timeline
-make content-all
+# 3. Soạn nguyên liệu mọi ngày chưa có build.json: TTS + chọn clip + timeline
+make build-all
 
-# 4. Soát trước khi tốn CPU render: đọc caption và lời của cả tháng
+# 4. Soát trước khi tốn CPU render: đọc lời đăng và lời Nhật–Việt cả tháng
 make export MONTH=2026-10
 less out/2026-10-01/script.txt
 
-# 5. Render + check + gói từng ngày (lâu — xem "Thời gian dựng" bên dưới)
+# 5. Render + check + gói từng ngày (lâu — xem "Thời gian render" bên dưới)
 make release MONTH=2026-10
 ```
 
@@ -199,20 +206,20 @@ ngày nào hỏng để chạy lại riêng bằng `make release DAY=...`.
 Bước 4 rẻ (vài giây), bước 5 đắt (hàng giờ) — soát trước thì phát hiện câu sai
 lúc còn sửa được rẻ.
 
-`make content-all` bỏ qua ngày nào đã có `build.json`. Muốn dựng lại một ngày
+`make build-all` bỏ qua ngày nào đã có `build.json`. Muốn soạn lại một ngày
 thì xoá `content/<ngày>/build.json` rồi chạy lại, hoặc gọi thẳng
-`make content DAY=...`.
+`make build DAY=...`.
 
 ---
 
-## Thời gian dựng — số đo thật
+## Thời gian render — số đo thật
 
-Render là bước đắt duy nhất của cả dây chuyền. Số dưới đây đo khi dựng lại
+Render là bước đắt duy nhất của cả dây chuyền. Số dưới đây đo khi render lại
 tháng 9 sau lượt đổi lớp phủ sáng hơn (đêm 2026-09-12 sang 13), mỗi ngày gồm
 MP4 **và** ảnh bìa.
 
 **Máy:** Windows 11, AMD Ryzen 5 5500U (6 nhân 12 luồng), 19 GB RAM. Remotion
-4.0.513 bản Windows, `--concurrency=6`, bundle dựng sẵn một lần (59 giây).
+4.0.513 bản Windows, `--concurrency=6`, bundle sẵn một lần (59 giây).
 
 | Ngày | Video | Render | Giây render / giây video | MP4 |
 |---|---:|---:|---:|---:|
@@ -231,14 +238,14 @@ MP4 **và** ảnh bìa.
 - Trung bình **~5 phút một video** (273–326 giây). Nhẩm nhanh: **khoảng 6 giây
   render cho mỗi giây video**.
 - Suy ra: một tuần ≈ **35 phút**, cả tháng 30 ngày ≈ **2,5 giờ**.
-- Máy dựng yếu chậm hơn hẳn: máy 2 nhân / 3 GB trống (WSL, `setConcurrency(1)`
+- Máy yếu render chậm hơn hẳn: máy 2 nhân / 3 GB trống (WSL, `setConcurrency(1)`
   trong `remotion.config.ts`) mất khoảng **34 phút một video** — số đo ở BƯỚC 6.
   Con số 1 đó là giới hạn của máy yếu chứ không phải của code; máy khoẻ thì
   truyền `--concurrency` cao hơn.
 - MP4 nặng 54–117 MB cho cùng ~50 giây: tuỳ clip nền (mưa, lá lay nhiều thì
   nặng), không phải lỗi.
 
-### Đợt dựng 12–30/9 — đang tạm dừng
+### Đợt render 12–30/9 — đang tạm dừng
 
 - **Xong 10 ngày, 12–21/9:** MP4 và ảnh bìa mới (lớp phủ sáng) nằm trong
   `out/<ngày>/`. `2026-09-12` đã qua `make check` PASS cả sáu mục.
@@ -246,7 +253,7 @@ MP4 **và** ảnh bìa.
   tạm rồi mới đổi tên, nên không có MP4 dở dang nào nằm lại.
 - **Còn 9 ngày, 22–30/9:** chưa có video mới — ước ~45 phút ở máy trên.
 - **Chưa gói lại cả 19 ngày.** `caption.txt`, `script.txt`, `metadata.json`…
-  trong `out/<ngày>/` vẫn là bản gói lúc 16:23 ngày 12/9, caption còn emoji cũ.
+  trong `out/<ngày>/` vẫn là bản gói lúc 16:23 ngày 12/9, lời đăng còn emoji cũ.
 
 Làm tiếp:
 
@@ -259,6 +266,7 @@ make release FROM=2026-09-22                 # render + check + gói 22–30/9
 
 ## Xem thêm
 
+- Toàn bộ dây chuyền, sơ đồ và các cách gộp bước: `README.md`
 - Trường nào là nội dung, trường nào là cài đặt: `docs/kich-ban-va-kiem-tra.md`
 - Nguồn và giấy phép clip: `docs/tai-san-can-tai.md`
 - Tiêu đề ngày và màn kết: `docs/mo-dau-va-ket.md`

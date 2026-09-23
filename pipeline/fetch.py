@@ -291,7 +291,7 @@ def _register(entry: dict, name: str, dest: Path, verb: str) -> None:
     if info.fps and abs(info.fps - library.TARGET_FPS) > 0.01:
         print(f"\n[!] Clip {info.fps:g}fps, video đích {library.TARGET_FPS}fps — "
               f"cảnh lia chậm sẽ hơi giật.")
-    print("\nKiểm lại: make shots")
+    print("\nKiểm lại: make shots-list")
 
 
 def get(provider: str, source_id: str, name: str, tags: tuple[str, ...]) -> Path:

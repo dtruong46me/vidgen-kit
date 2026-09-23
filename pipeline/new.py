@@ -15,7 +15,7 @@ Nhờ vậy chỉnh giọng đọc hay đổi nhạc nền ở một ngày là m
 không phải sửa ngân hàng, không phải sửa prompt.
 
 File sinh ra là file NGƯỜI VIẾT — nó được commit, và bạn sửa thoải mái trước khi
-`make content`. Vì vậy lệnh này không bao giờ đè lên kịch bản đã có.
+`make build`. Vì vậy lệnh này không bao giờ đè lên kịch bản đã có.
 
 Trường `clip` bỏ trống: `shots.py` chọn clip sau khi TTS đo xong độ dài từng câu.
 Trường `source` ghi kịch bản từ đâu ra; `script.py` bỏ qua nó, còn lệnh này đọc
@@ -44,7 +44,7 @@ BANK_PATH = ROOT / "library" / "bank.json"
 #: dấu câu). Đo trên 2026-08-20: 166 chữ ra 39,27 giây audio.
 #:
 #: Chỉ dùng để ƯỚC LƯỢNG trước khi tốn công TTS. Con số thật vẫn do ffprobe đo
-#: trên file mp3 (P-1) — `make content` in ra và cảnh báo nếu lệch khoảng.
+#: trên file mp3 (P-1) — `make build` in ra và cảnh báo nếu lệch khoảng.
 CHARS_PER_SECOND = 4.23
 
 #: Số câu nên có. 9 câu là nhịp của 2026-08-20; ít hơn 8 thì mỗi câu phải dài,
@@ -60,7 +60,7 @@ MAX_LINE_CHARS = 40
 #: Câu mở đầu CỐ ĐỊNH của mọi ngày: nói ngày trước, chào sau, gộp chung một dòng
 #: để hai vế đọc liền trong một cảnh. Ngân hàng ghi sẵn nó ở đầu mỗi mục; với
 #: Claude thì nó được chép nguyên văn vào prompt. Đổi câu mở đầu thì đổi ở đây,
-#: rồi sửa đầu các mục trong library/bank.json — `make bank` đánh dấu mục lệch.
+#: rồi sửa đầu các mục trong library/bank.json — `make bank-list` đánh dấu mục lệch.
 OPENING = (
     {"ja": "今日は、{date}です。おはようございます。",
      "vi": "Hôm nay là {date_vi}. Chào buổi sáng."},
@@ -209,7 +209,7 @@ def _fixed_seconds(settings: dict, n_lines: int) -> float:
     """Phần thời lượng không phụ thuộc số chữ: nghỉ giữa câu, mở đầu, kết.
 
     Mặc định lấy đúng mặc định của script.py, để ước lượng khớp với cái mà
-    `make content` sẽ thật sự dựng.
+    `make build` sẽ thật sự dựng.
     """
     gap = float(settings.get("leadIn", 0.35)) + float(settings.get("pauseAfter", 0.7))
     intro = settings.get("intro")
@@ -367,7 +367,7 @@ def compose(slug: str, day: date, draft: Draft, settings: dict) -> dict:
 
 
 def _review(draft: Draft, settings: dict, day: date) -> list[str]:
-    """Những chỗ đáng sửa tay trước khi `make content`. Cảnh báo, không chặn."""
+    """Những chỗ đáng sửa tay trước khi `make build`. Cảnh báo, không chặn."""
     notes = []
     opening = [_fill_date(o["ja"], day) for o in OPENING]
     if [line["ja"] for line in draft.lines[:len(opening)]] != opening:
@@ -427,7 +427,7 @@ def create(slug: str, model: str = "", log=print) -> Path:
         + "\n",
         encoding="utf-8",
     )
-    # Kiểm bằng CHÍNH bộ kiểm mà `make content` dùng. Không qua được thì xoá
+    # Kiểm bằng CHÍNH bộ kiểm mà `make build` dùng. Không qua được thì xoá
     # file đi — để lại một kịch bản hỏng là đẩy lỗi sang lệnh sau.
     try:
         script_mod.load(CONTENT_DIR, slug)
@@ -446,10 +446,10 @@ def create(slug: str, model: str = "", log=print) -> Path:
         log(f"\n  caption  {post_mod.build(draft.caption, (), day).caption}")
     notes = _review(draft, settings, day)
     if notes:
-        log("\n[!] Nên xem lại trước khi dựng:")
+        log("\n[!] Nên xem lại trước khi make build:")
         for note in notes:
             log(f"    - {note}")
-    log(f"\nSửa file nếu muốn, rồi: make content DAY={slug}")
+    log(f"\nSửa file nếu muốn, rồi: make build DAY={slug}")
     return dest
 
 

@@ -15,11 +15,11 @@
     "",
     "Mọi mục mở đầu bằng MỘT CÂU CỐ ĐỊNH, nói ngày trước rồi mới chào, chung một dòng:",
     "  今日は、{date}です。おはようございます。",
-    "Câu đó khai ở OPENING trong pipeline/new.py; `make bank` đánh dấu mục nào lệch.",
+    "Câu đó khai ở OPENING trong pipeline/new.py; `make bank-list` đánh dấu mục nào lệch.",
     "",
     "Độ dài: 2026-08-20 có 166 chữ Nhật (không tính dấu câu) ra 52 giây kể cả mở",
     "đầu và kết. Giữ mỗi mục trong khoảng 120–180 chữ, 8–10 câu, mỗi câu dưới 40",
-    "chữ. `make bank` in ước lượng thời lượng của từng mục.",
+    "chữ. `make bank-list` in ước lượng thời lượng của từng mục.",
     "",
     "Máy chọn mục chưa dùng lần nào, theo thứ tự trong file. Dùng hết thì quay lại",
     "mục dùng lâu nhất. Thêm mục mới vào CUỐI file để không đảo thứ tự cũ."

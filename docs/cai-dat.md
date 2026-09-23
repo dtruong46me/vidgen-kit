@@ -4,7 +4,7 @@ Ba việc, theo thứ tự. Việc thứ ba có thể bỏ qua.
 
 ---
 
-## 1. Cài phụ thuộc
+## 1. Cài thư viện Python và Node
 
 ```bash
 make setup
@@ -88,8 +88,8 @@ PEXELS_API_KEY=... make shots-find Q="bamboo"
 
 ## 3. Khoá API — có thể bỏ qua
 
-**Không có khoá nào thì mọi lệnh dựng video vẫn chạy đủ.** `make content`,
-`make video`, `make still`, `make reading`, `make shots` đều không gọi mạng
+**Không có khoá nào thì mọi lệnh soạn và render vẫn chạy đủ.** `make build`,
+`make video`, `make still`, `make reading`, `make shots-list` đều không gọi mạng
 ngoài edge-tts. Khoá chỉ để **tìm và tải clip tự động**.
 
 | Biến | Lấy ở đâu | Mất bao lâu | Dùng cho |
@@ -114,7 +114,7 @@ Chưa điền thì lệnh đó nói thẳng thiếu gì và điền vào đâu, 
 
 ### Không muốn lấy khoá thì làm sao
 
-Tải bằng trình duyệt như bình thường, rồi nhập vào thư viện bằng một lệnh:
+Tải bằng trình duyệt như bình thường, rồi ghi vào sổ clip bằng một lệnh:
 
 ```bash
 make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
@@ -132,11 +132,11 @@ make shots-add FILE=~/Downloads/8507912.mp4 NAME=matcha-whisk \
 
 ```bash
 make reading DAY=2026-08-20      # romaji + hiragana, không cần khoá
-make shots                       # sổ tài sản
-make content DAY=2026-08-20      # 1472 frame thoại, tổng 1562
+make shots-list                  # sổ clip + nhạc nền
+make build   DAY=2026-08-20      # 1472 frame thoại, tổng 1562
 make video   DAY=2026-08-20      # ~10 phút trên máy 2 nhân
 make check   DAY=2026-08-20      # phải PASS, đếm frame trên chính MP4
-make bank                        # ngân hàng kịch bản, không cần khoá
+make bank-list                   # ngân hàng kịch bản, không cần khoá
 ```
 
 Con số **1472 frame thoại** là mốc hồi quy. Nó đổi mà bạn không cố ý đổi nhịp

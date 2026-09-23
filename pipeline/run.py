@@ -182,7 +182,7 @@ def _warn_if_clip_loops(doc, clips, timeline, log) -> None:
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if not args:
-        print("Thiếu tham số. Ví dụ: make content DAY=2026-08-20", file=sys.stderr)
+        print("Thiếu tham số. Ví dụ: make build DAY=2026-08-20", file=sys.stderr)
         return 2
 
     slug, flags = args[0], args[1:]

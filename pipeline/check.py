@@ -9,17 +9,19 @@ Hai phần, trả lời hai câu hỏi khác hẳn nhau:
    thật có khớp build.json không, thời lượng có trong khoảng targetSeconds không.
    Mấy thứ này sai thì video hỏng mà nhìn ảnh tĩnh không thấy.
 
-2. TRANG DUYỆT — người kết luận. Một frame giữa mỗi cảnh, đặt cạnh câu chữ lẽ ra
-   phải hiện, có tô vùng mà TikTok/Reels che. Hai lỗi máy không bắt được nhưng
-   mắt thấy trong một giây: chữ ra ô vuông (tofu, font thiếu glyph) và phụ đề
-   bị giao diện nền tảng che mất.
+2. TRANG SOÁT — người kết luận. MỘT frame cho MỖI MÀN CHỮ, không phải mỗi cảnh:
+   câu dài chia mảnh thì lấy giữa cảnh là mảnh đầu không ai nhìn thấy, mà trang
+   này sinh ra chính để soi chữ. Mỗi ảnh đặt cạnh câu chữ lẽ ra phải hiện, có tô
+   vùng mà TikTok/Reels che. Hai lỗi máy không bắt được nhưng mắt thấy trong một
+   giây: chữ ra ô vuông (tofu, font thiếu glyph) và caption bị giao diện nền
+   tảng che mất.
 
-Ghi ra: out/<slug>-check/index.html  (trang duyệt, kèm bảng số đo)
+Ghi ra: out/<slug>-check/index.html  (trang soát, kèm bảng số đo)
         out/<slug>-check/sheet.jpg   (ảnh ghép, mở thẳng trong VS Code được)
 
 Module này KHÔNG tính timeline. Nó đọc vị trí cảnh từ build.json — cộng dồn
 `durationInFrames` đúng như `getStarts` trong DailyVideo.tsx — rồi xem MP4 có
-khớp không. Nó là người kiểm, không phải người dựng.
+khớp không. Nó là người kiểm, không phải người soạn.
 """
 
 from __future__ import annotations
@@ -63,12 +65,12 @@ class Finding:
 
 @dataclass(frozen=True)
 class Moment:
-    """Một khung hình đáng trích: giữa mỗi cảnh, trong màn kết."""
+    """Một khung hình đáng trích: một MÀN CHỮ, hoặc màn kết."""
 
     label: str
     frame: int
     line: dict | None
-    #: Cảnh 1 còn có tiêu đề ngày đè lên — trang duyệt phải in cả nó. Là cờ
+    #: Cảnh 1 còn có tiêu đề ngày đè lên — trang soát phải in cả nó. Là cờ
     #: riêng chứ không dò theo nhãn: câu dài chia mảnh thì nhãn không còn là
     #: "Cảnh 1" nữa, mà "Cảnh 10" thì lại khớp nhầm nếu so bằng tiền tố.
     with_title_card: bool = False
@@ -88,6 +90,7 @@ def moments(build: dict) -> list[Moment]:
       1, giữa cảnh là lúc tiêu đề ngày và caption câu 1 cùng đang hiện đủ.
     - Câu dài chia mảnh: MỘT khung cho MỖI mảnh. Mảnh là một màn chữ riêng, mà
       trang này sinh ra để soi chữ — lấy giữa cảnh thì mảnh đầu không ai nhìn.
+      Vì vậy trang soát đếm theo MÀN CHỮ, không theo cảnh.
     - Kết: 40% màn. Chữ vào xong ở frame 30, bắt đầu nhạt ở 55%.
     """
     out: list[Moment] = []
@@ -179,14 +182,14 @@ def measure(slug: str, build: dict, build_path: Path, mp4: Path) -> list[Finding
     fresh = mp4.stat().st_mtime >= build_path.stat().st_mtime
     out.append(Finding(
         "Độ mới", "PASS" if fresh else "WARN",
-        "MP4 dựng sau build.json" if fresh
-        else "MP4 CŨ hơn build.json — có thể là bản dựng trước lần sửa gần nhất",
+        "MP4 render sau build.json" if fresh
+        else "MP4 CŨ hơn build.json — có thể là bản render trước lần sửa gần nhất",
     ))
     return out
 
 
 # --------------------------------------------------------------------------
-# Phần 2 — trang duyệt
+# Phần 2 — trang soát
 # --------------------------------------------------------------------------
 
 def _ffmpeg(*args: str) -> None:
@@ -272,7 +275,7 @@ def write_page(slug: str, build: dict, findings: list[Finding],
     page = f"""<!doctype html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Duyệt {esc(slug)}</title>
+<title>Soát {esc(slug)}</title>
 <style>
   body {{ margin:0; background:#0f1211; color:#e6eae3;
          font:14px/1.5 system-ui, "Segoe UI", sans-serif; }}
@@ -298,8 +301,9 @@ def write_page(slug: str, build: dict, findings: list[Finding],
   .ro {{ color:#c2c9be; font-size:13px; }}
   .vi {{ color:#929c93; font-size:13px; }}
 </style></head><body><main>
-<h1>Duyệt {esc(slug)}</h1>
-<p class="hint">Mỗi ảnh là một khung giữa cảnh, chữ bên dưới là chữ LẼ RA phải hiện.
+<h1>Soát {esc(slug)}</h1>
+<p class="hint">Mỗi ảnh là MỘT MÀN CHỮ (câu dài chia mảnh thì mỗi mảnh một ảnh),
+chữ bên dưới là chữ LẼ RA phải hiện.
 So hai bên: chữ trong ảnh ra ô vuông là thiếu font; chữ lấn vào vùng đỏ là bị
 giao diện TikTok/Reels che.</p>
 <table>{rows}</table>
@@ -334,12 +338,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     failed = [f for f in findings if f.status == "FAIL"]
-    print(f"\n  Trang duyệt: {page.relative_to(ROOT)}")
+    print(f"\n  Trang soát: {page.relative_to(ROOT)}")
     print(f"  Ảnh ghép:    {(dest_dir / 'sheet.jpg').relative_to(ROOT)}  "
           f"({len(picked)} khung, vùng đỏ là chỗ nền tảng che)")
     print(f"\n{'FAIL' if failed else 'PASS'}"
           + (f" — {len(failed)} mục hỏng" if failed else "")
-          + " · soi trang duyệt để bắt tofu và phụ đề bị che")
+          + " · soát bằng mắt để bắt tofu và caption bị che")
     return 1 if failed else 0
 
 

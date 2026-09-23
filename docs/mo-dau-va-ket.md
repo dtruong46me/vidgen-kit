@@ -34,7 +34,7 @@ ra `8月20日` — viết đúng như trong câu đọc, để chữ trên màn 
 cùng một thứ. Tên kịch bản không phải dạng ngày (`thu-nghiem.json`) thì chủ đề
 lên làm chữ to, không có dòng nhỏ. Không lỗi.
 
-Kịch bản cũ còn `"seconds"` trong `intro` thì `make content` dừng lại và bảo đổi
+Kịch bản cũ còn `"seconds"` trong `intro` thì `make build` dừng lại và bảo đổi
 thành `pauseSeconds` — trường cũ là độ dài của cảnh gradient, giữ im lặng mà bỏ
 qua thì người sửa số đó sẽ không hiểu vì sao video không đổi.
 
@@ -83,7 +83,7 @@ Hai số cộng thêm nằm ở `timeline.py` (`CAPTION_IN_FRAMES` 26 phải kh�
 đứng yên). Frame do `timeline.py` chọn, `render.py` chỉ đọc số đó (P-2).
 
 Như `make still`, lệnh này chỉ vẽ từ build.json đã có. Thường không phải gõ:
-`make video` dựng ảnh bìa ngay sau MP4, và `make export` dựng nốt cho ngày nào
+`make video` render ảnh bìa ngay sau MP4, và `make export` render nốt cho ngày nào
 còn thiếu.
 
 ### Chữ
@@ -163,5 +163,5 @@ Bật lên xem rồi tự quyết — đừng quyết bằng cách tưởng tư�
 
 ```bash
 # thêm "showHira": true vào kịch bản
-make content DAY=2026-08-20 && make still DAY=2026-08-20 FRAME=320
+make build DAY=2026-08-20 && make still DAY=2026-08-20 FRAME=320
 ```

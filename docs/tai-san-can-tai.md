@@ -3,21 +3,21 @@
 Chọn nhạc và chọn cảnh là chuyện thẩm mỹ, code không quyết hộ được. Tài liệu này
 ghi lại khi cần thêm thì tải ở đâu, lưu thế nào.
 
-**Đang có gì thì hỏi máy, đừng hỏi tài liệu.** `make shots` in ra cả sổ kèm số
+**Đang có gì thì hỏi máy, đừng hỏi tài liệu.** `make shots-list` in ra cả sổ kèm số
 đo thật, ai đang dùng, và chỗ nào còn thiếu thông tin. Bảng chép tay trong tài
 liệu chỉ chờ ngày lệch với thư mục thật, nên nó đã bị bỏ đi.
 
 ---
 
-## Sổ tài sản
+## Sổ clip — `library/shots.json`
 
 Mỗi file trong `studio/public/` phải có đúng một dòng trong `library/shots.json`.
 Sổ giữ những thứ **không đo được**: nguồn, tác giả, giấy phép, tag. Những thứ
-đo được — độ dài, bề ngang, fps — thì ffprobe đo lúc chạy `make shots`, không
+đo được — độ dài, bề ngang, fps — thì ffprobe đo lúc chạy `make shots-list`, không
 chép vào sổ, vì số chép tay chỉ chờ ngày lệch với file thật.
 
 ```
-$ make shots
+$ make shots-list
 
 CLIP NỀN  (3 dòng)
   [!! ] tea-room       1080×1920, 25fps, 22.9s
@@ -28,8 +28,8 @@ CLIP NỀN  (3 dòng)
           [!] chưa ghi tác giả
 ```
 
-Đây là **báo cáo, không phải cổng chặn** — thiếu thông tin thì video vẫn dựng
-được, chỉ là bạn đang tích nợ. Cổng chặn thật sự là `make check` ở BƯỚC 6.
+Đây là **báo cáo, không phải cổng chặn** — thiếu thông tin thì video vẫn soạn và
+render được, chỉ là bạn đang tích nợ. Cổng chặn thật sự là `make check` ở BƯỚC 6.
 
 `tags` là thứ duy nhất nên sửa tay trong sổ. Chúng quyết định bộ chọn clip lấy
 cảnh nào cho câu nào, nên cứ gắn rộng tay: `tea`, `hands`, `closeup`, `calm`,
@@ -109,7 +109,7 @@ thường dùng cho nhiều cảnh, nên `scene-01` là cái tên sai ngay từ 
 | Hướng | **DỌC**. Đây là điều quan trọng nhất |
 | Kích thước | ≥ 1080×1920 |
 | Định dạng | MP4, mã hoá H.264 |
-| Khung hình | **30fps**. Ba clip đang có đều 25fps, nên cảnh lia chậm hơi giật — `make shots` cảnh báo chỗ này |
+| Khung hình | **30fps**. Ba clip đang có đều 25fps, nên cảnh lia chậm hơi giật — `make shots-list` cảnh báo chỗ này |
 | Độ dài | càng dài càng đỡ phải dùng lại; 20 giây là thoải mái |
 | Chuyển động | chậm, ít — mây trôi, nước chảy, lá rung, hơi trà bốc |
 | Tránh | mặt người nhìn thẳng, chữ cháy sẵn trong hình, cắt cảnh giật |
@@ -159,12 +159,12 @@ giây — con số đó chỉ có sau khi TTS chạy xong, tức là sau lúc b�
 ```
 
 `tags` ở cấp kịch bản là gợi ý mặc định cho mọi câu; `tags` ở cấp câu đè lên nó.
-Không clip nào mang tag đang tìm thì bộ chọn rơi về cả thư viện và nói ra.
+Không clip nào mang tag đang tìm thì bộ chọn rơi về cả kho clip và nói ra.
 
 Bộ chọn chạy theo bốn quy tắc, ưu tiên từ trên xuống: đủ dài (kèm biên an toàn
 0,25 giây) → đúng tag → không trùng clip của cảnh ngay trước → ưu tiên đoạn hình
 chưa dùng → clip nào dùng ít nhất thì đến lượt. Không có random: cùng kịch bản
-và cùng thư viện thì luôn ra cùng kết quả.
+và cùng kho clip thì luôn ra cùng kết quả.
 
 **Muốn tự chọn thì cứ ghi ra, máy không đụng vào:**
 
@@ -172,6 +172,6 @@ và cùng thư viện thì luôn ra cùng kết quả.
 { "ja": "…", "clip": "video/matcha-whisk.mp4", "clipStartInSeconds": 5.5 }
 ```
 
-Cảnh nào clip không đủ dài thì Remotion cho chạy lặp, và `make content` nói ra
+Cảnh nào clip không đủ dài thì Remotion cho chạy lặp, và `make build` nói ra
 ngay trên màn hình. Bỏ trống `clip` khi sổ chưa có clip nào dùng được thì cảnh
 đó dùng nền gradient tông trầm — không lỗi, chỉ nhạt hơn.

@@ -103,8 +103,8 @@ def _build(slug: str) -> dict:
     path = paths.build_path(slug)
     if not path.exists():
         raise ExportError(
-            f"Chưa có {path.relative_to(ROOT)} — chạy `make content DAY={slug}` trước.\n"
-            f"    Ngày đã dựng nội dung: " + (paths.span(days()) or "(chưa có ngày nào)")
+            f"Chưa có {path.relative_to(ROOT)} — chạy `make build DAY={slug}` trước.\n"
+            f"    Ngày đã soạn nguyên liệu: " + (paths.span(days()) or "(chưa có ngày nào)")
         )
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -113,7 +113,7 @@ def _build(slug: str) -> dict:
 
 
 def _post(build: dict) -> dict:
-    """Phần bài đăng. build.json dựng trước BƯỚC 7 không có trường này."""
+    """Phần bài đăng. build.json soạn trước BƯỚC 7 không có trường này."""
     return build.get("post") or {}
 
 
@@ -294,7 +294,7 @@ def _copy_audio(build: dict, dest_dir: Path) -> tuple[int, list[str]]:
             continue
         src = PUBLIC_DIR / rel
         if not src.exists():
-            notes.append(f"thiếu {rel} — chạy `make content DAY={build['id']}` lại")
+            notes.append(f"thiếu {rel} — chạy `make build DAY={build['id']}` lại")
             continue
         shutil.copy2(src, audio_dir / Path(rel).name)
         copied += 1
@@ -332,7 +332,7 @@ def _adopt_legacy(slug: str, log) -> list[str]:
 
 
 def _thumbnail_stale(thumb: Path, slug: str) -> bool:
-    """Ảnh bìa cần dựng lại chưa? Thiếu, hoặc cũ hơn hợp đồng.
+    """Ảnh bìa cần render lại chưa? Thiếu, hoặc cũ hơn hợp đồng.
 
     So mtime với `build.json` vì `thumbnailFrame` nằm trong đó: dựng lại nội
     dung xong mà ảnh bìa vẫn là bản chụp ở frame cũ thì gói mang một cái bìa
@@ -353,15 +353,15 @@ def _ensure_thumbnail(thumb: Path, slug: str, log) -> list[str]:
     if not _thumbnail_stale(thumb, slug):
         return []
 
-    log(f"  dựng ảnh bìa {thumb.relative_to(ROOT)} (chưa có hoặc đã cũ)…")
+    log(f"  render ảnh bìa {thumb.relative_to(ROOT)} (chưa có hoặc đã cũ)…")
     try:
         render_mod.thumbnail(slug)
         return []
     except (render_mod.RenderError, OSError) as exc:
-        notes = [f"chưa dựng được ảnh bìa: {exc}"]
+        notes = [f"chưa render được ảnh bìa: {exc}"]
     if thumb.exists():
         notes.append(
-            f"{thumb.name} là bản chụp từ lần dựng trước, cũ hơn build.json — "
+            f"{thumb.name} là bản chụp từ lần render trước, cũ hơn build.json — "
             f"frame có thể không còn đúng. Chạy `make thumbnail DAY={slug}`"
         )
     return notes
@@ -413,10 +413,10 @@ def package(slug: str, log=print) -> Package:
                      f"chạy `make video DAY={slug}`")
     post = _post(build)
     if not post:
-        notes.append("build.json chưa có trường \"post\" — dựng bằng bản pipeline "
-                     "cũ. Chạy `make content` lại để có caption")
+        notes.append("build.json chưa có trường \"post\" — soạn bằng bản pipeline "
+                     "cũ. Chạy `make build` lại để có caption")
     elif post.get("borrowed"):
-        notes.append(f"caption đang mượn câu chốt — thêm \"caption\" vào "
+        notes.append(f"lời đăng đang mượn câu chốt — thêm \"caption\" vào "
                      f"content/{slug}/script.json")
 
     log(f"{slug} → {dest_dir.relative_to(ROOT)}")
@@ -449,7 +449,7 @@ def package_all(log=print) -> list[Package]:
     if not todo:
         raise ExportError(
             "Chưa ngày nào có content/<ngày>/build.json. "
-            "Chạy `make content DAY=...` hoặc `make video DAY=...` trước."
+            "Chạy `make build DAY=...` hoặc `make video DAY=...` trước."
         )
     return package_many(todo, log=log)
 
@@ -483,8 +483,8 @@ def main(argv: list[str] | None = None) -> int:
             chosen = paths.select(spec, days())
             if not chosen:
                 raise ExportError(
-                    f"Không ngày nào khớp '{spec}' mà đã dựng nội dung.\n"
-                    f"    Ngày đã dựng: " + (paths.span(days()) or "(chưa có ngày nào)")
+                    f"Không ngày nào khớp '{spec}' mà đã soạn nguyên liệu.\n"
+                    f"    Ngày đã soạn: " + (paths.span(days()) or "(chưa có ngày nào)")
                 )
             package_many(chosen)
         else:

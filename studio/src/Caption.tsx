@@ -62,7 +62,7 @@ const SAFE_SIDE = 110;
  * cao thêm một dòng — mà khối neo đáy nên nó nở lên trên, chân chữ không xê dịch.
  *
  * Hai bậc nhỏ phía sau CHỈ là lưới an toàn cho câu không cắt được (không có dấu
- * ngắt nào). Rơi vào đó thì `make content` đã kêu một dòng rồi: cỡ chữ nhỏ bất
+ * ngắt nào). Rơi vào đó thì `make build` đã kêu một dòng rồi: cỡ chữ nhỏ bất
  * thường ở một cảnh là TRIỆU CHỨNG, không phải cách chữa.
  *
  * Ngưỡng 30 chữ Nhật / 88 ký tự Việt là chỗ chữ phải xuống DÒNG THỨ BA ở cỡ

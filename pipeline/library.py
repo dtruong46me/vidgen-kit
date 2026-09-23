@@ -162,7 +162,7 @@ def add(entry: dict, section: str, path: Path = SHOTS_PATH) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Soi sổ — `make shots`
+# Soi sổ — `make shots-list`
 # ---------------------------------------------------------------------------
 
 #: fps của video đích. Clip khác số này thì Remotion phải nhân đôi hoặc bỏ frame.

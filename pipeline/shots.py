@@ -22,7 +22,7 @@ Bốn quy tắc, theo đúng thứ tự ưu tiên:
      thư viện được dùng đều thay vì mòn một clip.
 
 Cùng một kịch bản và cùng một thư viện thì luôn ra cùng một kết quả — không có
-random. Đó là điều kiện để `make content` chạy lại hai lần cho ra file giống
+random. Đó là điều kiện để `make build` chạy lại hai lần cho ra file giống
 nhau, và để mốc hồi quy số frame còn nghĩa lý.
 
 Module này đo giây, không đổi ra frame (P-2).

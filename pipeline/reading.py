@@ -49,6 +49,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from . import paths
+
 ROOT = Path(__file__).resolve().parent.parent
 READINGS_PATH = ROOT / "library" / "readings.json"
 
@@ -157,7 +159,7 @@ class Normalized:
     #: thành vụn (はちがつ -> はち/が/つ), nên các token nằm trong một đoạn phải
     #: được ghép lại làm một chữ.
     spans: tuple[tuple[int, int], ...]
-    #: Chữ số không đọc nổi — để `make content` còn kêu lên.
+    #: Chữ số không đọc nổi — để `make build` còn kêu lên.
     unread: tuple[str, ...]
 
 
@@ -422,11 +424,16 @@ def make_provider(name: str = "cutlet", overrides: dict[str, str] | None = None)
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if not args:
-        print("Ví dụ: python3 -m pipeline.reading content/2026-08-20/script.json",
+        print("Ví dụ: python3 -m pipeline.reading 2026-08-20\n"
+              "   hoặc python3 -m pipeline.reading content/2026-08-20/script.json",
               file=sys.stderr)
         return 2
 
+    # Nhận tên NGÀY (cửa vào của `make reading`) hoặc đường dẫn file. Tên ngày
+    # thì hỏi paths.py xem kịch bản nằm đâu — Makefile không tự ghép chuỗi.
     src = Path(args[0])
+    if not src.exists() and paths.script_path(args[0]).exists():
+        src = paths.script_path(args[0])
     if not src.exists():
         print(f"Không tìm thấy {src}", file=sys.stderr)
         return 1

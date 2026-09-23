@@ -67,7 +67,7 @@ Câu dài hơn thì khối chữ cao thêm một dòng chứ không nhỏ đi. K
 thấy gì nhảy.
 
 Hai bậc nhỏ phía sau (46/38 cho tiếng Nhật, 32/28 cho tiếng Việt) chỉ là lưới an
-toàn. Rơi vào đó là `make content` đã kêu một dòng rồi: **cỡ chữ nhỏ bất thường ở
+toàn. Rơi vào đó là `make build` đã kêu một dòng rồi: **cỡ chữ nhỏ bất thường ở
 một cảnh là triệu chứng, không phải cách chữa.**
 
 ---
@@ -118,7 +118,7 @@ Viết `ja` và `vi` thành danh sách:
 }
 ```
 
-Hai danh sách phải bằng số phần tử, nếu không `make content` dừng và nói rõ.
+Hai danh sách phải bằng số phần tử, nếu không `make build` dừng và nói rõ.
 
 Dùng nó khi bản dịch không có dấu phẩy ở chỗ cần cắt — như ví dụ trên: tiếng Nhật
 ngắt ở 「といって、」 mà tiếng Việt thì "Tháng mới không có nghĩa là bạn phải đổi
@@ -133,8 +133,8 @@ khi đưa cho TTS (tiếng Nhật ghép sát, tiếng Việt ghép bằng dấu 
 ## Xem lại cho chắc
 
 ```bash
-make content DAY=2026-08-20    # in ra câu nào được cắt làm mấy mảnh
-make check   DAY=2026-08-20    # trang duyệt: MỘT ảnh cho MỖI màn chữ
+make build DAY=2026-08-20    # in ra câu nào được cắt làm mấy mảnh
+make check DAY=2026-08-20    # trang soát: MỘT ảnh cho MỖI màn chữ
 ```
 
 `make check` giờ trích một khung cho mỗi mảnh chứ không phải mỗi cảnh — lấy giữa

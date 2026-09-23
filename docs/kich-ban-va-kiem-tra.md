@@ -1,7 +1,8 @@
 # Kịch bản mới và kiểm tra video
 
 Hai lệnh của BƯỚC 6: `make new` tạo kịch bản cho một ngày, `make check` kiểm
-video đã dựng xong. Không lệnh nào cần khoá API.
+video đã render xong. Không lệnh nào cần khoá API. Toàn bộ dây chuyền, sơ đồ và
+các cách gộp bước: `README.md`.
 
 ---
 
@@ -10,17 +11,17 @@ video đã dựng xong. Không lệnh nào cần khoá API.
 ```bash
 make new     DAY=2026-09-10    # tạo content/2026-09-10/script.json
                                # mở file ra đọc, sửa câu nào muốn sửa
-make reading DAY=2026-09-10    # đọc đối chiếu romaji máy sinh
-make release DAY=2026-09-10    # MP4 + ảnh bìa + check + gói; ~34 phút/video ở máy 2 nhân, ~5 phút ở máy 6 nhân (docs/dang-bai.md)
+make reading DAY=2026-09-10    # soát romaji máy sinh
+make release DAY=2026-09-10    # video + check + export; ~34 phút/video ở máy 2 nhân, ~5 phút ở máy 6 nhân (docs/dang-bai.md)
 ```
 
-`make release` là `make video` (nội dung, MP4, ảnh bìa), `make check` (số đo,
-trang duyệt) rồi `make export` (gói thư mục đăng) trong một lệnh. Render hỏng thì
+`make release` là `make video` (soạn nguyên liệu, render MP4 + ảnh bìa),
+`make check` (số đo, trang soát) rồi `make export` (gói thư mục đăng) trong một lệnh. Render hỏng thì
 dừng trước check. Muốn làm từng bước thì ba lệnh kia vẫn gọi riêng được. Cả tuần
 hay cả tháng thì `make release FROM=2026-09-10 TO=2026-09-16` hoặc
 `make release MONTH=2026-09` — xem `docs/dang-bai.md`.
 
-Caption bài đăng và thư mục `out/<ngày>/` nằm ở tài liệu riêng:
+Lời đăng và thư mục `out/<ngày>/` nằm ở tài liệu riêng:
 **`docs/dang-bai.md`**.
 
 ---
@@ -52,7 +53,7 @@ Chưa từng điền khoá thì **không bao giờ** có lời gọi mạng nào
 ### Những điều lệnh này luôn làm
 
 - **Không đè kịch bản đã có.** Đó là file người viết. Muốn tạo lại thì xoá nó trước.
-- **Kiểm ngay bằng `script.py`** — đúng bộ kiểm mà `make content` dùng. Không
+- **Kiểm ngay bằng `script.py`** — đúng bộ kiểm mà `make build` dùng. Không
   qua thì file bị xoá, không để lại kịch bản hỏng.
 - **Bỏ trống trường `clip`.** `shots.py` chọn clip sau khi TTS đo xong độ dài.
 - **Ghi trường `source`** (`{"writer": "bank", "id": "ame-no-oto"}`). `script.py`
@@ -70,17 +71,17 @@ Giọng Nanami đọc **4,23 chữ/giây** (không tính dấu câu) — đo tr�
 | | Thời lượng |
 |---|---|
 | Ước lượng lúc `make new` | ~52 giây |
-| Thật, sau `make content` | 51,6 giây |
+| Thật, sau `make build` | 51,6 giây |
 
 Đây vẫn chỉ là ước lượng để bắt kịch bản quá dài/quá ngắn *trước khi* tốn công
-TTS. Con số thật luôn là số `make content` in ra (P-1).
+TTS. Con số thật luôn là số `make build` in ra (P-1).
 
 ---
 
 ## Ngân hàng kịch bản — `library/bank.json`
 
 ```bash
-make bank          # mỗi mục: số câu, số chữ, ước lượng giây, đã dùng ngày nào
+make bank-list          # mỗi mục: số câu, số chữ, ước lượng giây, đã dùng ngày nào
 ```
 
 Máy chọn **mục chưa dùng đầu tiên theo thứ tự trong file**. Dùng hết thì quay lại
@@ -102,14 +103,14 @@ mục dùng lâu nhất. Không random — cùng một repo thì luôn ra cùng 
 
 - **Thêm vào CUỐI** mảng `scripts`, để không đảo thứ tự các mục cũ.
 - **Dòng đầu cố định: nói ngày trước, chào sau, chung một dòng** — đúng như ví dụ
-  trên. Dòng đó khai ở `OPENING` trong `pipeline/new.py`; `make bank` đánh dấu
+  trên. Dòng đó khai ở `OPENING` trong `pipeline/new.py`; `make bank-list` đánh dấu
   `[!]` mục nào lệch, `make new` cũng cảnh báo.
 - `theme` là chủ đề hiện nhỏ dưới ngày tháng ở đầu video, nét bút lông: 2–8 chữ.
 - `{date}` ra `9月10日`, `{date_vi}` ra `ngày 10 tháng 9`.
-- Giữ trong khoảng **120–180 chữ, 8–10 câu, mỗi câu dưới 40 chữ**. `make bank`
+- Giữ trong khoảng **120–180 chữ, 8–10 câu, mỗi câu dưới 40 chữ**. `make bank-list`
   đánh dấu `[!]` mục nào ước lượng ra ngoài khoảng.
 - **Không có** `romaji`, `clip` — máy sinh cả hai.
-- `tags` nên dùng tag mà thư viện clip đang có (`make shots`). Tag không khớp
+- `tags` nên dùng tag mà kho clip đang có (`make shots-list`). Tag không khớp
   clip nào thì bộ chọn lấy clip bất kỳ — không lỗi, chỉ kém đúng chủ đề.
 
 Sau khi thêm, tạo thử rồi đọc romaji:
@@ -135,7 +136,7 @@ Những gì được gửi đi, và không gì khác:
 - dòng mở đầu cố định (`OPENING`, ngày đã điền sẵn) — model chép nguyên văn,
 - khoảng số chữ suy ra từ `targetSeconds` của ngày gần nhất (hiện là 127–173 chữ),
 - số câu 8–10, tối đa 40 chữ mỗi câu,
-- danh sách tag thư viện clip đang có,
+- danh sách tag kho clip đang có,
 - mọi câu tiếng Nhật của **7 ngày gần nhất** — vừa làm mẫu giọng văn, vừa để
   tránh lặp ý.
 
@@ -147,7 +148,7 @@ model dự phòng thay vì trả về lời từ chối. Sau mỗi lần gọi, 
 **Đã kiểm:** thiếu khoá, khoá sai (máy chủ trả 401) và tên model sai đều ra một
 dòng hướng dẫn, không traceback, không để lại file. **Chưa kiểm:** một lần gọi
 thật có khoá — nên chưa có số đo chi phí hay chất lượng. Lần gọi đầu tiên hãy
-đọc kỹ kịch bản trước khi `make content`.
+đọc kỹ kịch bản trước khi `make build`.
 
 ---
 
@@ -163,7 +164,7 @@ make check DAY=2026-08-20
   PASS  Luồng tiếng  có
   PASS  Số frame     1562 = 1472 thoại + 90 kết
   PASS  Thời lượng   ~52s, khoảng mong muốn 45–60s
-  PASS  Độ mới       MP4 dựng sau build.json
+  PASS  Độ mới       MP4 render sau build.json
 ```
 
 | Mục | Kiểm gì | FAIL nghĩa là |
@@ -173,20 +174,20 @@ make check DAY=2026-08-20
 | Luồng tiếng | MP4 có luồng audio | video câm — ảnh tĩnh không bao giờ lộ ra |
 | **Số frame** | đếm trên chính MP4, so với tổng build.json hứa | video cụt đuôi hoặc thừa đoạn đen |
 | Thời lượng | nằm trong `targetSeconds` của kịch bản | quá dài/ngắn cho nền tảng |
-| Độ mới | MP4 dựng sau build.json | **WARN**, không FAIL: có thể đang xem bản dựng cũ |
+| Độ mới | MP4 render sau build.json | **WARN**, không FAIL: có thể đang xem bản render cũ |
 
-`Độ mới` báo WARN cả khi `make content` dựng lại ra build.json giống hệt — nó
+`Độ mới` báo WARN cả khi `make build` soạn lại ra build.json giống hệt — nó
 chỉ so giờ sửa file. Thấy WARN thì `make video` lại cho chắc.
 
 Lệnh trả mã lỗi 1 nếu có mục FAIL, nên xâu được — `make release DAY=...` chính là
 `make video` rồi `make check` xâu sẵn.
 
-### Trang duyệt
+### Trang soát
 
 Ghi ra `out/<ngày>-check/`:
 
-- **`sheet.jpg`** — mở thẳng trong VS Code. Mỗi ô một khung: giữa
-  từng cảnh (cảnh 1 có cả tiêu đề ngày), màn kết. Viền đỏ là vùng giao diện TikTok/Reels che (đáy 380px,
+- **`sheet.jpg`** — mở thẳng trong VS Code. Mỗi ô một MÀN CHỮ (câu dài chia
+  mảnh thì mỗi mảnh một ô; cảnh 1 có cả tiêu đề ngày), cộng màn kết. Viền đỏ là vùng giao diện TikTok/Reels che (đáy 380px,
   dải phải 110px).
 - **`index.html`** — cùng các khung đó, kèm bảng số đo và **chữ lẽ ra phải hiện**
   ngay dưới mỗi ảnh.
@@ -195,9 +196,9 @@ Hai lỗi máy không bắt được mà mắt thấy trong một giây:
 
 - **Tofu** — chữ trong ảnh ra ô vuông trong khi chữ bên dưới hiện bình thường:
   font thiếu glyph.
-- **Phụ đề bị che** — chữ lấn vào viền đỏ.
+- **Caption bị che** — chữ lấn vào viền đỏ.
 
 Cả lệnh mất khoảng 10 giây.
 
-Câu dài được cắt thành nhiều **màn chữ** trong cùng một cảnh, và trang duyệt
+Câu dài được cắt thành nhiều **màn chữ** trong cùng một cảnh, và trang soát
 trích một ảnh cho mỗi màn (`Cảnh 4 · mảnh 1`). Xem `docs/caption-va-cau-dai.md`.

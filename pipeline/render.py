@@ -20,6 +20,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from . import paths
@@ -45,7 +46,7 @@ def _props_path(slug: str) -> Path:
     props = paths.build_path(slug)
     if not props.exists():
         raise RenderError(
-            f"Chưa có {props.relative_to(ROOT)} — chạy 'make content DAY={slug}' trước."
+            f"Chưa có {props.relative_to(ROOT)} — chạy 'make build DAY={slug}' trước."
         )
     return props
 
@@ -121,7 +122,53 @@ def thumbnail(slug: str) -> Path:
     frame = json.loads(props.read_text(encoding="utf-8")).get("thumbnailFrame")
     if frame is None:
         raise RenderError(
-            f"{props.relative_to(ROOT)} dựng từ bản cũ, chưa có thumbnailFrame — "
-            f"chạy 'make content DAY={slug}' rồi thử lại."
+            f"{props.relative_to(ROOT)} soạn từ bản cũ, chưa có thumbnailFrame — "
+            f"chạy 'make build DAY={slug}' rồi thử lại."
         )
     return _still(slug, frame, paths.thumbnail_path(slug))
+
+
+def studio(slug: str | None = None) -> None:
+    """Mở Remotion Studio bằng build.json THẬT của một ngày.
+
+    Bỏ `slug` thì lấy ngày vừa soạn gần đây nhất (`paths.latest_built`). Chưa
+    soạn ngày nào thì Studio mở bằng props mặc định viết thẳng trong
+    Composition.tsx — một câu, nền gradient, không tiếng. Đó là đường lui để
+    Studio có gì mà mở, không phải video thật, nên phải nói ra cho người xem biết.
+    """
+    slug = slug or paths.latest_built()
+    if slug is None:
+        print("Chưa có content/*/build.json nào — Studio mở bằng props mặc định.")
+        print("Chạy 'make build DAY=2026-08-20' trước để xem video thật.")
+        args = ["studio"]
+    else:
+        props = _props_path(slug)
+        print(f"Studio nạp {props.relative_to(ROOT)}")
+        args = ["studio", f"--props={_from_studio(props)}"]
+    try:
+        _run(args)
+    except KeyboardInterrupt:
+        # Ctrl+C là cách thoát Studio bình thường, không phải lỗi.
+        pass
+
+
+def main(argv: list[str] | None = None) -> int:
+    """python3 -m pipeline.render studio [ngày] — cửa vào của `make studio`.
+
+    Video, ảnh bìa và ảnh tĩnh đi qua `pipeline.run`, vì chúng cần soạn trước.
+    Studio thì không: nó chỉ mở build.json đã có, nên gọi thẳng vào đây.
+    """
+    args = list(sys.argv[1:] if argv is None else argv)
+    if not args or args[0] != "studio" or len(args) > 2:
+        print("Cách dùng: python3 -m pipeline.render studio [ngày]", file=sys.stderr)
+        return 2
+    try:
+        studio(args[1] if len(args) == 2 else None)
+    except RenderError as exc:
+        print(f"[lỗi] {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

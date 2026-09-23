@@ -20,7 +20,7 @@ Máy ghép hai thứ vào đầu:
   hợp chủ đề từng ngày ngay trong chuỗi caption — 🍵, 🌅, 🪵… — nên lướt trang
   kênh thì mỗi bài một kiểu, không ra một kênh. Giờ nó là dấu nhận diện, cùng
   loại với định dạng ngày: đổi ở đây là đổi cho mọi ngày. Kịch bản còn để emoji
-  ở đầu caption thì máy bỏ nó đi (`make content` nhắc một dòng), chứ không in
+  ở đầu caption thì máy bỏ nó đi (`make build` nhắc một dòng), chứ không in
   hai emoji liền nhau.
 
 `hashtags` thì ngược lại — nó là CÀI ĐẶT, không phải nội dung: kênh nào cũng
@@ -104,7 +104,7 @@ def build(caption: str | None, hashtags: tuple[str, ...], day: date | None,
 
     `caption` bỏ trống thì mượn `fallback` — câu tiếng Việt cuối cùng của kịch
     bản, tức lời chúc chốt video. Đó là caption tạm được chứ không hay; cờ
-    `borrowed` để `make content` và `make export` nhắc người viết đặt câu riêng.
+    `borrowed` để `make build` và `make export` nhắc người viết đặt câu riêng.
     """
     _, own = _split_emoji((caption or "").strip())
     text = own or fallback.strip()

@@ -6,7 +6,7 @@ import type { DailyVideoProps } from "./types";
  * Tính metadata từ chính dữ liệu đầu vào thay vì gõ số cứng.
  *
  * Nhờ hàm này mà độ dài video luôn khớp tổng độ dài giọng đọc:
- * thêm/bớt/sửa 1 câu -> chạy lại `make content` -> video tự dài/ngắn theo,
+ * thêm/bớt/sửa 1 câu -> chạy lại `make build` -> video tự dài/ngắn theo,
  * không phải chỉnh tay durationInFrames lần nào.
  *
  * Đổi lại, 4 ô Dimensions / Frame rate / Duration trong Remotion Studio sẽ

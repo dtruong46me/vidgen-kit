@@ -2,10 +2,10 @@
   "_doc": [
     "Sổ đăng ký tài sản hình và tiếng. Mỗi file trong studio/public/ phải có",
     "đúng một dòng ở đây, nếu không thì không ai biết nó ở đâu ra và có được",
-    "phép dùng thương mại hay không. `make shots` soi lại sổ này bất cứ lúc nào.",
+    "phép dùng thương mại hay không. `make shots-list` soi lại sổ này bất cứ lúc nào.",
     "",
     "KHÔNG ghi width/height/fps/độ dài vào đây. Những số đó ffprobe đo được, mà",
-    "cái gì đo được thì chép tay chỉ tạo ra cơ hội sai lệch. `make shots` đo và",
+    "cái gì đo được thì chép tay chỉ tạo ra cơ hội sai lệch. `make shots-list` đo và",
     "in ra tại chỗ.",
     "",
     "Thêm clip mới: `make shots-get` (tải qua API) hoặc `make shots-add` (file",
